@@ -1,7 +1,7 @@
 ---
 title: 占位作品 · 3D（Phase 5 替换）
 category: 3d
-level: S
+level: A
 cover: /assets/stock-1.jpg
 cover_alt: 占位图——模板示例图片，Phase 5 按素材清单替换
 date: 2026-09-04

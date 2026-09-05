@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './font-faces.css';
 
 /* ============ 项目设计 tokens（docs/网站/02-视觉风格规范.md §3，2026-09-04 定稿） ============ */
 @theme {

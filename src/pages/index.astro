@@ -1,102 +1,951 @@
 ---
+/**
+ * 首页 —— 自定稿示意稿 mockups/方案A-v3-衬线编辑风.html 逐屏迁移（2026-09-04 第 17 次会话）。
+ * 与示意稿的差异（定稿约定）：
+ * 1. 动效为 scroll 事件驱动（示意稿的 setInterval 兜底轮询是测试环境专用，正式站禁用）
+ * 2. 精选卡片来自作品 collection（level: S），诚实标注角标取自 frontmatter
+ * 3. 首页固定浅色暖纸底（无主题脚本）——是否跟随明暗主题待用户看效果后拍板
+ * 动效定稿数值以 mockups/手动调整手册.md 为索引（pin 170% / 视差 8/16/16/13vh / rail 1s·0.25 / 页尾 y:150 等）。
+ */
 import { getCollection } from 'astro:content';
-import Hero from '../components/Hero.astro';
-import WorkCard from '../components/WorkCard.astro';
-import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/global.css';
 
-const featured = await getCollection('work', ({ data }) => !data.draft && data.level === 'S');
+const featured = (await getCollection('work', ({ data }) => !data.draft && data.level === 'S')).sort(
+	(a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+
+const ATTR_EN = { 原创: 'ORIGINAL', 参考还原: 'REFERENCE', 教程跟做: 'TUTORIAL' } as const;
+
+const cats = [
+	{ key: '3d', label: '3D 美术', en: '3D / LOOKDEV', img: '/works/phone-front.jpg' },
+	{ key: 'graphic', label: '平面设计', en: 'GRAPHIC', img: '/works/galaxy-poster.jpg' },
+	{ key: 'vibecoding', label: 'Vibecoding', en: 'WEB APP', img: '/works/scarab-sphere.jpg' },
+	{ key: 'planning', label: '项目策划', en: 'PLANNING', img: '/works/logo-grid.jpg' },
+];
+
+const blocks = [
+	{
+		side: 'col-l',
+		no: 'no.01',
+		title: '3D 场景美术 / 地编',
+		lines: '影视向 · 产品向<br>Blender · UE5 全流程',
+	},
+	{
+		side: 'col-l',
+		no: 'no.02',
+		title: 'AI 辅助开发者',
+		lines: '2 个上线 Web 产品<br>Vibecoding 工作流',
+	},
+	{
+		side: 'col-r',
+		no: 'no.03',
+		title: '深圳 · 随时到岗',
+		lines: '2026 届应届<br>接受大小周',
+	},
+	{
+		side: 'col-r',
+		no: 'no.04',
+		title: '工具箱',
+		lines: 'PS · AI · PR · AE · AU · RESOLVE · XMIND<br>BLENDER · UE5 · MD · SP',
+	},
+];
 ---
 
-<BaseLayout
-	title="陈继祖 · 作品集 — 3D 美术 / 地编 · AI 辅助开发"
-	description="陈继祖作品集：3D 场景美术/地编（影视向 · 产品向）与 AI 辅助开发。深圳 · 随时到岗。"
->
-	<main class="wrapper stack gap-20">
-		<header class="stack gap-4 home-hero">
-			<p class="kicker">PORTFOLIO · 2023 — 2026</p>
-			<Hero
-				title="作品集"
-				tagline="3D 场景美术 / 地编 · AI 辅助开发。当前为项目骨架——首页将按定稿示意稿（方案A-v3 衬线编辑风）迁移，见第 3 步开发。"
-				align="start"
-			>
-				<div class="roles">
-					<span class="pill-line">3D 美术 / 地编</span>
-					<span class="pill-line">AI 辅助开发</span>
-					<span class="pill-line">深圳 · 随时到岗</span>
-				</div>
-			</Hero>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta
+			name="description"
+			content="陈继祖作品集：3D 场景美术/地编（影视向 · 产品向）与 AI 辅助开发。深圳 · 随时到岗。"
+		/>
+		<meta name="generator" content={Astro.generator} />
+		<title>陈继祖 · 作品集 — 3D 美术 / 地编 · AI 辅助开发</title>
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+	</head>
+	<body>
+		<!-- 顶栏（示意稿定稿样式）：三导航绝对居中，右组两两靠近；无边线 -->
+		<header class="topbar">
+			<div class="brand"><b>陈继祖</b><span>CHEN JIZU — 3D / WEB</span></div>
+			<nav class="nav-center">
+				<a href="#scene-cats">作品</a>
+				<a href="#scene-about">关于</a>
+				<a href="#contact">联系</a>
+			</nav>
+			<div class="nav-right">
+				<span class="lang">中 / EN</span>
+				<a class="resume" href="/contact/">简历下载</a>
+			</div>
 		</header>
 
-		<section class="stack gap-4">
-			<div class="sec-row">
-				<h2>精选作品</h2>
-				<a href="/works/">全部作品 →</a>
+		<!-- S1–S3 首屏 pinned 叙事 -->
+		<section id="stage1">
+			<div class="hero-cluster">
+				<span class="kicker">PORTFOLIO · 2023 — 2026</span>
+				<h1>作品集</h1>
+				<span class="en">Selected Works</span>
 			</div>
-			<ul class="cards">
-				{featured.map((w) => <WorkCard entry={w} />)}
-			</ul>
+			<div class="blocks">
+				{
+					blocks.map((b) => (
+						<div class={`blk ${b.side}`}>
+							<span class="no">{b.no}</span>
+							<b set:html={b.title} />
+							<span set:html={b.lines} />
+						</div>
+					))
+				}
+			</div>
+			<div class="scroll-hint"><span>SCROLL</span><div class="cap"><i></i></div></div>
 		</section>
-	</main>
-</BaseLayout>
+
+		<!-- S4 关于我：既定高度入场 → hold → 整体上移 -->
+		<section class="scene" id="scene-about">
+			<div class="scene-inner">
+				<div class="sec-head"><h2>关于我</h2><span class="idx">01 — Profile</span></div>
+				<div class="intro-grid">
+					<p class="lead">
+						平面设计科班，自学贯通 3D 全流程——从 <em>建模、材质、布料</em>
+						到引擎渲染与后期调色；同时用 AI 辅助开发做出两个可访问的上线产品。我相信<em>先规划、后动手</em
+						>，喜欢跨软件管线解决问题。
+					</p>
+					<div class="facts">
+						<div class="fact"><span>教育</span><b>武汉工程职业技术学院 · 2026 届</b></div>
+						<div class="fact"><span>求职意向</span><b>3D 场景美术 / 地编（深圳）</b></div>
+						<div class="fact"><span>工作经历</span><b>翔驰运动 · 剪辑/平面（2026.07–08）</b></div>
+						<div class="fact"><span>副方向</span><b>AIGC / AI 辅助前端开发</b></div>
+						<div class="fact"><span>性格关键词</span><b>自信 · 包容 · 专业</b></div>
+					</div>
+				</div>
+				<div class="award-line">
+					<span class="tag">AWARD</span>2025 年湖北省职业院校技能大赛 · 数字艺术设计赛项 ——
+					<b>&nbsp;二等奖&nbsp;</b> ｜ 优秀毕业生
+				</div>
+			</div>
+		</section>
+
+		<!-- S6 分类：四卡整排同步 → hold → 上移；卡片直达分类页 -->
+		<section class="scene" id="scene-cats">
+			<div class="scene-inner">
+				<div class="sec-head"><h2>作品分类</h2><span class="idx">02 — Categories</span></div>
+				<div class="cats">
+					{
+						cats.map((c) => (
+							<a class="cat" href={`/works/${c.key}/`}>
+								<div class="catbox">
+									<img src={c.img} alt={c.label} loading="lazy" />
+									<div class="veil" />
+									<span class="no">{String(cats.indexOf(c) + 1).padStart(2, '0')}</span>
+									<div class="label">
+										<b>{c.label}</b>
+										<span>{c.en}</span>
+									</div>
+								</div>
+							</a>
+						))
+					}
+				</div>
+			</div>
+		</section>
+
+		<!-- S7 精选：色块先行 → 卡片追及 → hold → 上移（内容 = level:S 作品） -->
+		<section class="scene scene-dark" id="scene-rail">
+			<div class="scene-inner">
+				<div class="sec-head"><h2>精选作品</h2><span class="idx">03 — Selected</span></div>
+				<div class="rail-wrap">
+					<div class="rail-bg"></div>
+					<div class="rail">
+						{
+							featured.map((w) => (
+								<div class="work">
+									<a class="ph" href={`/works/${w.data.category}/${w.id}/`}>
+										<span class="attr">
+											{w.data.attribution} · {ATTR_EN[w.data.attribution]}
+										</span>
+										<img src={w.data.cover} alt={w.data.cover_alt} loading="lazy" />
+									</a>
+									<div class="row">
+										<b>{w.data.title}</b>
+										<span class="tools">{w.data.tools.join(' / ')}</span>
+									</div>
+									<p>{w.data.summary}</p>
+								</div>
+							))
+						}
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- S8 页尾：满一屏高，版权行贴底 -->
+		<footer id="contact">
+			<div class="foot-inner">
+				<div class="foot-big">Let's <em>talk</em> — 联系我</div>
+				<div class="foot-grid">
+					<div>
+						<h4>CONTACT</h4>
+						<a href="tel:18772625248">187 7262 5248</a>
+						<a href="mailto:chenjizulenning@163.com">chenjizulenning@163.com</a>
+					</div>
+					<div>
+						<h4>LINKS</h4>
+						<a href="https://github.com/lenmou2929">GitHub / lenmou2929</a>
+						<a href="https://bitsugar.top">BitSugar.top</a>
+						<a href="/contact/">Bilibili / 小红书</a>
+					</div>
+					<div>
+						<h4>DOWNLOAD</h4>
+						<a href="/contact/">简历 PDF（中文）</a>
+						<a href="/contact/">Resume PDF (EN)</a>
+					</div>
+					<div>
+						<h4>BASE</h4>
+						<p>深圳 · 随时到岗</p>
+						<p>接受大小周</p>
+					</div>
+				</div>
+				<div class="foot-bottom">
+					<span>© 2026 CHEN JIZU</span><span>DESIGNED &amp; BUILT WITH ASTRO</span>
+				</div>
+			</div>
+		</footer>
+	</body>
+</html>
+
+<script>
+	import gsap from 'gsap';
+	import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+	/* 不设 html{scroll-behavior:smooth}——与 ScrollTrigger pin 冲突（官方已知问题）。
+	   正式站动效为 scroll 事件驱动：ScrollTrigger 原生监听 scroll 事件，无兜底轮询。 */
+	if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+		gsap.registerPlugin(ScrollTrigger);
+
+		/* S1–S3 首屏：四块滑入 + 大字让位 + 停留；pin 结束后整页随自然滚动划走（不做内部 transform 出画） */
+		const tl = gsap.timeline({
+			scrollTrigger: { trigger: '#stage1', start: 'top top', end: '+=170%', pin: true, scrub: 0.5 },
+		});
+		tl.to('.scroll-hint', { opacity: 0, duration: 0.5 }, 0)
+			.from('.blk.col-l', { x: -70, opacity: 0, duration: 0.42, stagger: 0.07, ease: 'power2.out' }, 0.02)
+			.from('.blk.col-r', { x: 70, opacity: 0, duration: 0.42, stagger: 0.07, ease: 'power2.out' }, 0.1)
+			.to('.hero-cluster', { y: '-20vh', duration: 0.5, ease: 'none' }, 0)
+			.to({}, { duration: 0.12 });
+
+		/* 首屏划走期间：四块相对首屏下滑 8vh（滞后出画，画面持续有内容） */
+		gsap.to('.blocks', {
+			y: '8vh',
+			ease: 'none',
+			scrollTrigger: { trigger: '#scene-about', start: 'top bottom', end: 'top top', scrub: 0.5 },
+		});
+
+		/* S4 关于我：既定高度进场 → hold */
+		gsap
+			.timeline({
+				scrollTrigger: { trigger: '#scene-about', start: 'top top', end: '+=170%', pin: true, scrub: 0.5 },
+			})
+			.from('#scene-about .sec-head', { autoAlpha: 0, duration: 0.14 }, 0)
+			.from(
+				'#scene-about .sec-head h2, #scene-about .sec-head .idx',
+				{ x: -90, duration: 0.3, stagger: 0.05, ease: 'power2.out' },
+				0,
+			)
+			.from('#scene-about .lead', { x: -80, autoAlpha: 0, duration: 0.3, ease: 'power2.out' }, 0.05)
+			.from(
+				'#scene-about .fact',
+				{ x: 90, autoAlpha: 0, duration: 0.3, stagger: 0.1, ease: 'power2.out' },
+				0.12,
+			)
+			.from('#scene-about .award-line', { y: 70, autoAlpha: 0, duration: 0.24, ease: 'power2.out' }, 0.52)
+			.to({}, { duration: 0.12 });
+
+		/* S6 分类：四卡一组从画外左侧同步右移（容器刚性位移，禁止改回每卡位移+stagger） */
+		gsap
+			.timeline({
+				scrollTrigger: { trigger: '#scene-cats', start: 'top top', end: '+=170%', pin: true, scrub: 0.5 },
+			})
+			.from('#scene-cats .sec-head', { autoAlpha: 0, duration: 0.14 }, 0)
+			.from(
+				'#scene-cats .sec-head h2, #scene-cats .sec-head .idx',
+				{ x: -90, duration: 0.3, stagger: 0.05, ease: 'power2.out' },
+				0,
+			)
+			.from(
+				'#scene-cats .cats',
+				{
+					x: () => {
+						const r = document.querySelector('#scene-cats .cats')!.getBoundingClientRect();
+						return -(r.left + r.width + 80);
+					},
+					duration: 0.5,
+					ease: 'power2.out',
+				},
+				0.1,
+			)
+			.to({}, { duration: 0.12 });
+
+		/* S7 精选：色块底大幅右→左先行，卡片整组从画外右侧追及（刚性，杜绝穿插） */
+		gsap
+			.timeline({
+				scrollTrigger: { trigger: '#scene-rail', start: 'top top', end: '+=170%', pin: true, scrub: 0.5 },
+			})
+			.from('#scene-rail .sec-head', { autoAlpha: 0, duration: 0.14 }, 0)
+			.from(
+				'#scene-rail .sec-head h2, #scene-rail .sec-head .idx',
+				{ x: -90, duration: 0.3, stagger: 0.05, ease: 'power2.out' },
+				0,
+			)
+			.from('#scene-rail .rail-bg', { x: '100vw', duration: 0.85, ease: 'power1.out' }, 0.06)
+			.from(
+				'#scene-rail .rail',
+				{
+					x: () => {
+						const r = document.querySelector('#scene-rail .rail')!.getBoundingClientRect();
+						return window.innerWidth - r.left + 80;
+					},
+					duration: 1,
+					ease: 'power3.out',
+				},
+				0.25,
+			)
+			.to({}, { duration: 0.12 });
+
+		/* 三场景内容视差：依赖 pin 的触发器必须在 pin 之后创建（铁律，创建顺序不能动） */
+		gsap.to('#scene-about .scene-inner', {
+			y: '16vh',
+			ease: 'none',
+			scrollTrigger: { trigger: '#scene-cats', start: 'top bottom', end: 'top top', scrub: 0.5 },
+		});
+		gsap.to('#scene-cats .scene-inner', {
+			y: '16vh',
+			ease: 'none',
+			scrollTrigger: { trigger: '#scene-rail', start: 'top bottom', end: 'top top', scrub: 0.5 },
+		});
+		gsap.to('#scene-rail .scene-inner', {
+			y: '13vh',
+			ease: 'none',
+			scrollTrigger: { trigger: 'footer', start: 'top bottom', end: 'top top', scrub: 0.5 },
+		});
+
+		/* S8 页尾：从下渐显进场 */
+		gsap.from('.foot-inner', {
+			y: 150,
+			autoAlpha: 0,
+			duration: 0.55,
+			ease: 'power2.out',
+			scrollTrigger: { trigger: 'footer', start: 'top 65%', end: 'top 20%', scrub: 0.5 },
+		});
+
+		/* 导航点击：落到对应场景 pin 结束前 200px（= 入场已完成的位置） */
+		document.querySelectorAll<HTMLAnchorElement>('.nav-center a').forEach((a) => {
+			a.addEventListener('click', (e) => {
+				e.preventDefault();
+				const sel = a.getAttribute('href')!;
+				const t = ScrollTrigger.getAll().find(
+					(t) => t.trigger && t.trigger.id === sel.slice(1) && t.pin,
+				);
+				if (t && t.pin) {
+					window.scrollTo(0, t.end - 200);
+				} else {
+					window.scrollTo(0, document.documentElement.scrollHeight);
+				}
+			});
+		});
+	}
+</script>
 
 <style>
-	.home-hero {
-		padding-block: 4rem 1rem;
+	/* ============ 首页样式：示意稿定稿数值原样迁移（变量走项目 tokens） ============ */
+
+	/* ---------- 顶栏 ---------- */
+	.topbar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 50;
+		display: flex;
+		align-items: center;
+		padding: 20px 40px;
+		background: var(--bg);
+	}
+	.brand {
+		display: flex;
+		align-items: baseline;
+		gap: 12px;
+	}
+	.brand b {
+		font-size: 17px;
+		letter-spacing: 0.06em;
+		font-weight: 700;
+		color: var(--ink);
+	}
+	.brand span {
+		font-family: var(--mono);
+		font-size: 11px;
+		color: var(--ink-2);
+		letter-spacing: 0.08em;
+	}
+	.nav-center {
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		gap: 44px;
+	}
+	.nav-center a {
+		font-size: 14px;
+		letter-spacing: 0.04em;
+		color: var(--ink);
+		transition: color 0.2s;
+	}
+	.nav-center a:hover {
+		color: var(--accent);
+	}
+	.nav-right {
+		margin-left: auto;
+		display: flex;
+		align-items: center;
+		gap: 16px;
+	}
+	.nav-right .lang {
+		font-family: var(--mono);
+		font-size: 12px;
+		color: var(--ink-2);
+	}
+	.nav-right .resume {
+		font-size: 17px;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		color: var(--ink);
+		transition: color 0.2s;
+	}
+	.nav-right .resume:hover {
+		color: var(--accent);
 	}
 
-	.kicker {
+	/* ---------- S1–S3 首屏 ---------- */
+	#stage1 {
+		height: 100vh;
+		position: relative;
+		overflow: hidden;
+	}
+	.hero-cluster {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 50%;
+		transform: translateY(-50%);
+		text-align: center;
+	}
+	.hero-cluster .kicker {
 		font-family: var(--mono);
 		font-size: 13px;
 		letter-spacing: 0.35em;
 		color: var(--ink-2);
+		display: block;
+		margin-bottom: 18px;
 	}
-
-	.roles {
-		display: flex;
-		gap: 12px;
-		flex-wrap: wrap;
+	.hero-cluster h1 {
+		font-size: clamp(80px, 14.5vw, 216px);
+		line-height: 0.98;
+		letter-spacing: 0.04em;
+		font-weight: 600;
+		color: var(--ink);
 	}
-
-	/* 线性 UI：1px 描边胶囊 */
-	.pill-line {
-		font-size: 14px;
+	.hero-cluster .en {
+		font-family: var(--serif);
+		font-style: italic;
+		font-weight: 400;
+		font-size: clamp(18px, 2.2vw, 30px);
+		letter-spacing: 0.42em;
 		color: var(--ink-2);
-		border: 1px solid var(--line);
-		border-radius: 999px;
-		padding: 6px 14px;
+		display: block;
+		margin-top: 22px;
+	}
+	.blocks {
+		position: absolute;
+		left: 7vw;
+		right: 7vw;
+		bottom: 11vh;
+		display: grid;
+		grid-template-columns: minmax(280px, 430px) minmax(280px, 430px);
+		grid-template-rows: 1fr 1fr;
+		grid-auto-flow: column;
+		justify-content: space-between;
+		row-gap: 26px;
+	}
+	.blk .no {
+		font-family: var(--serif);
+		font-style: italic;
+		font-size: 15px;
+		color: var(--accent);
+		display: block;
+		margin-bottom: 8px;
+	}
+	.blk b {
+		font-size: 26px;
+		font-weight: 700;
+		letter-spacing: 0.05em;
+		display: block;
+		margin-bottom: 7px;
+		color: var(--ink);
+	}
+	.blk span {
+		font-size: 15.5px;
+		color: var(--ink-2);
+		line-height: 1.75;
+		display: block;
+	}
+	.blk.col-r {
+		text-align: right;
 	}
 
-	.sec-row {
+	/* 胶囊引导：小球 下移→消失→回顶→渐显 循环 */
+	.scroll-hint {
+		position: absolute;
+		left: 50%;
+		bottom: 26px;
+		transform: translateX(-50%);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 9px;
+	}
+	.scroll-hint span {
+		font-size: 11px;
+		letter-spacing: 0.3em;
+		color: var(--ink-2);
+	}
+	.cap {
+		width: 25px;
+		height: 44px;
+		border: 1.5px solid color-mix(in srgb, var(--ink) 55%, transparent);
+		border-radius: 13px;
+		position: relative;
+	}
+	.cap i {
+		position: absolute;
+		left: 50%;
+		top: 8px;
+		width: 5px;
+		height: 5px;
+		margin-left: -2.5px;
+		border-radius: 999px;
+		background: color-mix(in srgb, var(--ink) 78%, transparent);
+		animation: drop 1.9s infinite;
+	}
+	@keyframes drop {
+		0% {
+			transform: translateY(0);
+			opacity: 0;
+			animation-timing-function: ease-out;
+		}
+		12% {
+			transform: translateY(0);
+			opacity: 1;
+			animation-timing-function: cubic-bezier(0.45, 0.08, 0.7, 0.5);
+		}
+		58% {
+			transform: translateY(15px);
+			opacity: 1;
+			animation-timing-function: ease-out;
+		}
+		70% {
+			transform: translateY(15px);
+			opacity: 0;
+		}
+		70.01% {
+			transform: translateY(0);
+			opacity: 0;
+		}
+		100% {
+			transform: translateY(0);
+			opacity: 0;
+		}
+	}
+
+	/* ---------- 逐屏三段式场景 ---------- */
+	.scene {
+		min-height: 100vh;
+		overflow: hidden; /* 视差内容出框裁切保障，勿删 */
+		display: flex;
+		align-items: center;
+		padding: 40px;
+	}
+	.scene-inner {
+		width: 100%;
+		max-width: 1460px;
+		margin: 0 auto;
+	}
+	.sec-head {
 		display: flex;
 		justify-content: space-between;
 		align-items: baseline;
+		margin-bottom: 48px;
 		border-bottom: 1px solid var(--line);
-		padding-bottom: 14px;
+		padding-bottom: 18px;
 	}
-
-	.sec-row h2 {
-		font-size: clamp(24px, 3vw, 36px);
+	.sec-head h2 {
+		font-size: clamp(28px, 3.6vw, 44px);
+		font-weight: 600;
+		letter-spacing: 0.03em;
 		color: var(--ink);
 	}
-
-	.sec-row a {
-		color: var(--accent);
-		font-size: 14px;
-		text-decoration: none;
+	.sec-head .idx {
+		font-family: var(--serif);
+		font-style: italic;
+		font-size: 15px;
+		color: var(--ink-2);
+		letter-spacing: 0.2em;
 	}
 
-	.cards {
-		list-style: none;
-		margin: 0;
-		padding: 0;
+	/* S4 关于我 */
+	.intro-grid {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 22px;
+		grid-template-columns: 1.35fr 1fr;
+		gap: 70px;
+		align-items: start;
+	}
+	.intro-grid .lead {
+		font-size: clamp(20px, 2.2vw, 27px);
+		line-height: 1.75;
+		color: var(--ink);
+	}
+	.intro-grid .lead em {
+		font-family: var(--serif);
+		font-style: italic;
+		color: var(--accent);
+	}
+	.facts {
+		display: flex;
+		flex-direction: column;
+		font-size: 14.5px;
+	}
+	.fact {
+		display: flex;
+		justify-content: space-between;
+		gap: 20px;
+		padding: 14px 0;
+		border-bottom: 1px dashed var(--line);
+	}
+	.fact span {
+		color: var(--ink-2);
+	}
+	.fact b {
+		font-weight: 600;
+		text-align: right;
+		color: var(--ink);
+	}
+	.award-line {
+		margin-top: 54px;
+		padding: 20px 26px;
+		border: 1px solid var(--line);
+		border-left: 3px solid var(--accent);
+		display: flex;
+		gap: 16px;
+		align-items: center;
+		font-size: 14.5px;
+		color: var(--ink);
+	}
+	.award-line .tag {
+		font-family: var(--mono);
+		font-size: 11px;
+		color: var(--accent);
+		letter-spacing: 0.2em;
 	}
 
+	/* S6 分类：悬停一角后压 + 纯白覆盖聚焦（悬停形变在内层，与 GSAP 位移隔离——勿合并） */
+	.cats {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 18px;
+		perspective: 1200px;
+	}
+	.cat {
+		position: relative;
+		aspect-ratio: 3/4;
+		display: block;
+	} /* GSAP 位移目标：不带 transition，避免与补间打架 */
+	.catbox {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
+		border-radius: 6px;
+		cursor: pointer;
+		background: var(--dark);
+		transform-origin: 72% 26%;
+		transition: transform 0.24s cubic-bezier(0.2, 0.7, 0.3, 1);
+	}
+	.catbox img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 0.5s ease;
+		opacity: 0.88;
+	}
+	.catbox .veil {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(to top, rgba(20, 20, 18, 0.72) 0%, transparent 46%);
+	}
+	.catbox .label {
+		position: absolute;
+		left: 18px;
+		bottom: 16px;
+		color: #fff;
+		z-index: 3;
+	}
+	.catbox .label b {
+		font-size: 20px;
+		letter-spacing: 0.06em;
+		display: block;
+		font-weight: 600;
+	}
+	.catbox .label span {
+		font-family: var(--mono);
+		font-size: 11px;
+		opacity: 0.75;
+		letter-spacing: 0.14em;
+	}
+	.catbox .no {
+		position: absolute;
+		top: 14px;
+		right: 16px;
+		font-family: var(--serif);
+		font-style: italic;
+		color: #fff;
+		opacity: 0.85;
+		font-size: 15px;
+		z-index: 3;
+	}
+	.catbox::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: var(--bg);
+		opacity: 0;
+		transition: opacity 0.25s;
+		z-index: 2;
+		pointer-events: none;
+	}
+	.cats:hover .cat:not(:hover) .catbox::after {
+		opacity: 0.58;
+	} /* 纯白带透明度覆盖层聚焦 */
+	.cat:hover .catbox {
+		transform: translateY(-5px) rotateX(6deg) rotateY(-8deg);
+	}
+	.cat:hover .catbox img {
+		transform: scale(1.05);
+	}
+
+	/* S7 精选（深色场景） */
+	.scene-dark {
+		background: var(--dark);
+		color: var(--dark-ink);
+	}
+	.scene-dark .sec-head {
+		border-color: #2c2f32;
+	}
+	.scene-dark .idx {
+		color: #8b9089;
+	}
+	.rail-wrap {
+		position: relative;
+		padding: 26px;
+	}
+	.rail-bg {
+		position: absolute;
+		inset: 0;
+		background: #1f2427;
+		border-radius: 10px;
+	}
+	.rail {
+		position: relative;
+		display: flex;
+		gap: 22px;
+		overflow-x: auto;
+		padding-bottom: 18px;
+		scroll-snap-type: x mandatory;
+		cursor: grab;
+	}
+	.rail::-webkit-scrollbar {
+		height: 3px;
+	}
+	.rail::-webkit-scrollbar-thumb {
+		background: #3a3e42;
+	}
+	.work {
+		flex: 0 0 min(520px, 72vw);
+		scroll-snap-align: start;
+	}
+	.work .ph {
+		aspect-ratio: 16/10;
+		overflow: hidden;
+		border-radius: 6px;
+		position: relative;
+		display: block;
+	}
+	.work img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 0.6s ease;
+	}
+	.work:hover img {
+		transform: scale(1.04);
+	}
+	.work .row {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		margin-top: 16px;
+	}
+	.work b {
+		font-size: 17px;
+		letter-spacing: 0.04em;
+		color: var(--dark-ink);
+	}
+	.work .tools {
+		font-family: var(--mono);
+		font-size: 11px;
+		color: #8b9089;
+		letter-spacing: 0.1em;
+	}
+	.work p {
+		font-size: 13.5px;
+		color: #a9aca5;
+		margin-top: 6px;
+		line-height: 1.7;
+	}
+	.work .attr {
+		position: absolute;
+		top: 12px;
+		left: 12px;
+		font-family: var(--mono);
+		font-size: 10.5px;
+		letter-spacing: 0.12em;
+		background: rgba(23, 25, 27, 0.72);
+		color: #dcd9d0;
+		padding: 5px 10px;
+		border-radius: 3px;
+		backdrop-filter: blur(4px);
+		z-index: 2;
+	}
+
+	/* S8 页尾：满一屏高——滚到底时 footer 顶端对齐视口顶，版权行贴底 */
+	footer {
+		padding: 140px 40px 44px;
+		background: var(--bg);
+		border-top: 1px solid var(--line);
+		min-height: 100vh;
+		display: flex;
+	}
+	.foot-inner {
+		max-width: 1460px;
+		margin: 0 auto;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		min-height: calc(100vh - 184px);
+	}
+	.foot-big {
+		font-family: var(--serif);
+		font-size: clamp(54px, 9.9vw, 160px);
+		line-height: 1;
+		letter-spacing: 0.02em;
+		font-weight: 500;
+		margin-bottom: 100px;
+		color: var(--ink);
+	}
+	.foot-big em {
+		font-style: italic;
+		color: var(--accent);
+	}
+	.foot-grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 30px;
+		font-size: 14px;
+	}
+	.foot-grid h4 {
+		font-family: var(--mono);
+		font-size: 11px;
+		color: var(--ink-2);
+		letter-spacing: 0.25em;
+		margin-bottom: 16px;
+		font-weight: 400;
+	}
+	.foot-grid a,
+	.foot-grid p {
+		display: block;
+		line-height: 2.1;
+		color: var(--ink);
+	}
+	.foot-grid a:hover {
+		color: var(--accent);
+	}
+	.foot-bottom {
+		display: flex;
+		justify-content: space-between;
+		margin-top: auto;
+		padding-top: 20px;
+		border-top: 1px solid var(--line);
+		font-family: var(--mono);
+		font-size: 11px;
+		color: var(--ink-2);
+		letter-spacing: 0.1em;
+	}
+
+	/* ---------- 移动端（先与桌面同套滚动叙事） ---------- */
 	@media (max-width: 900px) {
-		.cards {
+		.blocks {
 			grid-template-columns: 1fr;
+			left: 8vw;
+			right: 8vw;
+			bottom: 10vh;
+			row-gap: 18px;
+		}
+		.blk b {
+			font-size: 20px;
+		}
+		.blk span {
+			font-size: 13.5px;
+		}
+		.blk.col-r {
+			text-align: left;
+		}
+		.cats {
+			grid-template-columns: repeat(2, 1fr);
+		}
+		.intro-grid {
+			grid-template-columns: 1fr;
+			gap: 40px;
+		}
+		.foot-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+		footer {
+			padding: 70px 22px 40px;
+		}
+		.scene {
+			padding: 24px 22px;
+		}
+		.topbar {
+			padding: 14px 22px;
+		}
+		.nav-center {
+			display: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.cap i {
+			animation: none;
+		}
+		.cat,
+		.catbox,
+		.catbox img {
+			transition: none;
 		}
 	}
 </style>
