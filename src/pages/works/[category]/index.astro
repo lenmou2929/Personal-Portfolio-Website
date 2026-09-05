@@ -48,8 +48,8 @@ const LEADS: Record<string, string> = {
 			)
 		}
 
-		<!-- 内容层：不透明底，随滚动上移覆盖渲染层（3D 页）/ 常规承载（其它分类页） -->
-		<div class="page-body">
+		<!-- 内容层：3D 页带分界底色（覆盖 fixed 渲染层的滚动分界）；其它分类页透明（无渲染层） -->
+		<div class:list={['page-body', { cover: cat.key === '3d' }]}>
 			{
 				cat.key === 'vibecoding' && (
 					<section class="showcase">
@@ -290,8 +290,13 @@ const LEADS: Record<string, string> = {
 	.page-body {
 		position: relative;
 		z-index: 1;
-		background: var(--dark);
 		padding-bottom: 6rem;
+	}
+
+	/* 分界色块（仅 3D 页）：略亮一档的底色让"内容滑上覆盖模型"的分界可辨；
+	   宽度跟随全局 .wrapper（global.css max-width: 83rem），单独改请在此层加 max-width */
+	.page-body.cover {
+		background: var(--dark);
 	}
 
 	/* ---------- Vibecoding：实机嵌入（约 1.2 倍，状态卡保持同排） ---------- */
