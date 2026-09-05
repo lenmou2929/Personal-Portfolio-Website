@@ -9,10 +9,11 @@
  *    内容锁定最终屏幕高度（y:-100vh→0）+ 左右滑入，页面到位 = 入场完成，
  *    消除进场途中隐形盒子+隐藏内容造成的空白页与冻住感；pin 只负责停留（+=35%）。
  *    stage1 与页尾不变。详见 README 决策表与日志 17
- * 5. 进场机制 v3（2026-09-04 用户拍板方案 B）：三场景改浏览器原生 position:sticky——
- *    进场随页滑入（新旧内容均 1:1、相对间距恒定 → 无空白无重叠）、到位后原生钉住
- *    停留 315px、再被推走出画（全部 1:1，瞬移/漂移在结构上不可能）。三场不再用
- *    GSAP pin。v2/v2.1 的高度锁补偿与退场视差已废弃移除（其历程见日志 17）
+ * 5. 进场机制 v4（2026-09-04 用户拍板）：每场一个 135vh 的 GSAP pin——内容层被原生
+ *    fixed 锁在屏幕上，新内容在固定层内左右滑入（出现即在固定高度，零补偿竞态）；
+ *    pin 前半旧内容以原生滚动从其后方退场。margin-top:-100vh 使每场对齐上一场
+ *    pin 结束点，场间在 pin 边界无缝交接。v2/v2.1（补偿锁）与 v3（sticky 随行）
+ *    的完整历程见 README 决策表与日志 17
  * 动效定稿数值以 mockups/手动调整手册.md 为索引（pin 170% / 视差 8/16/16/13vh / rail 1s·0.25 / 页尾 y:150 等）。
  */
 import { getCollection } from 'astro:content';
@@ -107,10 +108,9 @@ const blocks = [
 			<div class="scroll-hint"><span>SCROLL</span><div class="cap"><i></i></div></div>
 		</section>
 
-		<!-- S4 关于我（v3）：舞台 sticky 钉住停留，进场随页滑入、出画被推走（1:1 原生） -->
+		<!-- S4 关于我（v4）：整场被 pin 钉住 135vh——内容层原生 fixed 锁在屏幕上，
+		     新内容于固定高度从左右滑入；pin 前半旧内容（首屏）以原生滚动从其后方退场 -->
 		<section class="scene" id="scene-about">
-			<div class="stage-wrap">
-			<div class="stage">
 			<div class="scene-inner">
 				<div class="sec-head"><h2>关于我</h2><span class="idx">01 — Profile</span></div>
 				<div class="intro-grid">
@@ -132,14 +132,10 @@ const blocks = [
 					<b>&nbsp;二等奖&nbsp;</b> ｜ 优秀毕业生
 				</div>
 			</div>
-			</div>
-			</div>
 		</section>
 
-		<!-- S6 分类（v3）：整排刚性滑入 → 钉住停留 → 推走出画；卡片直达分类页 -->
+		<!-- S6 分类（v4）：同一固定层机制，整排从左滑入 -->
 		<section class="scene" id="scene-cats">
-			<div class="stage-wrap">
-			<div class="stage">
 			<div class="scene-inner">
 				<div class="sec-head"><h2>作品分类</h2><span class="idx">02 — Categories</span></div>
 				<div class="cats">
@@ -160,14 +156,10 @@ const blocks = [
 					}
 				</div>
 			</div>
-			</div>
-			</div>
 		</section>
 
-		<!-- S7 精选（v3）：深色底随场升起、标题随行入场、底块+卡片滑入 → 钉住停留 → 推走出画 -->
+		<!-- S7 精选（v4）：深色底随场升起至满屏→pin 冻结，底块+卡片在固定层内滑入 -->
 		<section class="scene scene-dark" id="scene-rail">
-			<div class="stage-wrap">
-			<div class="stage">
 			<div class="scene-inner">
 				<div class="sec-head"><h2>精选作品</h2><span class="idx">03 — Selected</span></div>
 				<div class="rail-wrap">
@@ -192,8 +184,6 @@ const blocks = [
 						}
 					</div>
 				</div>
-			</div>
-			</div>
 			</div>
 		</section>
 
@@ -258,40 +248,52 @@ const blocks = [
 			scrollTrigger: { trigger: '#scene-about', start: 'top bottom', end: 'top top', scrub: 0.5 },
 		});
 
-		/* ============ 三场景（v3 sticky 架构，README 决策表 2026-09-04） ============
-		   舞台 .stage 由浏览器 position:sticky 原生钉住（1:1 零补偿——瞬移/漂移在结构上
-		   不可能发生）；进场随页滑入（新旧内容均 1:1、相对间距恒定 → 无空白无重叠）；
-		   钉住停留 315px 后被盒子底部自然推走出画（1:1）。
-		   JS 只驱动入场子元素的淡入/横移（scrub:true 严格跟屏）。三场不再用 GSAP pin
-		   （fixed↔absolute 切换归零，消除周期性布局抖动——"一卡一卡"主嫌疑）。
-		   v2/v2.1 的高度锁（y:-100vh→0 补偿）与退场视差已整体废弃移除 */
+		/* ============ 三场景（v4 固定层架构，README 决策表 2026-09-04） ============
+		   每场被 GSAP pin 钉住 135vh（进场 900 + 停留 315）：内容层 position:fixed 原生
+		   锁在屏幕——新内容出现即在固定高度、左右滑入，零补偿竞态（v2 的病根不存在）。
+		   pin 前半旧内容以原生滚动从其后方退场（透明层透出；时序上旧内容退出 ~60% 后
+		   新内容才出现，避免叠字）。margin-top:-100vh（见 CSS）使每场自然顶 = 上一场
+		   pin 结束点，场间在 pin 边界无缝交接。子元素补间 scrub 0.5（纯外观平滑，
+		   位置锁由 pin 承担，与 v2 的补偿锁有本质区别） */
 		gsap
 			.timeline({
-				scrollTrigger: { trigger: '#scene-about', start: 'top bottom', end: 'top top', scrub: true },
+				scrollTrigger: {
+					trigger: '#scene-about',
+					start: 'top top',
+					end: () => '+=' + Math.round(window.innerHeight * 1.35),
+					pin: true,
+					scrub: 0.5,
+				},
 			})
-			.from('#scene-about .sec-head', { autoAlpha: 0, duration: 0.22 }, 0.12)
+			.from('#scene-about .sec-head', { autoAlpha: 0, duration: 0.22 }, 0.4)
 			.from(
 				'#scene-about .sec-head h2, #scene-about .sec-head .idx',
 				{ x: -90, duration: 0.28, stagger: 0.05, ease: 'power2.out' },
-				0.12,
+				0.4,
 			)
-			.from('#scene-about .lead', { x: -80, autoAlpha: 0, duration: 0.3, ease: 'power2.out' }, 0.2)
+			.from('#scene-about .lead', { x: -80, autoAlpha: 0, duration: 0.3, ease: 'power2.out' }, 0.46)
 			.from(
 				'#scene-about .fact',
-				{ x: 90, autoAlpha: 0, duration: 0.2, stagger: 0.06, ease: 'power2.out' },
-				0.28,
+				{ x: 90, autoAlpha: 0, duration: 0.18, stagger: 0.05, ease: 'power2.out' },
+				0.5,
 			)
-			.from('#scene-about .award-line', { y: 70, autoAlpha: 0, duration: 0.28, ease: 'power2.out' }, 0.45);
+			.from('#scene-about .award-line', { y: 70, autoAlpha: 0, duration: 0.24, ease: 'power2.out' }, 0.6);
 
 		gsap
 			.timeline({
-				scrollTrigger: { trigger: '#scene-cats', start: 'top bottom', end: 'top top', scrub: true },
+				scrollTrigger: {
+					trigger: '#scene-cats',
+					start: 'top top',
+					end: () => '+=' + Math.round(window.innerHeight * 1.35),
+					pin: true,
+					scrub: 0.5,
+				},
 			})
-			.from('#scene-cats .sec-head', { autoAlpha: 0, duration: 0.22 }, 0.12)
+			.from('#scene-cats .sec-head', { autoAlpha: 0, duration: 0.22 }, 0.4)
 			.from(
 				'#scene-cats .sec-head h2, #scene-cats .sec-head .idx',
 				{ x: -90, duration: 0.28, stagger: 0.05, ease: 'power2.out' },
-				0.12,
+				0.4,
 			)
 			.from(
 				'#scene-cats .cats',
@@ -300,23 +302,29 @@ const blocks = [
 						const r = document.querySelector('#scene-cats .cats')!.getBoundingClientRect();
 						return -(r.left + r.width + 80);
 					},
-					duration: 0.5,
+					duration: 0.42,
 					ease: 'power2.out',
 				},
-				0.2,
+				0.45,
 			);
 
 		gsap
 			.timeline({
-				scrollTrigger: { trigger: '#scene-rail', start: 'top bottom', end: 'top top', scrub: true },
+				scrollTrigger: {
+					trigger: '#scene-rail',
+					start: 'top top',
+					end: () => '+=' + Math.round(window.innerHeight * 1.35),
+					pin: true,
+					scrub: 0.5,
+				},
 			})
-			.from('#scene-rail .sec-head', { autoAlpha: 0, duration: 0.22 }, 0.12)
+			.from('#scene-rail .sec-head', { autoAlpha: 0, duration: 0.22 }, 0.4)
 			.from(
 				'#scene-rail .sec-head h2, #scene-rail .sec-head .idx',
 				{ x: -90, duration: 0.28, stagger: 0.05, ease: 'power2.out' },
-				0.12,
+				0.4,
 			)
-			.from('#scene-rail .rail-bg', { x: '100vw', duration: 0.45, ease: 'power1.out' }, 0.12)
+			.from('#scene-rail .rail-bg', { x: '100vw', duration: 0.4, ease: 'power1.out' }, 0.38)
 			.from(
 				'#scene-rail .rail',
 				{
@@ -324,10 +332,10 @@ const blocks = [
 						const r = document.querySelector('#scene-rail .rail')!.getBoundingClientRect();
 						return window.innerWidth - r.left + 80;
 					},
-					duration: 0.5,
+					duration: 0.42,
 					ease: 'power3.out',
 				},
-				0.25,
+				0.45,
 			);
 
 		/* S8 页尾：从下渐显进场 */
@@ -339,14 +347,17 @@ const blocks = [
 			scrollTrigger: { trigger: 'footer', start: 'top 65%', end: 'top 20%', scrub: 0.5 },
 		});
 
-		/* 导航点击：场景落到「钉住停留」起点稍后（入场已在进场窗口完成）；联系到页尾 */
+		/* 导航点击：落到场景 pin 的停留段（pin 起点 + 135vh×0.9，入场已完成、内容完整固定）。
+		   注意必须从 ScrollTrigger 实例取 start——pin 包装后 offsetTop/rect 都是相对 spacer 的，不可靠 */
 		document.querySelectorAll<HTMLAnchorElement>('.nav-center a').forEach((a) => {
 			a.addEventListener('click', (e) => {
 				e.preventDefault();
 				const sel = a.getAttribute('href')!;
-				const target = document.querySelector(sel);
-				if (target && target.classList.contains('scene')) {
-					window.scrollTo(0, target.offsetTop + 140);
+				const t = ScrollTrigger.getAll().find(
+					(t) => t.trigger && t.trigger.id === sel.slice(1) && t.pin,
+				);
+				if (t) {
+					window.scrollTo(0, t.start + Math.round(window.innerHeight * 1.35 * 0.9));
 				} else {
 					window.scrollTo(0, document.documentElement.scrollHeight);
 				}
@@ -568,24 +579,17 @@ const blocks = [
 
 	/* ---------- 逐屏三段式场景 ---------- */
 	.scene {
-		/* v3 sticky 架构：section = 100vh 舞台 + 315 停留（stage-wrap 决定高度）。
-		   舞台由浏览器 position:sticky 原生钉住（1:1 零补偿）；停留结束后舞台以 1:1
-		   自然滚出，与下一场舞台的随行上升同窗衔接（刚体拼接：无空白无重叠）。
-		   注意 section 不加额外尾巴高度——否则出画与随行错窗，交接区会露空档 */
+		/* v4 固定层架构：每场被 GSAP pin 钉住 135vh（进场 900 + 停留 315）——
+		   内容层 position:fixed 原生锁在屏幕（新内容出现即在固定高度，零补偿竞态）；
+		   pin 前半旧内容以原生滚动从其后方退场（透明层透出）。
+		   margin-top:-100vh 使每场对齐上一场 pin 的结束点，场间在 pin 边界无缝交接 */
 		position: relative;
-		color: var(--ink); /* 浅色场景=墨色，scene-dark 内被覆盖为暖白 */
-	}
-	.stage-wrap {
-		position: relative;
-		min-height: calc(100vh + 315px);
-	}
-	.stage {
-		position: sticky;
-		top: 0;
+		margin-top: -100vh;
 		min-height: 100vh;
 		display: flex;
 		align-items: center;
 		padding: 40px;
+		color: var(--ink); /* 浅色场景=墨色，scene-dark 内被覆盖为暖白 */
 	}
 	.scene-inner {
 		width: 100%;
@@ -943,9 +947,6 @@ const blocks = [
 			padding: 70px 22px 40px;
 		}
 		.scene {
-			padding: 24px 22px;
-		}
-		.stage {
 			padding: 24px 22px;
 		}
 		.topbar {
