@@ -3,7 +3,7 @@ title: BitSugar 拼豆图纸站
 category: vibecoding
 level: S
 cover: /works/bitsugar-cover.png
-cover_alt: BitSugar 拼豆图纸站首页实拍——像素风 Hero 与图纸操作面板
+cover_alt: 比特糖网站截图展示——像素风首页与拼豆图纸操作面板
 date: 2026-09-02
 tools: [Web, AI-ASSISTED]
 attribution: 原创
