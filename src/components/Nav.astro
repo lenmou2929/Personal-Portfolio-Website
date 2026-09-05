@@ -3,6 +3,13 @@ import Icon from './Icon.astro';
 import type { iconPaths } from './IconPaths';
 import ThemeToggle from './ThemeToggle.astro';
 
+interface Props {
+	/** 固定主题页（差异化深色分类页）隐藏明暗切换器 */
+	hideThemeToggle?: boolean;
+}
+
+const { hideThemeToggle = false } = Astro.props;
+
 /** Main menu items */
 const textLinks: { label: string; href: string }[] = [
 	{ label: '首页', href: '/' },
@@ -28,7 +35,7 @@ const isCurrentPage = (href: string) => {
 <nav>
 	<div class="menu-header">
 		<a href="/" class="site-title">
-			<Icon icon="terminal-window" color="var(--accent-regular)" size="1.6em" gradient />
+			<Icon icon="terminal-window" color="var(--accent-regular)" size="1.6em" />
 			陈继祖
 		</a>
 		<menu-button>
@@ -91,9 +98,7 @@ const isCurrentPage = (href: string) => {
 				}
 			</div>
 
-			<div class="theme-toggle">
-				<ThemeToggle />
-			</div>
+			{!hideThemeToggle && <div class="theme-toggle"><ThemeToggle /></div>}
 		</div>
 	</div>
 </nav>
@@ -136,6 +141,8 @@ const isCurrentPage = (href: string) => {
 </script>
 
 <style>
+	/* 线性 UI 语言（2026-09-06 统一）：去模板渐变/阴影/描边层，改 1px 细边框——
+	   与首页顶栏、诚实标注角标、分类胶囊同一套描边语言 */
 	nav {
 		z-index: 9999;
 		position: relative;
@@ -163,33 +170,20 @@ const isCurrentPage = (href: string) => {
 	.menu-button {
 		position: relative;
 		display: flex;
-		border: 0;
+		border: 1px solid var(--gray-700);
 		border-radius: 999rem;
 		padding: 0.5rem;
 		font-size: 1.5rem;
 		color: var(--gray-300);
-		background: radial-gradient(var(--gray-900), var(--gray-800) 150%);
-		box-shadow: var(--shadow-md);
+		background: var(--gray-999);
 	}
 
 	.menu-button[aria-expanded='true'] {
 		color: var(--gray-0);
-		background:
-			linear-gradient(180deg, var(--gray-600), transparent),
-			radial-gradient(var(--gray-900), var(--gray-800) 150%);
 	}
 
 	.menu-button[hidden] {
 		display: none;
-	}
-
-	.menu-button::before {
-		position: absolute;
-		inset: -1px;
-		content: '';
-		background: var(--gradient-stroke);
-		border-radius: 999rem;
-		z-index: -1;
 	}
 
 	.menu-content {
@@ -208,7 +202,7 @@ const isCurrentPage = (href: string) => {
 		list-style: none;
 		padding: 2rem;
 		background-color: var(--gray-999);
-		border-bottom: 1px solid var(--gray-800);
+		border: 1px solid var(--gray-700);
 	}
 
 	.link {
@@ -230,8 +224,9 @@ const isCurrentPage = (href: string) => {
 		gap: 0.75rem;
 		padding: 1.5rem 2rem 1.5rem 1.5rem;
 		background-color: var(--gray-999);
+		border: 1px solid var(--gray-700);
+		border-top: 0;
 		border-radius: 0 0 0.75rem 0.75rem;
-		box-shadow: var(--shadow-lg);
 	}
 
 	.socials {
@@ -286,19 +281,9 @@ const isCurrentPage = (href: string) => {
 			flex-direction: row;
 			font-size: var(--text-sm);
 			border-radius: 999rem;
-			border: 0;
 			padding: 0.5rem 0.5625rem;
-			background: radial-gradient(var(--gray-900), var(--gray-800) 150%);
-			box-shadow: var(--shadow-md);
-		}
-
-		.nav-items::before {
-			position: absolute;
-			inset: -1px;
-			content: '';
-			background: var(--gradient-stroke);
-			border-radius: 999rem;
-			z-index: -1;
+			background: var(--gray-999);
+			border: 1px solid var(--gray-700);
 		}
 
 		.link {
@@ -327,7 +312,7 @@ const isCurrentPage = (href: string) => {
 			align-items: center;
 			padding: 0;
 			background-color: transparent;
-			box-shadow: none;
+			border: 0;
 		}
 
 		.socials {

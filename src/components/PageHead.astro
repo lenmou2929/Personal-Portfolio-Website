@@ -1,0 +1,73 @@
+---
+interface Props {
+	/** kicker 编号（如 '01'），可不带 */
+	no?: string;
+	/** kicker 英文（mono 大写） */
+	en: string;
+	title: string;
+	lead?: string;
+	/** 右上角返回链接（通常 ← 全部作品） */
+	crumbHref?: string;
+}
+const { no, en, title, lead, crumbHref } = Astro.props;
+---
+
+<header class="page-head">
+	<div class="kick-row">
+		<p class="kicker">{no && <span class="no">{no} — </span>}{en}</p>
+		{crumbHref && <a class="crumb" href={crumbHref}>← 全部作品</a>}
+	</div>
+	<h1>{title}</h1>
+	{lead && <p class="lead">{lead}</p>}
+</header>
+
+<style>
+	.page-head {
+		margin-bottom: 44px;
+	}
+
+	.kick-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 16px;
+		margin-bottom: 18px;
+	}
+
+	.kicker {
+		font-family: var(--mono);
+		font-size: 12px;
+		letter-spacing: 0.22em;
+		color: var(--ink-2);
+	}
+
+	.kicker .no {
+		color: var(--accent);
+	}
+
+	.crumb {
+		font-size: 13px;
+		color: var(--accent);
+		text-decoration: none;
+	}
+
+	.crumb:hover {
+		text-decoration: underline;
+	}
+
+	h1 {
+		font-size: clamp(40px, 5vw, 64px);
+		font-weight: 600;
+		letter-spacing: 0.03em;
+		line-height: 1.05;
+		color: var(--ink);
+	}
+
+	.lead {
+		margin-top: 14px;
+		max-width: 560px;
+		font-size: 15px;
+		line-height: 1.8;
+		color: var(--ink-2);
+	}
+</style>

@@ -3,18 +3,28 @@ import type { CollectionEntry } from 'astro:content';
 
 interface Props {
 	entry: CollectionEntry<'work'>;
+	/** 编辑部目录编号（ works 列表/分类页按序传入）→ 衬线斜体 no.xx */
+	index?: number;
 }
-const { entry } = Astro.props;
+const { entry, index } = Astro.props;
 ---
 
 <li class="card">
-	<a href={`/works/${entry.data.category}/${entry.id}/`}>
+	<a href={`/works/${entry.data.category}/${entry.id}/`} aria-label={entry.data.title}>
+		{
+			index !== undefined && (
+				<div class="meta">
+					<span class="no">no.{String(index + 1).padStart(2, '0')}</span>
+					<span class="attr">{entry.data.attribution}</span>
+				</div>
+			)
+		}
 		<div class="ph">
 			<img src={entry.data.cover} alt={entry.data.cover_alt} width="800" height="450" loading="lazy" />
 		</div>
 		<div class="row">
 			<b>{entry.data.title}</b>
-			<span class="attr">{entry.data.attribution}</span>
+			{index === undefined && <span class="attr">{entry.data.attribution}</span>}
 		</div>
 		<p>{entry.data.summary}</p>
 		<div class="tools">{entry.data.tools.join(' · ')}</div>
@@ -29,6 +39,22 @@ const { entry } = Astro.props;
 		text-decoration: none;
 	}
 
+	/* 编辑部目录元信息行：衬线斜体编号 + 诚实标注角标 */
+	.meta {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		margin-bottom: 10px;
+	}
+
+	.no {
+		font-family: var(--serif);
+		font-style: italic;
+		font-size: 15px;
+		letter-spacing: 0.08em;
+		color: var(--ink-2);
+	}
+
 	/* 封面比例 16:9 写死（02-视觉风格规范 §4：占位图不破版） */
 	.ph {
 		aspect-ratio: 16 / 9;
@@ -41,6 +67,12 @@ const { entry } = Astro.props;
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		transition: transform 0.6s ease; /* slow-zoom（01 §6 精选/详情图卡语言） */
+	}
+
+	.card a:hover .ph img,
+	.card a:focus-visible .ph img {
+		transform: scale(1.04);
 	}
 
 	.row {
@@ -49,6 +81,11 @@ const { entry } = Astro.props;
 		align-items: baseline;
 		gap: 12px;
 		margin-top: 14px;
+		transition: transform 0.3s ease; /* 标题行微移（01 §6） */
+	}
+
+	.card a:hover .row {
+		transform: translateX(4px);
 	}
 
 	.row b {

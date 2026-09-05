@@ -1,0 +1,231 @@
+---
+/** 3D 分类页 Hero：座机 glb 在线查看（交互规范 §5 v1）。
+ * 入场自动播听筒拿起动画一次 + 拖转 + 缓慢自转；prefers-reduced-motion 时
+ * 不自转不播动画（保留拖转）。加载前显示渲染图海报，失败时留在海报态。 */
+interface Props {
+	src: string;
+	poster: string;
+	alt?: string;
+}
+const { src, poster, alt = '老式电话机渲染图（模型加载前的占位帧）' } = Astro.props;
+---
+
+<div class="stage" id="model-stage" data-src={src}>
+	<img class="poster" src={poster} alt={alt} loading="eager" />
+	<p class="note" aria-live="polite"><span class="dot"></span>LOADING — 3D MODEL</p>
+	<canvas class="gl"></canvas>
+	<p class="hint">DRAG TO ROTATE</p>
+</div>
+
+<style>
+	.stage {
+		position: relative;
+		width: 100%;
+		aspect-ratio: 4 / 3;
+		max-height: 560px;
+		border: 1px solid var(--line);
+		border-radius: var(--radius-panel);
+		background:
+			radial-gradient(120% 90% at 50% 0%, rgba(143, 180, 158, 0.07), transparent 55%),
+			var(--dark-2);
+		overflow: hidden;
+	}
+
+	.poster {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		opacity: 0.9;
+		transition: opacity 0.7s ease;
+	}
+
+	.gl {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		opacity: 0;
+		transition: opacity 0.7s ease;
+		/* pan-y：竖向滑动还给页面滚动（手机上模型不再吞掉整屏手势），
+		   横向拖转仍由 OrbitControls 接管 */
+		touch-action: pan-y;
+	}
+
+	.stage.ready .gl {
+		opacity: 1;
+	}
+
+	.stage.ready .poster {
+		opacity: 0;
+	}
+
+	.note {
+		position: absolute;
+		left: 16px;
+		top: 14px;
+		font-family: var(--mono);
+		font-size: 10.5px;
+		letter-spacing: 0.18em;
+		color: var(--dark-ink-2);
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.note .dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: var(--accent);
+		animation: blink 1.2s ease-in-out infinite;
+	}
+
+	@keyframes blink {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.25;
+		}
+	}
+
+	.stage.ready .note {
+		display: none;
+	}
+
+	.hint {
+		position: absolute;
+		right: 16px;
+		bottom: 12px;
+		font-family: var(--mono);
+		font-size: 10px;
+		letter-spacing: 0.18em;
+		color: var(--dark-ink-2);
+		opacity: 0;
+		transition: opacity 0.7s ease 0.4s;
+		pointer-events: none;
+	}
+
+	.stage.ready .hint {
+		opacity: 0.85;
+	}
+
+	.stage.touched .hint {
+		opacity: 0;
+		transition: opacity 0.3s ease;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.note .dot {
+			animation: none;
+		}
+	}
+</style>
+
+<script>
+	import * as THREE from 'three';
+	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+	import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+	const stage = document.getElementById('model-stage') as HTMLDivElement | null;
+
+	if (stage) {
+		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const canvas = stage.querySelector('canvas')!;
+		const note = stage.querySelector('.note')!;
+
+		try {
+			const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+			renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+			renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+			const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera(34, 4 / 3, 0.1, 100);
+			camera.position.set(3.4, 1.5, 5.4);
+
+			scene.add(new THREE.HemisphereLight(0xf5f3ee, 0x2a2e30, 1.15));
+			const key = new THREE.DirectionalLight(0xffffff, 1.6);
+			key.position.set(4, 6, 3);
+			scene.add(key);
+			const fill = new THREE.DirectionalLight(0x8fb49e, 0.45);
+			fill.position.set(-4, 2, -3);
+			scene.add(fill);
+
+			/* draco 解码器走本站静态目录（public/draco/），不依赖外部 CDN */
+			const draco = new DRACOLoader().setDecoderPath('/draco/');
+			const loader = new GLTFLoader().setDRACOLoader(draco);
+
+			let mixer: THREE.AnimationMixer | null = null;
+
+			loader.load(
+				stage.dataset.src!,
+				(gltf) => {
+					const model = gltf.scene;
+					/* 归一化：不依赖建模时的单位/位置——居中并等比缩放到固定尺寸 */
+					model.updateMatrixWorld(true);
+					const box = new THREE.Box3().setFromObject(model);
+					const size = box.getSize(new THREE.Vector3());
+					const s = 3.4 / (Math.max(size.x, size.y, size.z) || 1);
+					model.scale.setScalar(s);
+					model.updateMatrixWorld(true);
+					const box2 = new THREE.Box3().setFromObject(model);
+					model.position.sub(box2.getCenter(new THREE.Vector3()));
+
+					const group = new THREE.Group();
+					group.add(model);
+					scene.add(group);
+
+					const controls = new OrbitControls(camera, canvas);
+					controls.enableZoom = false;
+					controls.enablePan = false;
+					controls.autoRotate = !reduced;
+					controls.autoRotateSpeed = 1.1;
+					controls.target.set(0, 0, 0);
+					controls.update();
+					canvas.addEventListener('pointerdown', () => stage.classList.add('touched'), {
+						once: true,
+					});
+
+					/* 听筒拿起动画：入场播一次后停在末帧（交互规范 §5 v1） */
+					if (gltf.animations.length > 0 && !reduced) {
+						mixer = new THREE.AnimationMixer(model);
+						const action = mixer.clipAction(gltf.animations[0]);
+						action.setLoop(THREE.LoopOnce, 1);
+						action.clampWhenFinished = true;
+						action.play();
+					}
+
+					const fit = () => {
+						const w = stage.clientWidth || 1;
+						const h = stage.clientHeight || 1;
+						renderer.setSize(w, h, false);
+						camera.aspect = w / h;
+						camera.updateProjectionMatrix();
+					};
+					new ResizeObserver(fit).observe(stage);
+					fit();
+
+					stage.classList.add('ready');
+					const clock = new THREE.Clock();
+					renderer.setAnimationLoop(() => {
+						mixer?.update(clock.getDelta());
+						controls.update();
+						renderer.render(scene, camera);
+					});
+				},
+				undefined,
+				() => {
+					/* 失败：留在海报态，改状态文案 */
+					note.innerHTML = '<span class="dot" style="animation:none;background:#a9aca5"></span>MODEL OFFLINE — 请看下方渲染图';
+				},
+			);
+		} catch {
+			/* 无 WebGL 等：留在海报态 */
+			note.innerHTML = '<span class="dot" style="animation:none;background:#a9aca5"></span>WEBGL UNAVAILABLE — 请看下方渲染图';
+		}
+	}
+</script>
