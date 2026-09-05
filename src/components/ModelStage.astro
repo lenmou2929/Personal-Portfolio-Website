@@ -1,8 +1,9 @@
 ---
-/** 3D 分类页首屏 Hero（2026-09-06 用户定稿）：
- * 全幅出血渲染窗 = 页面页首——画布上/左/右越出屏幕、只露底边分界线；
- * 标题/导语叠在画面左下。交互：鼠标位置微转（触屏关闭）+ 滚动 1:1 驱动听筒
- * 动画（下滑拿起、停=停、回=倒，行程一屏）。不自动旋转、不拖转。 */
+/** 3D 分类页首屏（2026-09-06 用户定稿 v2）：
+ * 渲染层 position:fixed 铺满全屏（四边全出血，无框）——滚动时模型与渲染窗不动，
+ * 标题文字与本类作品色块作为内容层上移覆盖；听筒动画随滚动 1:1 播放/暂停/倒放
+ * （一屏行程）；鼠标位置微转（±13°/±6°，触屏关闭），不自动旋转、不拖转。
+ * 灯光三点布光：主光（左侧）/ 辅光（右侧低亮）/ 轮廓光（后上方硬光勾边）。 */
 interface Props {
 	src: string;
 	poster: string;
@@ -14,38 +15,29 @@ interface Props {
 const { src, poster, no, en, title, lead } = Astro.props;
 ---
 
-<div class="hero3d" id="hero3d" data-src={src}>
-	<img class="poster" src={poster} alt="老式电话机渲染图（模型加载前的占位帧）" loading="eager" />
+<div class="hero3d" id="hero3d" data-src={src} aria-hidden="true">
+	<img class="poster" src={poster} alt="" loading="eager" />
 	<canvas class="gl"></canvas>
+	<p class="note" aria-live="polite"><span class="dot"></span>LOADING — 3D MODEL</p>
+</div>
+
+<!-- 文字层：正常文档流，随滚动上移（用户要求：模型/渲染框不动，文字与内容一起走） -->
+<div class="hero-space" id="hero3d-space">
 	<div class="hero-text">
 		<p class="kicker"><span class="no">{no} — </span>{en}</p>
 		<h1>{title}</h1>
 		<p class="lead">{lead}</p>
 	</div>
 	<p class="hint">SCROLL — 滚动拿起听筒 · 移动鼠标环视</p>
-	<p class="note" aria-live="polite"><span class="dot"></span>LOADING — 3D MODEL</p>
 </div>
 
 <style>
-	/* 全幅出血：上/左/右越界（顶部被 fixed 顶栏盖住），只露底边 1px 分界线。
-	   margin-top 负值抵消 BaseLayout 让位（88/96px）+ 页面 1rem 顶距 → top=0，
-	   高度恰为 100vh → scrollY=0 时底边正好落在视口底。 */
+	/* 渲染层：fixed 铺满视口（四边全出血），页面内容（.page-body）从下方滚上来覆盖 */
 	.hero3d {
-		position: relative;
-		height: 100vh;
-		margin-top: calc(-88px - 1rem);
-		margin-bottom: 70px;
-		border-bottom: 1px solid var(--line);
-		overflow: hidden;
-		background: var(--dark);
-	}
-
-	.hero3d::after {
-		/* 底部压暗渐变：托住叠加文字 */
-		content: '';
-		position: absolute;
+		position: fixed;
 		inset: 0;
-		background: linear-gradient(to top, rgba(23, 25, 27, 0.72) 0%, transparent 42%);
+		z-index: 0;
+		background: var(--dark-2); /* 比页面底 #17191b 微亮一档，内容滑上时分界可辨 */
 		pointer-events: none;
 	}
 
@@ -78,13 +70,54 @@ const { src, poster, no, en, title, lead } = Astro.props;
 		opacity: 0;
 	}
 
-	.hero-text {
+	.note {
 		position: absolute;
-		left: clamp(20px, 4vw, 48px);
-		right: clamp(20px, 4vw, 48px);
-		bottom: clamp(26px, 6vh, 60px);
-		z-index: 2;
+		left: 24px;
+		top: 96px;
+		font-family: var(--mono);
+		font-size: 10.5px;
+		letter-spacing: 0.18em;
+		color: var(--dark-ink-2);
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.note .dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: var(--accent);
+		animation: blink 1.2s ease-in-out infinite;
+	}
+
+	@keyframes blink {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.25;
+		}
+	}
+
+	.hero3d.ready .note {
+		display: none;
+	}
+
+	/* 文字层：第一屏高度、透明底（透出渲染层），随滚动正常上移 */
+	.hero-space {
+		position: relative;
+		z-index: 1;
+		height: 100vh;
+		margin-top: calc(-88px - 1rem); /* 抵消 BaseLayout 让位 + 页面顶距：第一屏正好一屏 */
+		display: flex;
+		align-items: flex-end;
 		pointer-events: none;
+	}
+
+	.hero-text {
+		padding: 0 clamp(20px, 4vw, 48px) clamp(26px, 6vh, 60px) clamp(20px, 4vw, 48px);
 	}
 
 	.hero-text .kicker {
@@ -119,52 +152,16 @@ const { src, poster, no, en, title, lead } = Astro.props;
 		position: absolute;
 		right: clamp(20px, 4vw, 48px);
 		bottom: clamp(26px, 6vh, 60px);
-		z-index: 2;
 		font-family: var(--mono);
 		font-size: 10.5px;
 		letter-spacing: 0.16em;
 		color: var(--dark-ink-2);
 		text-align: right;
-	}
-
-	.note {
-		position: absolute;
-		left: 16px;
-		top: 84px;
-		z-index: 2;
-		font-family: var(--mono);
-		font-size: 10.5px;
-		letter-spacing: 0.18em;
-		color: var(--dark-ink-2);
-		display: flex;
-		align-items: center;
-		gap: 8px;
-	}
-
-	.note .dot {
-		width: 6px;
-		height: 6px;
-		border-radius: 50%;
-		background: var(--accent);
-		animation: blink 1.2s ease-in-out infinite;
-	}
-
-	@keyframes blink {
-		0%,
-		100% {
-			opacity: 1;
-		}
-		50% {
-			opacity: 0.25;
-		}
-	}
-
-	.hero3d.ready .note {
-		display: none;
+		transition: opacity 0.3s ease;
 	}
 
 	@media (max-width: 900px) {
-		.hero3d {
+		.hero-space {
 			height: 100vh;
 			margin-top: calc(-96px - 1rem);
 		}
@@ -200,6 +197,7 @@ const { src, poster, no, en, title, lead } = Astro.props;
 		const finePointer = window.matchMedia('(pointer: fine)').matches;
 		const canvas = hero.querySelector('canvas')!;
 		const note = hero.querySelector('.note')!;
+		const space = document.getElementById('hero3d-space')!;
 
 		try {
 			const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -207,17 +205,24 @@ const { src, poster, no, en, title, lead } = Astro.props;
 			renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 			const scene = new THREE.Scene();
+			/* 相机：拉高俯视（用户要求），整机入画并留视差余量 */
 			const camera = new THREE.PerspectiveCamera(30, 16 / 9, 0.1, 100);
-			camera.position.set(0, 0.5, 8.4); /* 拉远：整机入画 + 视差/文字留白 */
+			camera.position.set(0, 1.6, 8.4);
 			camera.lookAt(0, 0, 0);
 
-			scene.add(new THREE.HemisphereLight(0xf5f3ee, 0x2a2e30, 1.15));
-			const key = new THREE.DirectionalLight(0xffffff, 1.6);
-			key.position.set(4, 6, 3);
-			scene.add(key);
-			const fill = new THREE.DirectionalLight(0x8fb49e, 0.45);
-			fill.position.set(-4, 2, -3);
-			scene.add(fill);
+			/* ===== 三点布光（用户定稿）===== */
+			scene.add(new THREE.HemisphereLight(0xf5f3ee, 0x2a2e30, 0.5)); // 环境底光压低
+			const keyLight = new THREE.DirectionalLight(0xffffff, 2.2); // 主光：画面左侧
+			keyLight.position.set(-5, 2.5, 4);
+			scene.add(keyLight);
+			const fillLight = new THREE.DirectionalLight(0xdfe8e2, 0.55); // 辅光：右侧低亮度
+			fillLight.position.set(5, 1.2, 2.5);
+			scene.add(fillLight);
+			const rimLight = new THREE.SpotLight(0xf0f4ee, 2.6, 40, 0.55, 0.05); // 轮廓光：后上方硬光（源收窄勾边）
+			rimLight.position.set(0.5, 5.5, -5.5);
+			rimLight.target.position.set(0, 0, 0);
+			scene.add(rimLight);
+			scene.add(rimLight.target);
 
 			/* draco 解码器走本站静态目录（public/draco/），不依赖外部 CDN */
 			const draco = new DRACOLoader().setDecoderPath('/draco/');
@@ -225,8 +230,10 @@ const { src, poster, no, en, title, lead } = Astro.props;
 
 			let mixer: THREE.AnimationMixer | null = null;
 			let clipDur = 0;
-			let scrubProgress = 0; // 滚动进度（0..1）→ 动画时间轴
-			const tilt = { x: 0, y: 0, tx: 0, ty: 0 }; // 鼠标视差当前/目标角
+			let scrubProgress = 0;
+			let covered = false; // 内容层盖住渲染层后暂停渲染（省 GPU）
+			const tilt = { x: 0, y: 0, tx: 0, ty: 0 };
+			const BASE_Y = 0.16; // 默认微微右侧朝向
 
 			/* 鼠标视差：指针在哪，电话微微转向哪（触屏设备关闭） */
 			if (finePointer && !reduced) {
@@ -236,14 +243,28 @@ const { src, poster, no, en, title, lead } = Astro.props;
 				});
 			}
 
-			/* 滚动驱动：一屏行程，scrub 1:1——停=停、回=倒（gsap onUpdate 即时读进度） */
 			if (!reduced) {
 				gsap.registerPlugin(ScrollTrigger);
+				/* 滚动 1:1 驱动动画：行程一屏（innerHeight），停=停、回=倒 */
 				ScrollTrigger.create({
-					trigger: hero,
+					trigger: space,
 					start: 'top top',
-					end: '+=100%',
-					onUpdate: (self) => (scrubProgress = self.progress),
+					end: () => '+=' + window.innerHeight,
+					onUpdate: (self) => {
+						scrubProgress = self.progress;
+						const hint = document.querySelector('.hero3d + * .hint, #hero3d-space .hint') as HTMLElement | null;
+						if (hint) hint.style.opacity = String(Math.max(0, 1 - self.progress * 8));
+					},
+				});
+			}
+
+			/* 内容层盖住渲染层后暂停渲染 */
+			const worksEl = document.querySelector('.works');
+			if (worksEl) {
+				ScrollTrigger.create({
+					trigger: worksEl,
+					start: 'top top',
+					onToggle: (self) => (covered = self.isActive),
 				});
 			}
 
@@ -257,12 +278,11 @@ const { src, poster, no, en, title, lead } = Astro.props;
 			new ResizeObserver(fit).observe(canvas);
 			fit();
 
-			/* draco 解码器走本站静态目录（public/draco/），不依赖外部 CDN */
 			loader.load(
 				hero.dataset.src!,
 				(gltf) => {
 					const model = gltf.scene;
-					/* 归一化：居中 + 等比缩放到固定尺寸（不依赖建模单位/位置） */
+					/* 归一化：居中 + 等比缩放；整体左移（用户要求） */
 					model.updateMatrixWorld(true);
 					const box = new THREE.Box3().setFromObject(model);
 					const size = box.getSize(new THREE.Vector3());
@@ -274,30 +294,30 @@ const { src, poster, no, en, title, lead } = Astro.props;
 
 					const group = new THREE.Group();
 					group.add(model);
+					group.position.x = -0.6; // 用户要求：整体往画面左移
+					group.rotation.y = BASE_Y; // 默认微微右侧朝向
 					scene.add(group);
 
-					/* 听筒动画：不自动播——时间轴交给滚动（setTime 随 scrub 走） */
+					/* 听筒动画：不 advance（不调 mixer.update(delta)），只由滚动 setTime 采样 */
 					if (gltf.animations.length > 0) {
 						mixer = new THREE.AnimationMixer(model);
 						const action = mixer.clipAction(gltf.animations[0]);
 						action.setLoop(THREE.LoopOnce, 1);
 						action.clampWhenFinished = true;
 						action.play();
-						action.paused = true;
 						clipDur = gltf.animations[0].duration || 0;
 					}
 
 					hero.classList.add('ready');
 
-					const clock = new THREE.Clock();
 					const loop = () => {
-						const dt = clock.getDelta();
-						/* 鼠标视差阻尼跟随 */
+						if (covered) return; // 被内容盖住：跳过渲染
+						/* 鼠标视差阻尼跟随（叠加在默认朝向上） */
 						tilt.y += (tilt.ty - tilt.y) * 0.06;
 						tilt.x += (tilt.tx - tilt.x) * 0.06;
-						group.rotation.y = tilt.y;
+						group.rotation.y = BASE_Y + tilt.y;
 						group.rotation.x = tilt.x;
-						/* 滚动 → 动画时间轴（1:1） */
+						/* 滚动 → 动画时间轴（1:1；不调 mixer.update，动作不自行前进） */
 						if (mixer && clipDur > 0) mixer.setTime(scrubProgress * clipDur);
 						renderer.render(scene, camera);
 					};
