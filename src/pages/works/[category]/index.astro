@@ -1,0 +1,82 @@
+---
+import { getCollection } from 'astro:content';
+import WorkCard from '../../../components/WorkCard.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { WORK_CATEGORIES } from '../../../lib/categories';
+
+export async function getStaticPaths() {
+	return WORK_CATEGORIES.map((cat) => ({ params: { category: cat.key }, props: { cat } }));
+}
+
+type Props = { cat: (typeof WORK_CATEGORIES)[number] };
+const { cat } = Astro.props;
+const entries = (
+	await getCollection('work', ({ data }) => !data.draft && data.category === cat.key)
+).sort((a, b) => (b.data.date.valueOf() > a.data.date.valueOf() ? 1 : -1));
+---
+
+<BaseLayout title={`${cat.label} | 陈继祖作品集`} description={`陈继祖作品集 · ${cat.label}分类作品`}>
+	<main class="wrapper stack gap-10 page">
+		<header class="stack gap-3">
+			<p class="kicker">{cat.en}</p>
+			<h1>{cat.label}</h1>
+			<p class="crumb"><a href="/works/">← 全部作品</a></p>
+		</header>
+
+		{
+			entries.length === 0 ? (
+				<p class="empty">占位：本分类作品待 Phase 5 填充（占位图策略见 00-网站策划案 §5）。</p>
+			) : (
+				<ul class="cards">
+					{entries.map((w) => (
+						<WorkCard entry={w} />
+					))}
+				</ul>
+			)
+		}
+	</main>
+</BaseLayout>
+
+<style>
+	.page {
+		padding-block: 3rem 5rem;
+	}
+
+	.kicker {
+		font-family: var(--mono);
+		font-size: 12px;
+		letter-spacing: 0.2em;
+		color: var(--ink-2);
+	}
+
+	h1 {
+		color: var(--ink);
+		font-size: clamp(28px, 3.6vw, 44px);
+		letter-spacing: 0.03em;
+	}
+
+	.crumb a {
+		font-size: 14px;
+		color: var(--accent);
+		text-decoration: none;
+	}
+
+	.empty {
+		color: var(--ink-2);
+	}
+
+	.cards {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 26px;
+	}
+
+	@media (max-width: 900px) {
+		.cards {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

@@ -1,0 +1,140 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { findCategory } from '../../../lib/categories';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('work', ({ data }) => !data.draft);
+	return entries.map((entry) => ({
+		params: { category: entry.data.category, slug: entry.id },
+		props: { entry },
+	}));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const cat = findCategory(entry.data.category)!;
+---
+
+<BaseLayout title={`${entry.data.title} | 陈继祖作品集`} description={entry.data.summary}>
+	<main class="wrapper stack gap-10 page">
+		<p class="crumb"><a href={`/works/${cat.key}/`}>← {cat.label}</a></p>
+
+		<header class="stack gap-3">
+			<p class="tools">{entry.data.tools.join(' / ')}</p>
+			<h1>{entry.data.title}</h1>
+			<p class="summary">{entry.data.summary}</p>
+			<p class="attr">
+				诚实标注：{entry.data.attribution}{entry.data.attribution_source &&
+					` · 来源：${entry.data.attribution_source}`}
+			</p>
+		</header>
+
+		<img class="cover" src={entry.data.cover} alt={entry.data.cover_alt} width="1600" height="900" />
+
+		{
+			entry.data.gallery.length > 0 && (
+				<div class="gallery">
+					{entry.data.gallery.map((g) => (
+						<img src={g} alt="" loading="lazy" width="1600" height="900" />
+					))}
+				</div>
+			)
+		}
+
+		<div class="prose">
+			<Content />
+		</div>
+	</main>
+</BaseLayout>
+
+<style>
+	.page {
+		padding-block: 3rem 5rem;
+	}
+
+	.crumb a {
+		font-size: 14px;
+		color: var(--accent);
+		text-decoration: none;
+	}
+
+	.tools {
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.14em;
+		color: var(--ink-2);
+	}
+
+	h1 {
+		color: var(--ink);
+		font-size: clamp(28px, 3.6vw, 44px);
+		letter-spacing: 0.03em;
+	}
+
+	.summary {
+		font-size: 16px;
+		color: var(--ink-2);
+		max-width: 60ch;
+		line-height: 1.75;
+	}
+
+	/* 诚实标注：线性角标样式，全站统一 */
+	.attr {
+		display: inline-block;
+		width: fit-content;
+		font-family: var(--mono);
+		font-size: 10.5px;
+		letter-spacing: 0.12em;
+		color: var(--accent);
+		border: 1px solid var(--line);
+		border-radius: var(--radius-tag);
+		padding: 4px 10px;
+	}
+
+	.cover {
+		aspect-ratio: 16 / 9;
+		object-fit: cover;
+		width: 100%;
+		border-radius: var(--radius-card);
+		background: var(--dark);
+	}
+
+	.gallery {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 18px;
+	}
+
+	.gallery img {
+		aspect-ratio: 16 / 9;
+		object-fit: cover;
+		width: 100%;
+		border-radius: var(--radius-card);
+		background: var(--dark);
+	}
+
+	.prose {
+		max-width: 65ch;
+	}
+
+	.prose :global(* + *) {
+		margin-top: 1rem;
+	}
+
+	.prose :global(h2) {
+		color: var(--ink);
+		margin-top: 2rem;
+	}
+
+	.prose :global(p) {
+		color: var(--ink-2);
+		line-height: 1.8;
+	}
+
+	@media (max-width: 900px) {
+		.gallery {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

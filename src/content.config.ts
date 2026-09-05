@@ -2,17 +2,34 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
+/**
+ * 作品 collection（字段 = docs/网站/00-网站策划案 §3 详情页数据模板）。
+ * 诚实标注是项目红线（docs/公共/00-AI协作规范 §2）：教程跟做/参考还原必须如实标注。
+ */
 export const collections = {
 	work: defineCollection({
-		// Load Markdown files in the src/content/work directory.
-		loader: glob({ base: './src/content/work', pattern: '**/*.md' }),
+		loader: glob({ base: './src/content/works', pattern: '**/*.md' }),
 		schema: z.object({
 			title: z.string(),
-			description: z.string(),
-			publishDate: z.coerce.date(),
-			tags: z.array(z.string()),
-			img: z.string(),
-			img_alt: z.string().optional(),
+			/** 分类 key（与 src/lib/categories.ts 一致）：3d / graphic / vibecoding / planning */
+			category: z.enum(['3d', 'graphic', 'vibecoding', 'planning']),
+			/** 作品分级（03-作品集规划）：S 精选 / A 完整 / B 简历附表 */
+			level: z.enum(['S', 'A', 'B']).default('A'),
+			cover: z.string(),
+			cover_alt: z.string().default(''),
+			date: z.coerce.date(),
+			tools: z.array(z.string()).default([]),
+			/** 诚实标注：原创 / 参考还原 / 教程跟做；来源写 attribution_source */
+			attribution: z.enum(['原创', '参考还原', '教程跟做']),
+			attribution_source: z.string().optional(),
+			summary: z.string(),
+			video: z.string().optional(),
+			gallery: z.array(z.string()).default([]),
+			process: z.array(z.object({ img: z.string(), caption: z.string() })).default([]),
+			links: z.array(z.object({ label: z.string(), url: z.string() })).default([]),
+			/** glb 地址（public/models/，可选，详情页 model-viewer 用） */
+			model3d: z.string().optional(),
+			draft: z.boolean().default(false),
 		}),
 	}),
 };

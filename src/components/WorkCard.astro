@@ -1,0 +1,87 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+	entry: CollectionEntry<'work'>;
+}
+const { entry } = Astro.props;
+---
+
+<li class="card">
+	<a href={`/works/${entry.data.category}/${entry.id}/`}>
+		<div class="ph">
+			<img src={entry.data.cover} alt={entry.data.cover_alt} width="800" height="450" loading="lazy" />
+		</div>
+		<div class="row">
+			<b>{entry.data.title}</b>
+			<span class="attr">{entry.data.attribution}</span>
+		</div>
+		<p>{entry.data.summary}</p>
+		<div class="tools">{entry.data.tools.join(' · ')}</div>
+	</a>
+</li>
+
+<style>
+	.card a {
+		display: block;
+		height: 100%;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	/* 封面比例 16:9 写死（02-视觉风格规范 §4：占位图不破版） */
+	.ph {
+		aspect-ratio: 16 / 9;
+		overflow: hidden;
+		border-radius: var(--radius-card);
+		background: var(--dark);
+	}
+
+	.ph img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.row {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 12px;
+		margin-top: 14px;
+	}
+
+	.row b {
+		font-size: 17px;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		color: var(--ink);
+	}
+
+	/* 诚实标注角标：线性 UI（1px 描边），mono 小字 */
+	.attr {
+		font-family: var(--mono);
+		font-size: 10.5px;
+		letter-spacing: 0.12em;
+		color: var(--accent);
+		border: 1px solid var(--line);
+		border-radius: var(--radius-tag);
+		padding: 3px 8px;
+		white-space: nowrap;
+	}
+
+	p {
+		font-size: 13.5px;
+		color: var(--ink-2);
+		margin-top: 6px;
+		line-height: 1.7;
+	}
+
+	.tools {
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.1em;
+		color: var(--ink-2);
+		margin-top: 8px;
+	}
+</style>

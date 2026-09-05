@@ -1,25 +1,83 @@
+@import 'tailwindcss';
+
+/* ============ 项目设计 tokens（docs/网站/02-视觉风格规范.md §3，2026-09-04 定稿） ============ */
+@theme {
+	/* 色彩：核心 7 色 + 深色场景辅助色 */
+	--color-bg: #f5f3ee;
+	--color-ink: #1d1b17;
+	--color-ink-2: #6f6a5f;
+	--color-line: #dcd7cc;
+	--color-accent: #4e6e5c;
+	--color-dark: #17191b;
+	--color-dark-ink: #ece9e1;
+	--color-dark-2: #1f2427;
+	--color-dark-line: #2c2f32;
+	--color-dark-ink-2: #8b9089;
+	--color-dark-ink-3: #a9aca5;
+	--color-dark-line-2: #3a3e42;
+
+	/* 字体分工（用户定稿）：衬线只做装饰词句；内容性文字一律黑体；mono 小号点缀 */
+	--font-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+	--font-sans: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', -apple-system, 'Segoe UI', sans-serif;
+	--font-mono: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+
+	/* 圆角（02 §3.5） */
+	--radius-tag: 3px;
+	--radius-card: 6px;
+	--radius-panel: 10px;
+	--radius-cap: 13px;
+}
+
+/* 示意稿原名别名——迁移示意稿代码（第 3 步起）可直接沿用原变量名；
+   主题感知：浅色=示意稿暖纸底，暗色=深色场景色板（模板 ThemeToggle 可切换） */
+:root {
+	--bg: var(--color-bg);
+	--ink: var(--color-ink);
+	--ink-2: var(--color-ink-2);
+	--line: var(--color-line);
+	--accent: var(--color-accent);
+	--dark: var(--color-dark);
+	--dark-ink: var(--color-dark-ink);
+	--dark-2: var(--color-dark-2);
+	--serif: var(--font-serif);
+	--sans: var(--font-sans);
+	--mono: var(--font-mono);
+}
+
+:root.theme-dark {
+	--bg: var(--color-dark);
+	--ink: var(--color-dark-ink);
+	--ink-2: var(--color-dark-ink-2);
+	--line: var(--color-dark-line);
+	--accent: #8fb49e;
+	--dark: var(--color-dark-2);
+}
+
 /* Global variables */
 :root {
 	/* Colors */
-	--gray-0: #090b11;
-	--gray-50: #141925;
-	--gray-100: #283044;
-	--gray-200: #3d4663;
-	--gray-300: #505d84;
-	--gray-400: #6474a2;
-	--gray-500: #8490b5;
-	--gray-600: #a3acc8;
-	--gray-700: #c3cadb;
-	--gray-800: #e3e6ee;
-	--gray-900: #f3f4f7;
+	/* 模板灰阶 → 项目色板映射（暖纸底/墨色/线色，2026-09-04）：模板组件用 --gray-* 渲染，
+	   重映射使全站即刻统一到 02 §3 色板；逐页重构时直接改用 --ink/--bg 等原名 */
+	--gray-0: #1d1b17;
+	--gray-50: #2a2723;
+	--gray-100: #4a443b;
+	--gray-200: #33302a;
+	--gray-300: #6f6a5f;
+	--gray-400: #6f6a5f;
+	--gray-500: #8a8478;
+	--gray-600: #a39a8b;
+	--gray-700: #cfc9bc;
+	--gray-800: #dcd7cc;
+	--gray-900: #f0ede6;
 	--gray-999-basis: 0, 0%, 100%;
 	--gray-999_40: hsla(var(--gray-999-basis), 0.4);
-	--gray-999: #ffffff;
+	--gray-999: #f5f3ee;
 
-	--accent-light: #c561f6;
-	--accent-regular: #7611a6;
-	--accent-dark: #1c0056;
-	--accent-overlay: hsla(280, 89%, 67%, 0.33);
+	/* 模板强调色 → 项目电话绿（02 §3.1 定稿 #4E6E5C） */
+	--accent-light: #6c8a78;
+	--accent-regular: #4e6e5c;
+	--accent-dark: #3a5346;
+	--accent-overlay: rgba(78, 110, 92, 0.25);
 	--accent-subtle-overlay: var(--accent-overlay);
 	--accent-text-over: var(--gray-999);
 
@@ -70,31 +128,32 @@
 	--font-system:
 		system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
 		"Open Sans", "Helvetica Neue", sans-serif;
-	--font-body: "Public Sans", var(--font-system);
-	--font-brand: Rubik, var(--font-system);
+	/* 项目字体（02 §3.2 定稿）：内容一律黑体；--font-brand 原为模板标题字体，统一改黑体（衬线仅装饰用法，用 --font-serif） */
+	--font-body: var(--font-sans);
+	--font-brand: var(--font-sans);
 
 	/* Transitions */
 	--theme-transition: 0.2s ease-in-out;
 }
 
 :root.theme-dark {
-	--gray-0: #ffffff;
-	--gray-50: #f3f4f7;
-	--gray-100: #e3e6ee;
-	--gray-200: #c3cadb;
-	--gray-300: #a3acc8;
-	--gray-400: #8490b5;
-	--gray-500: #6474a2;
-	--gray-600: #505d84;
-	--gray-700: #3d4663;
-	--gray-800: #283044;
-	--gray-900: #141925;
-	--gray-999-basis: 225, 31%, 5%;
-	--gray-999: #090b11;
+	--gray-0: #ece9e1;
+	--gray-50: #dcd9d0;
+	--gray-100: #b8b4aa;
+	--gray-200: #c9c5bc;
+	--gray-300: #8b9089;
+	--gray-400: #8b9089;
+	--gray-500: #6a6f6a;
+	--gray-600: #3a3e42;
+	--gray-700: #2c2f32;
+	--gray-800: #26292c;
+	--gray-900: #1f2427;
+	--gray-999-basis: 225, 10%, 10%;
+	--gray-999: #17191b;
 
-	--accent-light: #1c0056;
-	--accent-regular: #7611a6;
-	--accent-dark: #c561f6;
+	--accent-light: #3a5346;
+	--accent-regular: #6c8a78;
+	--accent-dark: #8fb49e;
 	--accent-overlay: hsla(280, 89%, 67%, 0.33);
 	--accent-subtle-overlay: hsla(281, 81%, 36%, 0.33);
 	--accent-text-over: var(--gray-0);

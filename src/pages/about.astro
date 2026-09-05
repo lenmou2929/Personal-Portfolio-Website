@@ -1,119 +1,70 @@
 ---
-import ContactCTA from '../components/ContactCTA.astro';
-import Hero from '../components/Hero.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="About | Jeanine White" description="About Jeanine White Lorem Ipsum">
-	<div class="stack gap-20">
-		<main class="wrapper about">
-			<Hero
-				title="About"
-				tagline="Thanks for stopping by. Read below to learn more about myself and my background."
-			>
-				<img
-					width="1553"
-					height="873"
-					src="/assets/at-work.jpg"
-					alt="Jeanine White at work with a colleague"
-				/>
-			</Hero>
+<BaseLayout title="关于 | 陈继祖作品集" description="关于陈继祖：3D 场景美术/地编 与 AI 辅助开发。">
+	<main class="wrapper stack gap-10 page">
+		<header class="stack gap-3">
+			<p class="kicker">01 — PROFILE</p>
+			<h1>关于我</h1>
+		</header>
 
-			<section>
-				<h2 class="section-title">Background</h2>
-				<div class="content">
-					<p>
-						Lorem ipsum dolor sit amet, <a href="https://astro.build/">Astro</a> makes people happy. Sed
-						do eiusmod tempor incididunt ut labore et dolore magna aliqua. Proin nibh nisl condimentum
-						id venenatis a condimentum vitae. Dapibus ultrices in iaculis nunc. Arcu odio ut sem nulla
-						pharetra diam sit amet. Diam quis enim lobortis scelerisque fermentum dui faucibus in ornare.
-					</p>
-					<p>
-						Arcu dui vivamus arcu felis bibendum ut tristique et egestas. Eget gravida cum sociis
-						natoque penatibus. Cras fermentum odio eu feugiat pretium nibh. Proin nibh nisl
-						condimentum id venenatis. Porta nibh venenatis cras sed felis eget velit. Id diam vel
-						quam elementum pulvinar etiam non.
-					</p>
-					<p>
-						Ultrices tincidunt arcu non sodales neque sodales ut. Sed enim ut sem viverra aliquet
-						eget sit amet. Lacus luctus accumsan tortor posuere ac ut consequat semper viverra.
-						Viverra accumsan in nisl nisi scelerisque eu ultrices. In massa tempor nec feugiat nisl
-						pretium fusce.
-					</p>
-				</div>
-			</section>
-			<section>
-				<h2 class="section-title">Education</h2>
-				<div class="content">
-					<p>Corporis voluptates tenetur laudantium.</p>
-				</div>
-			</section>
-			<section>
-				<h2 class="section-title">Skills</h2>
-				<div class="content">
-					<p>officia unde omnis</p>
-				</div>
-			</section>
-		</main>
+		<section class="stack gap-2">
+			<h2>定位</h2>
+			<p class="ph-note">
+				占位：定位陈述按示意稿「关于我」屏与简历内容迁移（平面设计科班 → 自学 3D 全流程 → AI
+				辅助开发）。
+			</p>
+		</section>
 
-		<ContactCTA />
-	</div>
+		<section class="stack gap-2">
+			<h2>技能矩阵</h2>
+			<p class="ph-note">占位：技能矩阵可视化，内容来自 00-个人画像 技能矩阵（诚实标注熟练度）。</p>
+		</section>
+
+		<section class="stack gap-2">
+			<h2>奖项</h2>
+			<p class="award">2025 年湖北省职业院校技能大赛 · 数字艺术设计赛项 —— 二等奖 ｜ 优秀毕业生</p>
+		</section>
+	</main>
 </BaseLayout>
 
 <style>
-	.about {
-		display: flex;
-		flex-direction: column;
-		gap: 3.5rem;
+	.page {
+		padding-block: 3rem 5rem;
 	}
 
-	img {
-		margin-top: 1.5rem;
-		border-radius: 1.5rem;
-		box-shadow: var(--shadow-md);
+	.kicker {
+		font-family: var(--mono);
+		font-size: 12px;
+		letter-spacing: 0.2em;
+		color: var(--ink-2);
 	}
 
-	section {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-		color: var(--gray-200);
+	h1 {
+		color: var(--ink);
+		font-size: clamp(28px, 3.6vw, 44px);
+		letter-spacing: 0.03em;
 	}
 
-	.section-title {
-		grid-column-start: 1;
-		font-size: var(--text-xl);
-		color: var(--gray-0);
+	section h2 {
+		font-size: 20px;
+		color: var(--ink);
+		border-bottom: 1px solid var(--line);
+		padding-bottom: 10px;
 	}
 
-	.content {
-		grid-column: 2 / 4;
+	.ph-note {
+		color: var(--ink-2);
+		line-height: 1.8;
 	}
 
-	.content :global(a) {
-		text-decoration: 1px solid underline transparent;
-		text-underline-offset: 0.25em;
-		transition: text-decoration-color var(--theme-transition);
-	}
-
-	.content :global(a:hover),
-	.content :global(a:focus) {
-		text-decoration-color: currentColor;
-	}
-
-	@media (min-width: 50em) {
-		.about {
-			display: grid;
-			grid-template-columns: 1fr 60% 1fr;
-		}
-
-		.about > :global(:first-child) {
-			grid-column-start: 2;
-		}
-
-		section {
-			display: contents;
-			font-size: var(--text-lg);
-		}
+	/* 奖项栏：左 3px 绿线（同示意稿 award-line） */
+	.award {
+		border: 1px solid var(--line);
+		border-left: 3px solid var(--accent);
+		padding: 14px 20px;
+		font-size: 14.5px;
+		color: var(--ink);
 	}
 </style>

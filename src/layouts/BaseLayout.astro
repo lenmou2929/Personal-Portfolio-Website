@@ -15,7 +15,7 @@ interface Props {
 const { title, description } = Astro.props;
 ---
 
-<html lang="en">
+<html lang="zh-CN">
 	<head>
 		<MainHead title={title} description={description} />
 	</head>
@@ -91,19 +91,8 @@ const { title, description } = Astro.props;
 			.backgrounds {
 				min-height: 100%;
 				isolation: isolate;
-				background:
-					/*noise*/
-					url('/assets/backgrounds/noise.png') top center/220px repeat,
-					/*footer*/ var(--bg-image-footer) bottom center/var(--bg-gradient-size) no-repeat,
-					/*header1*/ var(--bg-image-main-curves) top center/var(--bg-gradient-size) no-repeat,
-					/*header2*/ var(--bg-image-main) top center/var(--bg-gradient-size) no-repeat,
-					/*base*/ var(--gray-999);
-				background-blend-mode: /*noise*/
-					overlay,
-					/*footer*/ var(--bg-blend-mode),
-					/*header1*/ var(--bg-svg-blend-mode),
-					/*header2*/ normal,
-					/*base*/ normal;
+				/* 模板星云背景图系统已移除（2026-09-04 骨架阶段）：改纯色底，由项目 tokens 控制 */
+				background: var(--gray-999);
 			}
 			@media (forced-colors: active) {
 				/* Deactivate custom backgrounds for high contrast users. */
