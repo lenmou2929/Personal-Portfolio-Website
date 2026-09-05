@@ -1,5 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
+import ModelStage from '../../../components/ModelStage.astro';
+import PageHead from '../../../components/PageHead.astro';
 import WorkCard from '../../../components/WorkCard.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { WORK_CATEGORIES } from '../../../lib/categories';
@@ -10,55 +12,416 @@ export async function getStaticPaths() {
 
 type Props = { cat: (typeof WORK_CATEGORIES)[number] };
 const { cat } = Astro.props;
-const entries = (
+const sorted = (
 	await getCollection('work', ({ data }) => !data.draft && data.category === cat.key)
 ).sort((a, b) => (b.data.date.valueOf() > a.data.date.valueOf() ? 1 : -1));
+/* 占位条目垫底：真实作品按日期在前 */
+const entries = [
+	...sorted.filter((e) => !e.data.title.startsWith('占位')),
+	...sorted.filter((e) => e.data.title.startsWith('占位')),
+];
+
+const LEADS: Record<string, string> = {
+	'3d': 'UE5 地编与 Blender 全流程——场景搭建、材质 lookdev、灯光渲染出图，影视向与产品向并行。',
+	vibecoding: 'AI 辅助开发的上线 Web 产品——需求、开发、部署独立完成，能点开的 Demo 就是作品本身。',
+	graphic: '平面科班底子——品牌、包装、海报与线下物料，一切版式功底的地基。',
+};
 ---
 
-<BaseLayout title={`${cat.label} | 陈继祖作品集`} description={`陈继祖作品集 · ${cat.label}分类作品`}>
-	<main class="wrapper stack gap-10 page">
-		<header class="stack gap-3">
-			<p class="kicker">{cat.en}</p>
-			<h1>{cat.label}</h1>
-			<p class="crumb"><a href="/works/">← 全部作品</a></p>
-		</header>
+<BaseLayout title={`${cat.label} | 陈继祖作品集`} description={`陈继祖作品集 · ${cat.label}分类作品`} fixedTheme="dark">
+	<main class="wrapper page">
+		<PageHead no={cat.no} en={cat.en} title={cat.label} lead={LEADS[cat.key]} crumbHref="/works/" />
 
 		{
-			entries.length === 0 ? (
-				<p class="empty">占位：本分类作品待 Phase 5 填充（占位图策略见 00-网站策划案 §5）。</p>
-			) : (
-				<ul class="cards">
-					{entries.map((w) => (
-						<WorkCard entry={w} />
-					))}
-				</ul>
+			cat.key === '3d' && (
+				<section class="hero">
+					<ModelStage src="/models/telephone-2k.glb" poster="/works/phone-front.jpg" />
+					<p class="hero-caption">
+						<span class="mono-tag">INTERACTIVE</span>
+						老式电话机 · PBR——在线实时渲染，入场自动播放听筒拿起动画。
+					</p>
+				</section>
 			)
 		}
+
+		{
+			cat.key === 'vibecoding' && (
+				<section class="showcase">
+					<div class="live-frame">
+						<div class="chrome">
+							<span class="dots" aria-hidden="true"><i /><i /><i /></span>
+							<span class="url">bitsugar.top</span>
+							<a class="open" href="https://bitsugar.top" target="_blank" rel="noopener">
+								新窗口打开 ↗
+							</a>
+						</div>
+						<div class="frame-box">
+							<iframe
+								src="https://bitsugar.top"
+								loading="lazy"
+								title="BitSugar 拼豆图纸站（在线实时嵌入）"
+							/>
+							<button class="activate" type="button">
+								<span class="activate-pill">点击互动实机</span>
+							</button>
+							<p class="load-fail" hidden>
+								嵌入加载失败——<a href="https://bitsugar.top" target="_blank" rel="noopener"
+									>bitsugar.top ↗</a
+								>
+							</p>
+						</div>
+					</div>
+					<aside class="side">
+						<div class="status-card">
+							<p class="status"><span class="pulse" />LIVE — 已上线</p>
+							<p class="desc">域名、DNS、部署、站长平台提交全流程独立完成，GitHub 开源。</p>
+							<div class="links">
+								<a href="https://bitsugar.top" target="_blank" rel="noopener">bitsugar.top ↗</a>
+								<a href="https://github.com/lenmou2929/BitSugar" target="_blank" rel="noopener">
+									GitHub ↗
+								</a>
+							</div>
+						</div>
+						<div class="status-card muted">
+							<p class="status"><span class="pulse dev" />DEV — 开发中</p>
+							<p class="desc">3D 模型预览器（雪板专用）——部署后以同款方式嵌入本页，演示录屏备制中。</p>
+						</div>
+					</aside>
+				</section>
+			)
+		}
+
+		{
+			cat.key === 'graphic' && (
+				<section class="graph-hero">
+					<span class="ghost" aria-hidden="true">Graphic</span>
+					<div class="intake">
+						<p class="status"><span class="pulse dev" />INTAKE — 素材已到位</p>
+						<p class="desc">
+							作品整理中：包装设计 13 · 海报 4 · 易拉宝 4 套 · Logo/字体 4（含源文件）。
+							按素材规范逐件入库后上架本页——宁缺毋滥，不放凑数图。
+						</p>
+					</div>
+				</section>
+			)
+		}
+
+		<section class="works">
+			<h2>
+				本类作品
+				<span class="count">{String(entries.length).padStart(2, '0')}</span>
+			</h2>
+			{
+				entries.length === 0 ? (
+					<p class="empty">本分类作品整理中——素材核对完成后逐件上架。</p>
+				) : (
+					<ul class:list={['cards', { single: entries.length === 1 }]}>
+						{entries.map((w, i) => <WorkCard entry={w} index={i} />)}
+					</ul>
+				)
+			}
+		</section>
 	</main>
 </BaseLayout>
 
+<script>
+	/* iframe 点击激活 + 加载失败兜底（评估 B/审查 P1：滚动劫持与白板态） */
+	const frame = document.querySelector('.live-frame');
+	if (frame) {
+		const activate = frame.querySelector('.activate');
+		const fail = frame.querySelector('.load-fail');
+		const iframe = frame.querySelector('iframe');
+		activate?.addEventListener('click', () => frame.classList.add('active'));
+		let loaded = false;
+		iframe?.addEventListener('load', () => (loaded = true));
+		window.setTimeout(() => {
+			if (!loaded) fail?.removeAttribute('hidden');
+		}, 8000);
+		iframe?.addEventListener('load', () => fail?.setAttribute('hidden', ''));
+	}
+</script>
+
 <style>
 	.page {
-		padding-block: 3rem 5rem;
+		padding-block: 1rem 6rem;
 	}
 
-	.kicker {
-		font-family: var(--mono);
-		font-size: 12px;
-		letter-spacing: 0.2em;
+	/* ---------- 地编/3D：座机 Hero ---------- */
+	.hero {
+		margin-bottom: 64px;
+	}
+
+	.hero-caption {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		margin-top: 14px;
+		font-size: 13px;
 		color: var(--ink-2);
 	}
 
-	h1 {
-		color: var(--ink);
-		font-size: clamp(28px, 3.6vw, 44px);
-		letter-spacing: 0.03em;
+	.mono-tag {
+		font-family: var(--mono);
+		font-size: 10px;
+		letter-spacing: 0.16em;
+		color: var(--accent);
+		border: 1px solid var(--line);
+		border-radius: var(--radius-tag);
+		padding: 3px 8px;
+		white-space: nowrap;
 	}
 
-	.crumb a {
-		font-size: 14px;
+	/* ---------- Vibecoding：实机嵌入 + 状态侧栏 ---------- */
+	.showcase {
+		display: grid;
+		grid-template-columns: 1.7fr 1fr;
+		gap: 22px;
+		margin-bottom: 64px;
+		align-items: start;
+	}
+
+	.live-frame {
+		border: 1px solid var(--line);
+		border-radius: var(--radius-panel);
+		overflow: hidden;
+		background: var(--dark-2);
+	}
+
+	.chrome {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		padding: 10px 14px;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.dots {
+		display: flex;
+		gap: 5px;
+	}
+
+	.dots i {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		border: 1px solid var(--dark-line-2);
+	}
+
+	.url {
+		flex: 1;
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.08em;
+		color: var(--ink-2);
+	}
+
+	.open {
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.06em;
 		color: var(--accent);
 		text-decoration: none;
+	}
+
+	.open:hover {
+		text-decoration: underline;
+	}
+
+	.frame-box {
+		position: relative;
+	}
+
+	/* 点击激活：iframe 默认不收指针（防滚动劫持），点覆盖层后开放交互 */
+	.frame-box iframe {
+		display: block;
+		width: 100%;
+		aspect-ratio: 16 / 10;
+		border: 0;
+		background: var(--dark-2);
+		pointer-events: none;
+	}
+
+	.live-frame.active .frame-box iframe {
+		pointer-events: auto;
+	}
+
+	.activate {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-items: center;
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+	}
+
+	.activate-pill {
+		font-family: var(--mono);
+		font-size: 12px;
+		letter-spacing: 0.14em;
+		color: var(--dark-ink);
+		background: rgba(23, 25, 27, 0.78);
+		border: 1px solid var(--dark-line-2);
+		border-radius: 999px;
+		padding: 10px 22px;
+		backdrop-filter: blur(3px);
+		transition:
+			opacity 0.25s,
+			transform 0.25s;
+	}
+
+	.activate:hover .activate-pill {
+		transform: translateY(-2px);
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+
+	.live-frame.active .activate {
+		display: none;
+	}
+
+	.load-fail {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-items: center;
+		font-size: 13.5px;
+		color: var(--ink-2);
+		background: var(--dark-2);
+	}
+
+	.load-fail a {
+		color: var(--accent);
+		text-decoration: none;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.side {
+		display: grid;
+		gap: 16px;
+	}
+
+	.status-card {
+		border: 1px solid var(--line);
+		border-radius: var(--radius-panel);
+		padding: 22px;
+	}
+
+	.status-card.muted {
+		opacity: 0.85;
+	}
+
+	.status {
+		display: flex;
+		align-items: center;
+		gap: 9px;
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.16em;
+		color: var(--accent);
+	}
+
+	.pulse {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: var(--accent);
+		animation: blink 1.6s ease-in-out infinite;
+	}
+
+	.pulse.dev {
+		background: var(--dark-ink-3);
+		animation: none;
+	}
+
+	@keyframes blink {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.25;
+		}
+	}
+
+	.desc {
+		margin-top: 12px;
+		font-size: 13.5px;
+		line-height: 1.8;
+		color: var(--ink-2);
+	}
+
+	.links {
+		display: flex;
+		gap: 18px;
+		margin-top: 16px;
+	}
+
+	.links a {
+		font-family: var(--mono);
+		font-size: 12px;
+		color: var(--ink);
+		text-decoration: none;
+		border-bottom: 1px solid var(--line);
+		padding-bottom: 2px;
+	}
+
+	.links a:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+	}
+
+	/* ---------- 平面：破格排版（ghost 衬线大字 + 入库状态卡） ---------- */
+	.graph-hero {
+		position: relative;
+		margin-bottom: 64px;
+		padding: 30px 0 10px;
+		overflow: hidden;
+	}
+
+	.ghost {
+		display: block;
+		font-family: var(--serif);
+		font-style: italic;
+		font-size: clamp(110px, 18vw, 250px);
+		line-height: 0.9;
+		letter-spacing: 0.02em;
+		color: var(--ink);
+		opacity: 0.08;
+		user-select: none;
+		margin-left: -0.04em;
+	}
+
+	.intake {
+		position: relative;
+		max-width: 520px;
+		margin-top: -46px;
+		margin-left: clamp(0px, 6vw, 90px);
+		border: 1px solid var(--line);
+		border-radius: var(--radius-panel);
+		background: var(--dark-2);
+		padding: 22px;
+	}
+
+	/* ---------- 作品网格 ---------- */
+	.works h2 {
+		display: flex;
+		align-items: baseline;
+		gap: 12px;
+		font-size: 20px;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		color: var(--ink);
+		border-top: 1px solid var(--line);
+		padding-top: 26px;
+		margin-bottom: 30px;
+	}
+
+	.count {
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.12em;
+		color: var(--ink-2);
 	}
 
 	.empty {
@@ -71,12 +434,36 @@ const entries = (
 		padding: 0;
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-		gap: 26px;
+		gap: 44px 26px;
+	}
+
+	/* 单条目：收窄成阅读列，右侧不留空洞 */
+	.cards.single {
+		grid-template-columns: 1fr;
+		max-width: 640px;
 	}
 
 	@media (max-width: 900px) {
+		.showcase {
+			grid-template-columns: 1fr;
+		}
+
 		.cards {
 			grid-template-columns: 1fr;
+		}
+
+		.cards.single {
+			grid-template-columns: 1fr;
+		}
+
+		.intake {
+			margin-top: -30px;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.pulse {
+			animation: none;
 		}
 	}
 </style>
