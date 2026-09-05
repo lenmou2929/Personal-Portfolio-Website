@@ -185,7 +185,11 @@
 html,
 body {
 	min-height: 100%;
+	/* v3：必须用 clip 而非 hidden——overflow-x:hidden 使 html 成为滚动容器，
+	 会破坏全站 position:sticky（进场舞台钉不住的根因）；clip 同样裁掉横向溢出
+	 但不产生滚动容器。hidden 保留一行作旧浏览器回退 */
 	overflow-x: hidden;
+	overflow-x: clip;
 }
 
 body {
