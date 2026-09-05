@@ -17,6 +17,7 @@
  * 动效定稿数值以 mockups/手动调整手册.md 为索引（pin 170% / 视差 8/16/16/13vh / rail 1s·0.25 / 页尾 y:150 等）。
  */
 import { getCollection } from 'astro:content';
+import { WORK_CATEGORIES } from '../lib/categories';
 import '../styles/global.css';
 
 const featured = (await getCollection('work', ({ data }) => !data.draft && data.level === 'S')).sort(
@@ -25,18 +26,19 @@ const featured = (await getCollection('work', ({ data }) => !data.draft && data.
 
 const ATTR_EN = { 原创: 'ORIGINAL', 参考还原: 'REFERENCE', 教程跟做: 'TUTORIAL' } as const;
 
-const cats = [
-	{ key: '3d', label: '3D 美术', en: '3D / LOOKDEV', img: '/works/phone-front.jpg' },
-	{ key: 'graphic', label: '平面设计', en: 'GRAPHIC', img: '/works/galaxy-poster.jpg' },
-	{ key: 'vibecoding', label: 'Vibecoding', en: 'WEB APP', img: '/works/scarab-sphere.jpg' },
-	{ key: 'planning', label: '项目策划', en: 'PLANNING', img: '/works/logo-grid.jpg' },
-];
+/* 分类卡 = WORK_CATEGORIES 单一来源（label/顺序），首页只补图 */
+const CAT_IMGS: Record<(typeof WORK_CATEGORIES)[number]['key'], string> = {
+	'3d': '/works/phone-front.jpg',
+	vibecoding: '/works/scarab-sphere.jpg',
+	graphic: '/works/galaxy-poster.jpg',
+};
+const cats = WORK_CATEGORIES.map((c) => ({ ...c, img: CAT_IMGS[c.key] }));
 
 const blocks = [
 	{
 		side: 'col-l',
 		no: 'no.01',
-		title: '3D 场景美术 / 地编',
+		title: 'UE5地编 / 3D美术',
 		lines: '影视向 · 产品向<br>Blender · UE5 全流程',
 	},
 	{
@@ -55,7 +57,7 @@ const blocks = [
 		side: 'col-r',
 		no: 'no.04',
 		title: '工具箱',
-		lines: 'PS · AI · PR · AE · AU · RESOLVE · XMIND<br>BLENDER · UE5 · MD · SP',
+		lines: 'UE5 · Blender · MD · SP<br>PS · AI · PR · AE · AU · RESOLVE · ZB',
 	},
 ];
 ---
@@ -66,7 +68,7 @@ const blocks = [
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta
 			name="description"
-			content="陈继祖作品集：3D 场景美术/地编（影视向 · 产品向）与 AI 辅助开发。深圳 · 随时到岗。"
+			content="陈继祖作品集：UE5地编 / 3D美术（影视向 · 产品向）与 AI 辅助开发。深圳 · 随时到岗。"
 		/>
 		<meta name="generator" content={Astro.generator} />
 		<title>陈继祖 · 作品集 — 3D 美术 / 地编 · AI 辅助开发</title>
@@ -121,7 +123,7 @@ const blocks = [
 					</p>
 					<div class="facts">
 						<div class="fact"><span>教育</span><b>武汉工程职业技术学院 · 2026 届</b></div>
-						<div class="fact"><span>求职意向</span><b>3D 场景美术 / 地编（深圳）</b></div>
+						<div class="fact"><span>求职意向</span><b>UE5地编 / 3D美术（深圳）</b></div>
 						<div class="fact"><span>工作经历</span><b>翔驰运动 · 剪辑/平面（2026.07–08）</b></div>
 						<div class="fact"><span>副方向</span><b>AIGC / AI 辅助前端开发</b></div>
 						<div class="fact"><span>性格关键词</span><b>自信 · 包容 · 专业</b></div>
@@ -696,11 +698,13 @@ const blocks = [
 		letter-spacing: 0.2em;
 	}
 
-	/* S6 分类：悬停一角后压 + 纯白覆盖聚焦（悬停形变在内层，与 GSAP 位移隔离——勿合并） */
+	/* S6 分类：悬停一角后压 + 纯白覆盖聚焦（悬停形变在内层，与 GSAP 位移隔离——勿合并）。
+	   3 列 + max-width：卡片保持 4 列时代的尺寸量级（3 列铺满会 oversized 且小屏溢出） */
 	.cats {
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
+		grid-template-columns: repeat(3, 1fr);
 		gap: 18px;
+		max-width: 1100px;
 		perspective: 1200px;
 	}
 	.cat {

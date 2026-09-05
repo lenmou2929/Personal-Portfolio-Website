@@ -11,8 +11,8 @@ export const collections = {
 		loader: glob({ base: './src/content/works', pattern: '**/*.md' }),
 		schema: z.object({
 			title: z.string(),
-			/** 分类 key（与 src/lib/categories.ts 一致）：3d / graphic / vibecoding / planning */
-			category: z.enum(['3d', 'graphic', 'vibecoding', 'planning']),
+			/** 分类 key（与 src/lib/categories.ts 一致）：3d / vibecoding / graphic（2026-09-06 策划分类移除） */
+			category: z.enum(['3d', 'vibecoding', 'graphic']),
 			/** 作品分级（03-作品集规划）：S 精选 / A 完整 / B 简历附表 */
 			level: z.enum(['S', 'A', 'B']).default('A'),
 			cover: z.string(),
