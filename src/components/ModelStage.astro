@@ -21,14 +21,17 @@ const { src, poster, no, en, title, lead } = Astro.props;
 	<p class="note" aria-live="polite"><span class="dot"></span>LOADING — 3D MODEL</p>
 </div>
 
-<!-- 文字层：正常文档流，随滚动上移（用户要求：模型/渲染框不动，文字与内容一起走） -->
+<!-- 文字层：正常文档流，随滚动上移（用户要求：模型/渲染框不动，文字与内容一起走）。
+     动画行程（ANIM_VH）内文字保持钉住（sticky），行程走完后才随内容一起上移 -->
 <div class="hero-space" id="hero3d-space">
-	<div class="hero-text">
-		<p class="kicker"><span class="no">{no} — </span>{en}</p>
-		<h1>{title}</h1>
-		<p class="lead">{lead}</p>
+	<div class="hero-stick">
+		<div class="hero-text">
+			<p class="kicker"><span class="no">{no} — </span>{en}</p>
+			<h1>{title}</h1>
+			<p class="lead">{lead}</p>
+		</div>
+		<p class="hint">SCROLL — 滚动拿起听筒 · 移动鼠标环视</p>
 	</div>
-	<p class="hint">SCROLL — 滚动拿起听筒 · 移动鼠标环视</p>
 </div>
 
 <style>
@@ -105,15 +108,21 @@ const { src, poster, no, en, title, lead } = Astro.props;
 		display: none;
 	}
 
-	/* 文字层：第一屏高度、透明底（透出渲染层），随滚动正常上移 */
+	/* 文字层：第一屏 + 动画行程（高度由脚本按 ANIM_VH 写入）。
+	   .hero-stick sticky：行程内文字钉在首屏，行程走完随内容一起上移 */
 	.hero-space {
 		position: relative;
-		z-index: 1;
-		height: 100vh;
+		height: 100vh; /* JS 会覆写为 (1 + ANIM_VH) × 100vh */
 		margin-top: calc(-88px - 1rem); /* 抵消 BaseLayout 让位 + 页面顶距：第一屏正好一屏 */
+	}
+
+	.hero-stick {
+		position: sticky;
+		top: 0;
+		height: 100vh;
 		display: flex;
 		align-items: flex-end;
-		pointer-events: none;
+		width: 100%;
 	}
 
 	.hero-text {
@@ -162,7 +171,6 @@ const { src, poster, no, en, title, lead } = Astro.props;
 
 	@media (max-width: 900px) {
 		.hero-space {
-			height: 100vh;
 			margin-top: calc(-96px - 1rem);
 		}
 
@@ -198,6 +206,10 @@ const { src, poster, no, en, title, lead } = Astro.props;
 		const canvas = hero.querySelector('canvas')!;
 		const note = hero.querySelector('.note')!;
 		const space = document.getElementById('hero3d-space')!;
+		/* 动画行程：滚动这段距离时只播听筒动画、内容不动（走完后内容才上移）。
+		   单位=视口高；改这里即可，文字层高度会自动跟随 */
+		const ANIM_VH = 1;
+		space.style.height = `calc(${(1 + ANIM_VH).toFixed(2)} * 100vh)`;
 
 		try {
 			const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -207,7 +219,7 @@ const { src, poster, no, en, title, lead } = Astro.props;
 			const scene = new THREE.Scene();
 			/* 相机：拉高俯视（用户要求），整机入画并留视差余量 */
 			const camera = new THREE.PerspectiveCamera(30, 16 / 9, 0.1, 100);
-			camera.position.set(0, 1.6, 8.4);
+			camera.position.set(0, 2.0, 8.4);
 			camera.lookAt(0, 0, 0);
 
 			/* ===== 三点布光（用户定稿）===== */
@@ -223,7 +235,6 @@ const { src, poster, no, en, title, lead } = Astro.props;
 			rimLight.target.position.set(0, 0, 0);
 			scene.add(rimLight);
 			scene.add(rimLight.target);
-
 			/* draco 解码器走本站静态目录（public/draco/），不依赖外部 CDN */
 			const draco = new DRACOLoader().setDecoderPath('/draco/');
 			const loader = new GLTFLoader().setDRACOLoader(draco);
@@ -233,7 +244,7 @@ const { src, poster, no, en, title, lead } = Astro.props;
 			let scrubProgress = 0;
 			let covered = false; // 内容层盖住渲染层后暂停渲染（省 GPU）
 			const tilt = { x: 0, y: 0, tx: 0, ty: 0 };
-			const BASE_Y = 0.16; // 默认微微右侧朝向
+			const BASE_Y = 0.24; // 默认微微右侧朝向（用户：再侧一点点）
 
 			/* 鼠标视差：指针在哪，电话微微转向哪（触屏设备关闭） */
 			if (finePointer && !reduced) {
@@ -245,14 +256,14 @@ const { src, poster, no, en, title, lead } = Astro.props;
 
 			if (!reduced) {
 				gsap.registerPlugin(ScrollTrigger);
-				/* 滚动 1:1 驱动动画：行程一屏（innerHeight），停=停、回=倒 */
+				/* 动画行程内 1:1 驱动（停=停、回=倒）；行程走完后内容才随滚动上移 */
 				ScrollTrigger.create({
 					trigger: space,
 					start: 'top top',
-					end: () => '+=' + window.innerHeight,
+					end: () => '+=' + Math.round(window.innerHeight * ANIM_VH),
 					onUpdate: (self) => {
 						scrubProgress = self.progress;
-						const hint = document.querySelector('.hero3d + * .hint, #hero3d-space .hint') as HTMLElement | null;
+						const hint = document.querySelector('#hero3d-space .hint') as HTMLElement | null;
 						if (hint) hint.style.opacity = String(Math.max(0, 1 - self.progress * 8));
 					},
 				});
@@ -294,16 +305,16 @@ const { src, poster, no, en, title, lead } = Astro.props;
 
 					const group = new THREE.Group();
 					group.add(model);
-					group.position.x = -0.6; // 用户要求：整体往画面左移
+					group.position.x = -0.35; // 用户要求：略偏画面左侧（自 -0.6 回调）
 					group.rotation.y = BASE_Y; // 默认微微右侧朝向
 					scene.add(group);
 
-					/* 听筒动画：不 advance（不调 mixer.update(delta)），只由滚动 setTime 采样 */
+					/* 听筒动画：默认 LoopRepeat 但从不调 mixer.update(delta)——动作没有
+					   自主前进通道、也不会进入 LoopOnce 的"已完成"死态（setTime 永远
+					   可以重新采样），时间轴完全由滚动 scrub 给定 */
 					if (gltf.animations.length > 0) {
 						mixer = new THREE.AnimationMixer(model);
 						const action = mixer.clipAction(gltf.animations[0]);
-						action.setLoop(THREE.LoopOnce, 1);
-						action.clampWhenFinished = true;
 						action.play();
 						clipDur = gltf.animations[0].duration || 0;
 					}
