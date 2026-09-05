@@ -34,7 +34,7 @@ const LEADS: Record<string, string> = {
 	<main class="wrapper page">
 	{
 			cat.key === '3d' ? (
-				/* 3D 页：全幅出血渲染窗即页首（标题/导语叠加画面左下），替代常规 PageHead */
+				/* 3D 页：fixed 渲染层铺满视口 = 页首（标题/导语随内容上移，模型与渲染框不动） */
 				<ModelStage
 					src="/models/telephone-2k.glb"
 					poster="/works/phone-front.jpg"
@@ -48,108 +48,117 @@ const LEADS: Record<string, string> = {
 			)
 		}
 
-		{
-			cat.key === 'vibecoding' && (
-				<section class="showcase">
-					<div class="live-frame">
-						<div class="chrome">
-							<span class="dots" aria-hidden="true"><i /><i /><i /></span>
-							<span class="url">bitsugar.top</span>
-							<a class="open" href="https://bitsugar.top" target="_blank" rel="noopener">
-								新窗口打开 ↗
-							</a>
-						</div>
-						<div class="frame-box">
-							<iframe
-								src="https://bitsugar.top"
-								loading="lazy"
-								title="BitSugar 拼豆图纸站（在线实时嵌入）"
-							/>
-							<button class="activate" type="button">
-								<span class="activate-pill">点击互动实机</span>
-							</button>
-							<p class="load-fail" hidden>
-								嵌入加载失败——<a href="https://bitsugar.top" target="_blank" rel="noopener"
-									>bitsugar.top ↗</a
-								>
-							</p>
-						</div>
-					</div>
-					<aside class="side">
-						<div class="status-card">
-							<p class="status"><span class="pulse" />LIVE — 已上线</p>
-							<p class="desc">域名、DNS、部署、站长平台提交全流程独立完成，GitHub 开源。</p>
-							<div class="links">
-								<a href="https://bitsugar.top" target="_blank" rel="noopener">bitsugar.top ↗</a>
-								<a href="https://github.com/lenmou2929/BitSugar" target="_blank" rel="noopener">
-									GitHub ↗
+		<!-- 内容层：不透明底，随滚动上移覆盖渲染层（3D 页）/ 常规承载（其它分类页） -->
+		<div class="page-body">
+			{
+				cat.key === 'vibecoding' && (
+					<section class="showcase">
+						<div class="live-frame">
+							<div class="chrome">
+								<span class="dots" aria-hidden="true"><i /><i /><i /></span>
+								<span class="url">bitsugar.top</span>
+								<a class="open" href="https://bitsugar.top" target="_blank" rel="noopener">
+									新窗口打开 ↗
 								</a>
 							</div>
+							<div class="frame-box">
+								<iframe
+									src="https://bitsugar.top"
+									loading="lazy"
+									title="BitSugar 拼豆图纸站（在线实时嵌入）"
+								/>
+								<button class="activate" type="button">
+									<span class="activate-pill">点击互动实机</span>
+								</button>
+								<p class="load-fail" hidden>
+									嵌入加载失败——<a
+										href="https://bitsugar.top"
+										target="_blank"
+										rel="noopener">bitsugar.top ↗</a
+									>
+								</p>
+							</div>
 						</div>
-						<div class="status-card muted">
-							<p class="status"><span class="pulse dev" />DEV — 开发中</p>
-							<p class="desc">3D 模型预览器（雪板专用）——部署后以同款方式嵌入本页，演示录屏备制中。</p>
-						</div>
-					</aside>
-				</section>
-			)
-		}
-
-		{
-			cat.key === 'graphic' && (
-				<section class="graph-hero">
-					<span class="ghost" aria-hidden="true">Graphic</span>
-					<div class="intake">
-						<p class="status"><span class="pulse dev" />INTAKE — 素材已到位</p>
-						<p class="desc">
-							作品整理中：包装设计 13 · 海报 4 · 易拉宝 4 套 · Logo/字体 4（含源文件）。
-							按素材规范逐件入库后上架本页——宁缺毋滥，不放凑数图。
-						</p>
-					</div>
-				</section>
-			)
-		}
-
-		<section class="works">
-			<h2>
-				本类作品
-				<span class="count">{String(entries.length).padStart(2, '0')}</span>
-			</h2>
-			{
-				entries.length === 0 ? (
-					<p class="empty">本分类作品整理中——素材核对完成后逐件上架。</p>
-				) : (
-					<ul class:list={['cards', { single: entries.length === 1 }]}>
-						{entries.map((w, i) => <WorkCard entry={w} index={i} />)}
-					</ul>
+						<aside class="side">
+							<div class="status-card">
+								<p class="status"><span class="pulse" />LIVE — 已上线</p>
+								<p class="desc">域名、DNS、部署、站长平台提交全流程独立完成，GitHub 开源。</p>
+								<div class="links">
+									<a href="https://bitsugar.top" target="_blank" rel="noopener">bitsugar.top ↗</a>
+									<a
+										href="https://github.com/lenmou2929/BitSugar"
+										target="_blank"
+										rel="noopener">GitHub ↗</a
+									>
+								</div>
+							</div>
+							<div class="status-card muted">
+								<p class="status"><span class="pulse dev" />DEV — 开发中</p>
+								<p class="desc">
+									3D 模型预览器（雪板专用）——部署后以同款方式嵌入本页，演示录屏备制中。
+								</p>
+							</div>
+						</aside>
+					</section>
 				)
 			}
-		</section>
 
-		{
-			others.length > 0 && (
-				<section class="more-cats">
-					<h2>
-						继续看<span class="count-alt">其它两类作品</span>
-					</h2>
-					<div class="more-grid">
-						{others.map((c) => (
-							<a class="more-card" href={`/works/${c.key}/`} aria-label={`进入「${c.label}」分类`}>
-								<div class="catbox">
-									<img src={CATEGORY_IMAGES[c.key]} alt={`${c.label}分类封面`} loading="lazy" />
-									<div class="veil" />
-									<span class="no">{c.no}</span>
-									<div class="label">
-										<b>{c.label}</b>
-										<span>{c.en}</span>
+			{
+				cat.key === 'graphic' && (
+					<section class="graph-hero">
+						<span class="ghost" aria-hidden="true">Graphic</span>
+						<div class="intake">
+							<p class="status"><span class="pulse dev" />INTAKE — 素材已到位</p>
+							<p class="desc">
+								作品整理中：包装设计 13 · 海报 4 · 易拉宝 4 套 · Logo/字体 4（含源文件）。
+								按素材规范逐件入库后上架本页——宁缺毋滥，不放凑数图。
+							</p>
+						</div>
+					</section>
+				)
+			}
+
+			<section class="works">
+				<h2>
+					本类作品
+					<span class="count">{String(entries.length).padStart(2, '0')}</span>
+				</h2>
+				{
+					entries.length === 0 ? (
+						<p class="empty">本分类作品整理中——素材核对完成后逐件上架。</p>
+					) : (
+						<ul class:list={['cards', { single: entries.length === 1 }]}>
+							{entries.map((w, i) => <WorkCard entry={w} index={i} />)}
+						</ul>
+					)
+				}
+			</section>
+
+			{
+				others.length > 0 && (
+					<section class="more-cats">
+						<h2>
+							继续看<span class="count-alt">其它两类作品</span>
+						</h2>
+						<div class="more-grid">
+							{others.map((c) => (
+								<a class="more-card" href={`/works/${c.key}/`} aria-label={`进入「${c.label}」分类`}>
+									<div class="catbox">
+										<img src={CATEGORY_IMAGES[c.key]} alt={`${c.label}分类封面`} loading="lazy" />
+										<div class="veil" />
+										<span class="no">{c.no}</span>
+										<div class="label">
+											<b>{c.label}</b>
+											<span>{c.en}</span>
+										</div>
 									</div>
-								</div>
-							</a>
-						))}
-					</div>
-				</section>
-			)
-		}
+								</a>
+							))}
+						</div>
+					</section>
+				)
+			}
+		</div>
 	</main>
 
 	<!-- 作品条：点击卡片自下滑出（2026-09-06 IA 重构——详情页退役，?w=id 深链直达） -->
@@ -274,12 +283,21 @@ const LEADS: Record<string, string> = {
 
 <style>
 	.page {
-		padding-block: 1rem 6rem;
+		padding-block: 1rem 0;
 	}
 
-	/* ---------- Vibecoding：实机嵌入（全宽大窗）+ 状态侧栏 ---------- */
+	/* 内容层：不透明底——3D 页滚动时上移覆盖 fixed 渲染层；底边线即滚动分界 */
+	.page-body {
+		position: relative;
+		z-index: 1;
+		background: var(--dark);
+		padding-bottom: 6rem;
+	}
+
+	/* ---------- Vibecoding：实机嵌入（约 1.2 倍，状态卡保持同排） ---------- */
 	.showcase {
 		display: grid;
+		grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
 		gap: 22px;
 		margin-bottom: 64px;
 		align-items: start;
@@ -287,7 +305,6 @@ const LEADS: Record<string, string> = {
 
 	.side {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
 		gap: 16px;
 	}
 
@@ -805,10 +822,6 @@ const LEADS: Record<string, string> = {
 
 	@media (max-width: 900px) {
 		.showcase {
-			grid-template-columns: 1fr;
-		}
-
-		.side {
 			grid-template-columns: 1fr;
 		}
 
