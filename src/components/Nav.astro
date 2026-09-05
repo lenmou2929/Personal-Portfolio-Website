@@ -1,16 +1,10 @@
 ---
-import ThemeToggle from './ThemeToggle.astro';
+import { WORK_CATEGORIES } from '../lib/categories';
 
-interface Props {
-	/** 固定主题页（差异化深色分类页）隐藏明暗切换器 */
-	hideThemeToggle?: boolean;
-}
-
-const { hideThemeToggle = false } = Astro.props;
-
-/** 顶栏导航（内页）：路由版；首页顶栏为锚点版（index.astro 内联，样式同源） */
+/** 顶栏导航（内页，2026-09-06 用户拍板五项直连）：三个分类直进 + 关于/联系；
+ * 首页顶栏为锚点版（index.astro 内联，样式同源、条目按语境）。 */
 const links: { label: string; href: string }[] = [
-	{ label: '作品', href: '/works/' },
+	...WORK_CATEGORIES.map((c) => ({ label: c.label, href: `/works/${c.key}/` })),
 	{ label: '关于', href: '/about/' },
 	{ label: '联系', href: '/contact/' },
 ];
@@ -37,15 +31,13 @@ const isCurrentPage = (href: string) => {
 		}
 	</nav>
 	<div class="nav-right">
-		{!hideThemeToggle && <ThemeToggle />}
-		<span class="lang">中 / EN</span>
 		<a class="resume" href="/contact/">简历下载</a>
 	</div>
 </header>
 
 <style>
-	/* 顶栏（2026-09-06 用户拍板：内页与首页同款——纯文字无边框，样式与
-	   index.astro .topbar 同源同值；当前页用强调色标记 */
+	/* 顶栏（内页）：与首页同款——纯文字无边框 fixed，样式与 index.astro .topbar 同源同值；
+	   当前页用强调色标记。2026-09-06 IA 重构：五项直连（去「作品」中间层） */
 	.topbar {
 		position: fixed;
 		top: 0;
@@ -85,7 +77,7 @@ const isCurrentPage = (href: string) => {
 		left: 50%;
 		transform: translateX(-50%);
 		display: flex;
-		gap: 44px;
+		gap: 36px;
 	}
 	.nav-center a {
 		font-size: 14px;
@@ -106,14 +98,6 @@ const isCurrentPage = (href: string) => {
 		align-items: center;
 		gap: 16px;
 	}
-	.nav-right :global(button) {
-		cursor: pointer;
-	}
-	.nav-right .lang {
-		font-family: var(--mono);
-		font-size: 12px;
-		color: var(--ink-2);
-	}
 	.nav-right .resume {
 		font-size: 17px;
 		font-weight: 700;
@@ -126,29 +110,30 @@ const isCurrentPage = (href: string) => {
 		color: var(--accent);
 	}
 
-	/* 移动端：首页隐藏中导航（单页锚点），内页保留链接改为同行紧凑排布 */
+	/* 移动端：两行——第一行品牌+简历下载，第二行五个链接 */
 	@media (max-width: 900px) {
 		.topbar {
-			padding: 14px 20px;
+			padding: 12px 20px 10px;
+			flex-wrap: wrap;
 		}
 		.brand span {
 			display: none;
 		}
-		.nav-center {
-			position: static;
-			transform: none;
-			margin-left: auto;
-			gap: 18px;
-		}
 		.nav-right {
-			gap: 12px;
-			margin-left: 14px;
-		}
-		.nav-right .lang {
-			display: none;
+			margin-left: auto;
 		}
 		.nav-right .resume {
 			font-size: 15px;
+		}
+		.nav-center {
+			position: static;
+			transform: none;
+			width: 100%;
+			gap: 22px;
+			margin-top: 8px;
+		}
+		.nav-center a {
+			font-size: 13px;
 		}
 	}
 </style>
