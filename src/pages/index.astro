@@ -620,6 +620,13 @@ const blocks = [
 	.scene-dark-bg {
 		pointer-events: auto;
 	}
+	/* pin-spacer（GSAP 包装层）同为全屏定位盒（relative），DOM 序在后、解钉场景 z 回
+	   auto 时它正好叠在卡片上方拦指针——场间交接"卡片看得见却点不进"的真凶。
+	   ⚠️ 它是 GSAP 运行时创建的元素，身上没有 Astro 的 scope 属性，
+	   必须 :global 才能命中（scoped 的 .pin-spacer 会静默失配） */
+	:global(.pin-spacer) {
+		pointer-events: none;
+	}
 	.scene-inner {
 		position: relative; /* 压在 absolute 的 .scene-dark-bg 之上 */
 		width: 100%;
