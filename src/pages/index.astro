@@ -4,7 +4,11 @@
  * 与示意稿的差异（定稿约定）：
  * 1. 动效为 scroll 事件驱动（示意稿的 setInterval 兜底轮询是测试环境专用，正式站禁用）
  * 2. 精选卡片来自作品 collection（level: S），诚实标注角标取自 frontmatter
- * 3. 首页固定浅色暖纸底（无主题脚本）——是否跟随明暗主题待用户看效果后拍板
+ * 3. 首页固定浅色暖纸底（独立 head，无主题脚本；2026-09-04 用户拍板）
+ * 4. 进场机制 v2（2026-09-04 用户提案）：三场景入场从 pin 内前移至「进场窗口」——
+ *    内容锁定最终屏幕高度（y:-100vh→0）+ 左右滑入，页面到位 = 入场完成，
+ *    消除进场途中隐形盒子+隐藏内容造成的空白页与冻住感；pin 只负责停留（+=35%）。
+ *    stage1 与页尾不变。详见 README 决策表与日志 17
  * 动效定稿数值以 mockups/手动调整手册.md 为索引（pin 170% / 视差 8/16/16/13vh / rail 1s·0.25 / 页尾 y:150 等）。
  */
 import { getCollection } from 'astro:content';
@@ -238,55 +242,25 @@ const blocks = [
 			scrollTrigger: { trigger: '#scene-about', start: 'top bottom', end: 'top top', scrub: 0.5 },
 		});
 
-		/* S4 关于我：既定高度进场 → hold */
+		/* S4 关于我：pin 只负责停留（入场已前移至下方「进场窗口」，v2 机制见 README 决策表 2026-09-04）。
+		   停留时长 = pin 长度 '+=35%' ≈ 1/3 屏，可调 */
 		gsap
 			.timeline({
-				scrollTrigger: { trigger: '#scene-about', start: 'top top', end: '+=170%', pin: true, scrub: 0.5 },
+				scrollTrigger: { trigger: '#scene-about', start: 'top top', end: '+=35%', pin: true, scrub: 0.5 },
 			})
-			.from('#scene-about .sec-head', { autoAlpha: 0, duration: 0.14 }, 0)
-			.from(
-				'#scene-about .sec-head h2, #scene-about .sec-head .idx',
-				{ x: -90, duration: 0.3, stagger: 0.05, ease: 'power2.out' },
-				0,
-			)
-			.from('#scene-about .lead', { x: -80, autoAlpha: 0, duration: 0.3, ease: 'power2.out' }, 0.05)
-			.from(
-				'#scene-about .fact',
-				{ x: 90, autoAlpha: 0, duration: 0.3, stagger: 0.1, ease: 'power2.out' },
-				0.12,
-			)
-			.from('#scene-about .award-line', { y: 70, autoAlpha: 0, duration: 0.24, ease: 'power2.out' }, 0.52)
 			.to({}, { duration: 0.12 });
 
-		/* S6 分类：四卡一组从画外左侧同步右移（容器刚性位移，禁止改回每卡位移+stagger） */
+		/* S6 分类：pin 只负责停留（入场前移，同上） */
 		gsap
 			.timeline({
-				scrollTrigger: { trigger: '#scene-cats', start: 'top top', end: '+=170%', pin: true, scrub: 0.5 },
+				scrollTrigger: { trigger: '#scene-cats', start: 'top top', end: '+=35%', pin: true, scrub: 0.5 },
 			})
-			.from('#scene-cats .sec-head', { autoAlpha: 0, duration: 0.14 }, 0)
-			.from(
-				'#scene-cats .sec-head h2, #scene-cats .sec-head .idx',
-				{ x: -90, duration: 0.3, stagger: 0.05, ease: 'power2.out' },
-				0,
-			)
-			.from(
-				'#scene-cats .cats',
-				{
-					x: () => {
-						const r = document.querySelector('#scene-cats .cats')!.getBoundingClientRect();
-						return -(r.left + r.width + 80);
-					},
-					duration: 0.5,
-					ease: 'power2.out',
-				},
-				0.1,
-			)
 			.to({}, { duration: 0.12 });
 
-		/* S7 精选：色块底大幅右→左先行，卡片整组从画外右侧追及（刚性，杜绝穿插） */
+		/* S7 精选：pin 内保留标题入场——暖白字必须等深色底扫上来才可读；底块与卡组的入场已前移 */
 		gsap
 			.timeline({
-				scrollTrigger: { trigger: '#scene-rail', start: 'top top', end: '+=170%', pin: true, scrub: 0.5 },
+				scrollTrigger: { trigger: '#scene-rail', start: 'top top', end: '+=35%', pin: true, scrub: 0.5 },
 			})
 			.from('#scene-rail .sec-head', { autoAlpha: 0, duration: 0.14 }, 0)
 			.from(
@@ -294,22 +268,12 @@ const blocks = [
 				{ x: -90, duration: 0.3, stagger: 0.05, ease: 'power2.out' },
 				0,
 			)
-			.from('#scene-rail .rail-bg', { x: '100vw', duration: 0.85, ease: 'power1.out' }, 0.06)
-			.from(
-				'#scene-rail .rail',
-				{
-					x: () => {
-						const r = document.querySelector('#scene-rail .rail')!.getBoundingClientRect();
-						return window.innerWidth - r.left + 80;
-					},
-					duration: 1,
-					ease: 'power3.out',
-				},
-				0.25,
-			)
 			.to({}, { duration: 0.12 });
 
-		/* 三场景内容视差：依赖 pin 的触发器必须在 pin 之后创建（铁律，创建顺序不能动） */
+		/* 三场景内容视差（退场滞后下滑，16/16/13vh 定稿值不变）。
+		   ⚠️ 创建顺序纪律：退场视差必须先于下方「进场窗口」的高度锁创建——同一元素的
+		   多个 scrub 补间操作同一 y 属性时，渲染与 refresh 全量重渲都按创建顺序，
+		   后创建者胜出；倒置会在窗口内互相覆盖 */
 		gsap.to('#scene-about .scene-inner', {
 			y: '16vh',
 			ease: 'none',
@@ -325,6 +289,89 @@ const blocks = [
 			ease: 'none',
 			scrollTrigger: { trigger: 'footer', start: 'top bottom', end: 'top top', scrub: 0.5 },
 		});
+
+		/* ============ 进场窗口（v2 核心机制） ============
+		   上一场退场期间，本场内容锁定在「完全到位后应在的屏幕高度」（高度锁 y:-100vh→0
+		   恰好抵消盒子上行的 900px），同时从左右滑入；页面滑到位 = 入场刚好完成。
+		   触发窗口 = 本场盒子从视口底滑到顶的 900px（'top bottom' → 'top top'）。
+		   精选场锁 .rail-wrap（深色底块自带背景，可在浅底上提前进场）；其标题留守 pin。
+		   ⚠️ 必须在退场视差之后创建（创建顺序纪律，见上） */
+		gsap
+			.timeline({
+				scrollTrigger: { trigger: '#scene-about', start: 'top bottom', end: 'top top', scrub: 0.5 },
+			})
+			.fromTo(
+				'#scene-about .scene-inner',
+				{ y: '-100vh' },
+				{ y: '0vh', ease: 'none', duration: 1, immediateRender: false },
+				0,
+			)
+			.from('#scene-about .sec-head', { autoAlpha: 0, duration: 0.22 }, 0.15)
+			.from(
+				'#scene-about .sec-head h2, #scene-about .sec-head .idx',
+				{ x: -90, duration: 0.3, stagger: 0.05, ease: 'power2.out' },
+				0.15,
+			)
+			.from('#scene-about .lead', { x: -80, autoAlpha: 0, duration: 0.32, ease: 'power2.out' }, 0.28)
+			.from(
+				'#scene-about .fact',
+				{ x: 90, autoAlpha: 0, duration: 0.22, stagger: 0.07, ease: 'power2.out' },
+				0.38,
+			)
+			.from('#scene-about .award-line', { y: 70, autoAlpha: 0, duration: 0.3, ease: 'power2.out' }, 0.62);
+
+		gsap
+			.timeline({
+				scrollTrigger: { trigger: '#scene-cats', start: 'top bottom', end: 'top top', scrub: 0.5 },
+			})
+			.fromTo(
+				'#scene-cats .scene-inner',
+				{ y: '-100vh' },
+				{ y: '0vh', ease: 'none', duration: 1, immediateRender: false },
+				0,
+			)
+			.from('#scene-cats .sec-head', { autoAlpha: 0, duration: 0.22 }, 0.15)
+			.from(
+				'#scene-cats .sec-head h2, #scene-cats .sec-head .idx',
+				{ x: -90, duration: 0.3, stagger: 0.05, ease: 'power2.out' },
+				0.15,
+			)
+			.from(
+				'#scene-cats .cats',
+				{
+					x: () => {
+						const r = document.querySelector('#scene-cats .cats')!.getBoundingClientRect();
+						return -(r.left + r.width + 80);
+					},
+					duration: 0.55,
+					ease: 'power2.out',
+				},
+				0.25,
+			);
+
+		gsap
+			.timeline({
+				scrollTrigger: { trigger: '#scene-rail', start: 'top bottom', end: 'top top', scrub: 0.5 },
+			})
+			.fromTo(
+				'#scene-rail .rail-wrap',
+				{ y: '-100vh' },
+				{ y: '0vh', ease: 'none', duration: 1, immediateRender: false },
+				0,
+			)
+			.from('#scene-rail .rail-bg', { x: '100vw', duration: 0.55, ease: 'power1.out' }, 0.1)
+			.from(
+				'#scene-rail .rail',
+				{
+					x: () => {
+						const r = document.querySelector('#scene-rail .rail')!.getBoundingClientRect();
+						return window.innerWidth - r.left + 80;
+					},
+					duration: 0.6,
+					ease: 'power3.out',
+				},
+				0.25,
+			);
 
 		/* S8 页尾：从下渐显进场 */
 		gsap.from('.foot-inner', {
@@ -567,7 +614,8 @@ const blocks = [
 	/* ---------- 逐屏三段式场景 ---------- */
 	.scene {
 		min-height: 100vh;
-		overflow: hidden; /* 视差内容出框裁切保障，勿删 */
+		/* v2：不用 overflow:hidden——进场窗口期内容要越出盒子悬浮在交接区（高度锁机制）；
+		   横向溢出由 body overflow-x:hidden 兜底 */
 		display: flex;
 		align-items: center;
 		padding: 40px;
