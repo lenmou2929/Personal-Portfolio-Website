@@ -9,6 +9,9 @@
  *    内容锁定最终屏幕高度（y:-100vh→0）+ 左右滑入，页面到位 = 入场完成，
  *    消除进场途中隐形盒子+隐藏内容造成的空白页与冻住感；pin 只负责停留（+=35%）。
  *    stage1 与页尾不变。详见 README 决策表与日志 17
+ * 5. 进场机制 v2.1（同日用户反馈调优）：高度锁 scrub:true 严格跟屏（0.5 平滑会导致
+ *    y 滞后滚动速度×0.5s = "不跟屏"）；入场自窗口 50% 起（旧内容 1:1 划走到 50% 时
+ *    仅剩底部残余，重叠消除）；退场视差 16/16/13vh 移除（其滞后延迟旧内容出画）
  * 动效定稿数值以 mockups/手动调整手册.md 为索引（pin 170% / 视差 8/16/16/13vh / rail 1s·0.25 / 页尾 y:150 等）。
  */
 import { getCollection } from 'astro:content';
@@ -270,35 +273,23 @@ const blocks = [
 			)
 			.to({}, { duration: 0.12 });
 
-		/* 三场景内容视差（退场滞后下滑，16/16/13vh 定稿值不变）。
-		   ⚠️ 创建顺序纪律：退场视差必须先于下方「进场窗口」的高度锁创建——同一元素的
-		   多个 scrub 补间操作同一 y 属性时，渲染与 refresh 全量重渲都按创建顺序，
-		   后创建者胜出；倒置会在窗口内互相覆盖 */
-		gsap.to('#scene-about .scene-inner', {
-			y: '16vh',
-			ease: 'none',
-			scrollTrigger: { trigger: '#scene-cats', start: 'top bottom', end: 'top top', scrub: 0.5 },
-		});
-		gsap.to('#scene-cats .scene-inner', {
-			y: '16vh',
-			ease: 'none',
-			scrollTrigger: { trigger: '#scene-rail', start: 'top bottom', end: 'top top', scrub: 0.5 },
-		});
-		gsap.to('#scene-rail .scene-inner', {
-			y: '13vh',
-			ease: 'none',
-			scrollTrigger: { trigger: 'footer', start: 'top bottom', end: 'top top', scrub: 0.5 },
-		});
+		/* v2.1：退场视差（16/16/13vh 滞后下滑）已移除——它让旧内容在窗口内多滞留约 15%
+		   （91% 处才完全出画），与「旧内容先出、新内容后进」的时序冲突，是内容重叠的主因；
+		   旧内容改为 1:1 自然划走让位。若要恢复，必须创建在下方高度锁之前
+		   （同元素多 scrub 补间同属性的创建顺序纪律，见日志 17） */
 
-		/* ============ 进场窗口（v2 核心机制） ============
-		   上一场退场期间，本场内容锁定在「完全到位后应在的屏幕高度」（高度锁 y:-100vh→0
-		   恰好抵消盒子上行的 900px），同时从左右滑入；页面滑到位 = 入场刚好完成。
+		/* ============ 进场窗口（v2.1） ============
+		   上一场 1:1 划走让位后，本场内容锁定在「完全到位后应在的屏幕高度」（高度锁
+		   y:-100vh→0 恰好抵消盒子上行的 900px）并从左右滑入；页面滑到位 = 入场完成。
 		   触发窗口 = 本场盒子从视口底滑到顶的 900px（'top bottom' → 'top top'）。
-		   精选场锁 .rail-wrap（深色底块自带背景，可在浅底上提前进场）；其标题留守 pin。
-		   ⚠️ 必须在退场视差之后创建（创建顺序纪律，见上） */
+		   v2.1 要点：①高度锁 scrub:true——1:1 严格跟屏，零平滑（0.5 平滑会让 y 滞后
+		   滚动速度×0.5s，快速滚动时差半屏，即"不跟屏"的根因）；②入场自窗口 50% 起——
+		   旧内容 1:1 划走到 50% 时仅剩底部残余（上缘已出画），与新内容几乎不相交。
+		   精选场锁 .rail-wrap（深色底块自带背景）；其标题留守 pin。
+		   入场补间保留 scrub 0.5 的横向平滑（与全站手感一致，仅高度锁是严格的） */
 		gsap
 			.timeline({
-				scrollTrigger: { trigger: '#scene-about', start: 'top bottom', end: 'top top', scrub: 0.5 },
+				scrollTrigger: { trigger: '#scene-about', start: 'top bottom', end: 'top top', scrub: true },
 			})
 			.fromTo(
 				'#scene-about .scene-inner',
@@ -306,23 +297,23 @@ const blocks = [
 				{ y: '0vh', ease: 'none', duration: 1, immediateRender: false },
 				0,
 			)
-			.from('#scene-about .sec-head', { autoAlpha: 0, duration: 0.22 }, 0.15)
+			.from('#scene-about .sec-head', { autoAlpha: 0, duration: 0.22 }, 0.5)
 			.from(
 				'#scene-about .sec-head h2, #scene-about .sec-head .idx',
-				{ x: -90, duration: 0.3, stagger: 0.05, ease: 'power2.out' },
-				0.15,
+				{ x: -90, duration: 0.28, stagger: 0.05, ease: 'power2.out' },
+				0.5,
 			)
-			.from('#scene-about .lead', { x: -80, autoAlpha: 0, duration: 0.32, ease: 'power2.out' }, 0.28)
+			.from('#scene-about .lead', { x: -80, autoAlpha: 0, duration: 0.3, ease: 'power2.out' }, 0.56)
 			.from(
 				'#scene-about .fact',
-				{ x: 90, autoAlpha: 0, duration: 0.22, stagger: 0.07, ease: 'power2.out' },
-				0.38,
+				{ x: 90, autoAlpha: 0, duration: 0.18, stagger: 0.05, ease: 'power2.out' },
+				0.6,
 			)
-			.from('#scene-about .award-line', { y: 70, autoAlpha: 0, duration: 0.3, ease: 'power2.out' }, 0.62);
+			.from('#scene-about .award-line', { y: 70, autoAlpha: 0, duration: 0.28, ease: 'power2.out' }, 0.66);
 
 		gsap
 			.timeline({
-				scrollTrigger: { trigger: '#scene-cats', start: 'top bottom', end: 'top top', scrub: 0.5 },
+				scrollTrigger: { trigger: '#scene-cats', start: 'top bottom', end: 'top top', scrub: true },
 			})
 			.fromTo(
 				'#scene-cats .scene-inner',
@@ -330,11 +321,11 @@ const blocks = [
 				{ y: '0vh', ease: 'none', duration: 1, immediateRender: false },
 				0,
 			)
-			.from('#scene-cats .sec-head', { autoAlpha: 0, duration: 0.22 }, 0.15)
+			.from('#scene-cats .sec-head', { autoAlpha: 0, duration: 0.22 }, 0.5)
 			.from(
 				'#scene-cats .sec-head h2, #scene-cats .sec-head .idx',
-				{ x: -90, duration: 0.3, stagger: 0.05, ease: 'power2.out' },
-				0.15,
+				{ x: -90, duration: 0.28, stagger: 0.05, ease: 'power2.out' },
+				0.5,
 			)
 			.from(
 				'#scene-cats .cats',
@@ -343,15 +334,15 @@ const blocks = [
 						const r = document.querySelector('#scene-cats .cats')!.getBoundingClientRect();
 						return -(r.left + r.width + 80);
 					},
-					duration: 0.55,
+					duration: 0.44,
 					ease: 'power2.out',
 				},
-				0.25,
+				0.52,
 			);
 
 		gsap
 			.timeline({
-				scrollTrigger: { trigger: '#scene-rail', start: 'top bottom', end: 'top top', scrub: 0.5 },
+				scrollTrigger: { trigger: '#scene-rail', start: 'top bottom', end: 'top top', scrub: true },
 			})
 			.fromTo(
 				'#scene-rail .rail-wrap',
@@ -359,7 +350,7 @@ const blocks = [
 				{ y: '0vh', ease: 'none', duration: 1, immediateRender: false },
 				0,
 			)
-			.from('#scene-rail .rail-bg', { x: '100vw', duration: 0.55, ease: 'power1.out' }, 0.1)
+			.from('#scene-rail .rail-bg', { x: '100vw', duration: 0.4, ease: 'power1.out' }, 0.45)
 			.from(
 				'#scene-rail .rail',
 				{
@@ -367,10 +358,10 @@ const blocks = [
 						const r = document.querySelector('#scene-rail .rail')!.getBoundingClientRect();
 						return window.innerWidth - r.left + 80;
 					},
-					duration: 0.6,
+					duration: 0.42,
 					ease: 'power3.out',
 				},
-				0.25,
+				0.55,
 			);
 
 		/* S8 页尾：从下渐显进场 */
