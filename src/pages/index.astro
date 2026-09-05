@@ -571,6 +571,7 @@ const blocks = [
 		display: flex;
 		align-items: center;
 		padding: 40px;
+		color: var(--ink); /* 标题等继承此处：浅色场景=墨色，scene-dark 内被覆盖为暖白 */
 	}
 	.scene-inner {
 		width: 100%;
@@ -589,7 +590,7 @@ const blocks = [
 		font-size: clamp(28px, 3.6vw, 44px);
 		font-weight: 600;
 		letter-spacing: 0.03em;
-		color: var(--ink);
+		color: inherit; /* 模板全局给 h2 直拍了颜色，必须显式 inherit 才能跟随场景（浅色=墨色 / scene-dark=暖白） */
 	}
 	.sec-head .idx {
 		font-family: var(--serif);
