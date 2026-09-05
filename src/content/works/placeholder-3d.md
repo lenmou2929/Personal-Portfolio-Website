@@ -1,4 +1,5 @@
 ---
+draft: true
 title: 占位作品 · 3D（Phase 5 替换）
 category: 3d
 level: A
