@@ -5,6 +5,7 @@ import PageHead from '../../../components/PageHead.astro';
 import WorkCard from '../../../components/WorkCard.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { WORK_CATEGORIES } from '../../../lib/categories';
+import { CATEGORY_IMAGES } from '../../../lib/category-images';
 
 export async function getStaticPaths() {
 	return WORK_CATEGORIES.map((cat) => ({ params: { category: cat.key }, props: { cat } }));
@@ -15,11 +16,12 @@ const { cat } = Astro.props;
 const sorted = (
 	await getCollection('work', ({ data }) => !data.draft && data.category === cat.key)
 ).sort((a, b) => (b.data.date.valueOf() > a.data.date.valueOf() ? 1 : -1));
-/* 占位条目垫底：真实作品按日期在前 */
 const entries = [
 	...sorted.filter((e) => !e.data.title.startsWith('占位')),
 	...sorted.filter((e) => e.data.title.startsWith('占位')),
 ];
+/* 底部互推：另外两个分类（2026-09-06 IA 重构——索引页退役后跨类动线落在这里） */
+const others = WORK_CATEGORIES.filter((c) => c.key !== cat.key);
 
 const LEADS: Record<string, string> = {
 	'3d': 'UE5 地编与 Blender 全流程——场景搭建、材质 lookdev、灯光渲染出图，影视向与产品向并行。',
@@ -30,7 +32,7 @@ const LEADS: Record<string, string> = {
 
 <BaseLayout title={`${cat.label} | 陈继祖作品集`} description={`陈继祖作品集 · ${cat.label}分类作品`} fixedTheme="dark">
 	<main class="wrapper page">
-		<PageHead no={cat.no} en={cat.en} title={cat.label} lead={LEADS[cat.key]} crumbHref="/works/" />
+		<PageHead no={cat.no} en={cat.en} title={cat.label} lead={LEADS[cat.key]} />
 
 		{
 			cat.key === '3d' && (
@@ -121,23 +123,135 @@ const LEADS: Record<string, string> = {
 				)
 			}
 		</section>
+
+		{
+			others.length > 0 && (
+				<section class="more-cats">
+					<h2>
+						继续看<span class="count-alt">其它两类作品</span>
+					</h2>
+					<div class="more-grid">
+						{others.map((c) => (
+							<a class="more-card" href={`/works/${c.key}/`} aria-label={`进入「${c.label}」分类`}>
+								<div class="catbox">
+									<img src={CATEGORY_IMAGES[c.key]} alt={`${c.label}分类封面`} loading="lazy" />
+									<div class="veil" />
+									<span class="no">{c.no}</span>
+									<div class="label">
+										<b>{c.label}</b>
+										<span>{c.en}</span>
+									</div>
+								</div>
+							</a>
+						))}
+					</div>
+				</section>
+			)
+		}
 	</main>
+
+	<!-- 作品条：点击卡片自下滑出（2026-09-06 IA 重构——详情页退役，?w=id 深链直达） -->
+	<div class="sheet-layer" id="work-sheet">
+		<div class="sheet-backdrop" data-sheet-close />
+		<div class="sheet" role="dialog" aria-modal="true" aria-label={`${cat.label}作品预览`}>
+			<button class="sheet-close" type="button" data-sheet-close aria-label="关闭作品预览">
+				✕
+			</button>
+			<div class="sheet-body">
+				{
+					entries.map((w, i) => (
+						<article class="work-panel" data-panel={w.id} hidden>
+							<div class="wp-head">
+								<span class="wp-no">no.{String(i + 1).padStart(2, '0')}</span>
+								<h3>{w.data.title}</h3>
+								<span class="attr">{w.data.attribution}</span>
+							</div>
+							<div class="wp-media">
+								{w.data.video ? (
+									<video controls preload="none" playsinline src={w.data.video} />
+								) : (
+									<img src={w.data.cover} alt={w.data.cover_alt} />
+								)}
+							</div>
+							<div class="wp-meta">
+								<span>{w.data.tools.join(' · ')}</span>
+								<span class="wp-date">
+									{w.data.date.getFullYear()}·{String(w.data.date.getMonth() + 1).padStart(2, '0')}
+								</span>
+							</div>
+							<p class="wp-summary">{w.data.summary}</p>
+							{w.data.links.length > 0 && (
+								<div class="wp-links">
+									{w.data.links.map((l) => (
+										<a href={l.url} target="_blank" rel="noopener">
+											{l.label} ↗
+										</a>
+									))}
+								</div>
+							)}
+						</article>
+					))
+				}
+			</div>
+		</div>
+	</div>
 </BaseLayout>
 
 <script>
-	/* iframe 点击激活 + 加载失败兜底（评估 B/审查 P1：滚动劫持与白板态） */
-	const frame = document.querySelector('.live-frame');
-	if (frame) {
-		const activate = frame.querySelector('.activate');
-		const fail = frame.querySelector('.load-fail');
-		const iframe = frame.querySelector('iframe');
-		activate?.addEventListener('click', () => frame.classList.add('active'));
-		let loaded = false;
-		iframe?.addEventListener('load', () => (loaded = true));
-		window.setTimeout(() => {
-			if (!loaded) fail?.removeAttribute('hidden');
-		}, 8000);
-		iframe?.addEventListener('load', () => fail?.setAttribute('hidden', ''));
+	/* 底部作品条：开合 + 深链同步（?w=作品id）+ 三重退出（✕/黑罩/ESC）+ 滚动隔离 */
+	const layer = document.getElementById('work-sheet');
+	if (layer) {
+		const body = layer.querySelector('.sheet-body')!;
+		let pushed = false; // 本次打开是否压入了历史记录
+
+		const panelOf = (id: string) => body.querySelector(`[data-panel="${CSS.escape(id)}"]`);
+
+		function uiOpen(id: string) {
+			for (const p of body.querySelectorAll('.work-panel')) p.hidden = p.dataset.panel !== id;
+			layer!.classList.add('open');
+			document.body.style.overflow = 'hidden'; // 滚动隔离：条内滚动不穿透
+		}
+
+		function open(id: string, push = true) {
+			if (!panelOf(id)) return;
+			uiOpen(id);
+			if (push) {
+				history.pushState({ w: id }, '', `?w=${encodeURIComponent(id)}`);
+				pushed = true;
+			}
+		}
+
+		function uiClose() {
+			layer!.classList.remove('open');
+			document.body.style.overflow = '';
+		}
+
+		function close() {
+			if (!layer!.classList.contains('open')) return;
+			if (pushed) {
+				pushed = false;
+				history.back(); // popstate 里做 uiClose
+			} else {
+				history.replaceState(null, '', location.pathname); // 深链直达后关闭：抹掉参数
+				uiClose();
+			}
+		}
+
+		document.querySelectorAll('[data-open-work]').forEach((btn) =>
+			btn.addEventListener('click', () => open((btn as HTMLElement).dataset.openWork!)),
+		);
+		layer.querySelectorAll('[data-sheet-close]').forEach((el) => el.addEventListener('click', close));
+		window.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape') close();
+		});
+		window.addEventListener('popstate', () => {
+			pushed = false;
+			uiClose();
+		});
+
+		/* 深链直达：/works/3d/?w=scarab-sphere 直接滑出对应作品条 */
+		const w = new URLSearchParams(location.search).get('w');
+		if (w) open(w, false);
 	}
 </script>
 
@@ -371,7 +485,7 @@ const LEADS: Record<string, string> = {
 		border-color: var(--accent);
 	}
 
-	/* ---------- 平面：破格排版（ghost 衬线大字 + 入库状态卡） ---------- */
+	/* ---------- 平面：破格排版 ---------- */
 	.graph-hero {
 		position: relative;
 		margin-bottom: 64px;
@@ -404,7 +518,8 @@ const LEADS: Record<string, string> = {
 	}
 
 	/* ---------- 作品网格 ---------- */
-	.works h2 {
+	.works h2,
+	.more-cats h2 {
 		display: flex;
 		align-items: baseline;
 		gap: 12px;
@@ -417,7 +532,8 @@ const LEADS: Record<string, string> = {
 		margin-bottom: 30px;
 	}
 
-	.count {
+	.count,
+	.count-alt {
 		font-family: var(--mono);
 		font-size: 11px;
 		letter-spacing: 0.12em;
@@ -437,10 +553,262 @@ const LEADS: Record<string, string> = {
 		gap: 44px 26px;
 	}
 
-	/* 单条目：收窄成阅读列，右侧不留空洞 */
 	.cards.single {
 		grid-template-columns: 1fr;
 		max-width: 640px;
+	}
+
+	/* ---------- 互推卡（首页分类卡同语言） ---------- */
+	.more-cats {
+		margin-top: 70px;
+	}
+
+	.more-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 18px;
+		max-width: 900px;
+	}
+
+	.more-card {
+		display: block;
+		text-decoration: none;
+		perspective: 1200px; /* 悬停一角后压（与首页分类卡同语言） */
+	}
+
+	.catbox {
+		position: relative;
+		aspect-ratio: 3 / 4;
+		overflow: hidden;
+		border-radius: var(--radius-card);
+		background: var(--dark);
+		transform-origin: 72% 26%;
+		transition: transform 0.24s cubic-bezier(0.2, 0.7, 0.3, 1);
+	}
+
+	.more-card:hover .catbox {
+		transform: translateY(-5px) rotateX(6deg) rotateY(-8deg);
+	}
+
+	.catbox img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		opacity: 0.88;
+		transition: transform 0.5s ease;
+	}
+
+	.more-card:hover .catbox img {
+		transform: scale(1.05);
+	}
+
+	.catbox .veil {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(to top, rgba(20, 20, 18, 0.72) 0%, transparent 46%);
+	}
+
+	.catbox .label {
+		position: absolute;
+		left: 18px;
+		bottom: 16px;
+		color: #fff;
+		z-index: 3;
+	}
+
+	.catbox .label b {
+		font-size: 20px;
+		letter-spacing: 0.06em;
+		display: block;
+		font-weight: 600;
+	}
+
+	.catbox .label span {
+		font-family: var(--mono);
+		font-size: 11px;
+		opacity: 0.75;
+		letter-spacing: 0.14em;
+	}
+
+	.catbox .no {
+		position: absolute;
+		top: 14px;
+		right: 16px;
+		font-family: var(--serif);
+		font-style: italic;
+		color: #fff;
+		opacity: 0.85;
+		font-size: 15px;
+		z-index: 3;
+	}
+
+	/* ---------- 底部作品条 ---------- */
+	.sheet-layer {
+		position: fixed;
+		inset: 0;
+		z-index: 80;
+		visibility: hidden;
+		transition: visibility 0s linear 0.5s;
+	}
+
+	.sheet-layer.open {
+		visibility: visible;
+		transition-delay: 0s;
+	}
+
+	.sheet-backdrop {
+		position: absolute;
+		inset: 0;
+		background: rgba(10, 11, 12, 0.6);
+		opacity: 0;
+		transition: opacity 0.4s ease;
+	}
+
+	.sheet-layer.open .sheet-backdrop {
+		opacity: 1;
+	}
+
+	.sheet {
+		position: absolute;
+		left: 50%;
+		bottom: 0;
+		transform: translate(-50%, 100%);
+		width: min(1100px, 100%);
+		height: min(86vh, 920px);
+		background: var(--dark-2);
+		border: 1px solid var(--line);
+		border-bottom: 0;
+		border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+		transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.3, 1);
+	}
+
+	.sheet-layer.open .sheet {
+		transform: translate(-50%, 0);
+	}
+
+	.sheet-close {
+		position: absolute;
+		top: -46px;
+		right: 0;
+		z-index: 2;
+		width: 38px;
+		height: 38px;
+		border: 1px solid var(--dark-line-2);
+		border-radius: 50%;
+		background: rgba(23, 25, 27, 0.85);
+		color: var(--dark-ink);
+		font-size: 14px;
+		line-height: 1;
+		cursor: pointer;
+		transition:
+			color 0.2s,
+			border-color 0.2s;
+	}
+
+	.sheet-close:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+	}
+
+	.sheet-body {
+		height: 100%;
+		overflow-y: auto;
+		overscroll-behavior: contain; /* 条内滚动不穿透到页面 */
+		padding: 30px clamp(20px, 4vw, 48px) 64px;
+	}
+
+	.work-panel[hidden] {
+		display: none;
+	}
+
+	.wp-head {
+		display: flex;
+		align-items: baseline;
+		gap: 16px;
+		border-bottom: 1px solid var(--line);
+		padding-bottom: 16px;
+		margin-bottom: 22px;
+	}
+
+	.wp-no {
+		font-family: var(--serif);
+		font-style: italic;
+		font-size: 16px;
+		letter-spacing: 0.08em;
+		color: var(--ink-2);
+	}
+
+	.wp-head h3 {
+		font-size: clamp(22px, 3vw, 32px);
+		font-weight: 600;
+		letter-spacing: 0.03em;
+		color: var(--ink);
+		margin-right: auto;
+	}
+
+	.attr {
+		font-family: var(--mono);
+		font-size: 10.5px;
+		letter-spacing: 0.12em;
+		color: var(--accent);
+		border: 1px solid var(--line);
+		border-radius: var(--radius-tag);
+		padding: 3px 8px;
+		white-space: nowrap;
+	}
+
+	.wp-media {
+		aspect-ratio: 16 / 9;
+		overflow: hidden;
+		border-radius: var(--radius-panel);
+		background: #101214;
+	}
+
+	.wp-media img,
+	.wp-media video {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.wp-meta {
+		display: flex;
+		justify-content: space-between;
+		gap: 16px;
+		margin-top: 16px;
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.1em;
+		color: var(--dark-ink-2);
+	}
+
+	.wp-summary {
+		margin-top: 14px;
+		max-width: 720px;
+		font-size: 15px;
+		line-height: 1.9;
+		color: var(--dark-ink-3);
+	}
+
+	.wp-links {
+		display: flex;
+		gap: 18px;
+		margin-top: 18px;
+	}
+
+	.wp-links a {
+		font-family: var(--mono);
+		font-size: 12px;
+		color: var(--ink);
+		text-decoration: none;
+		border-bottom: 1px solid var(--line);
+		padding-bottom: 2px;
+	}
+
+	.wp-links a:hover {
+		color: var(--accent);
+		border-color: var(--accent);
 	}
 
 	@media (max-width: 900px) {
@@ -456,14 +824,37 @@ const LEADS: Record<string, string> = {
 			grid-template-columns: 1fr;
 		}
 
+		.more-grid {
+			grid-template-columns: 1fr;
+			max-width: none;
+		}
+
 		.intake {
 			margin-top: -30px;
+		}
+
+		.sheet {
+			width: 100%;
+			height: 92vh;
+		}
+
+		.sheet-close {
+			top: -44px;
+			right: 8px;
 		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
 		.pulse {
 			animation: none;
+		}
+
+		.sheet-layer,
+		.sheet-backdrop,
+		.sheet,
+		.catbox,
+		.catbox img {
+			transition: none;
 		}
 	}
 </style>
