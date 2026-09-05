@@ -32,17 +32,19 @@ const LEADS: Record<string, string> = {
 
 <BaseLayout title={`${cat.label} | 陈继祖作品集`} description={`陈继祖作品集 · ${cat.label}分类作品`} fixedTheme="dark">
 	<main class="wrapper page">
-		<PageHead no={cat.no} en={cat.en} title={cat.label} lead={LEADS[cat.key]} />
-
-		{
-			cat.key === '3d' && (
-				<section class="hero">
-					<ModelStage src="/models/telephone-2k.glb" poster="/works/phone-front.jpg" />
-					<p class="hero-caption">
-						<span class="mono-tag">INTERACTIVE</span>
-						老式电话机 · PBR——在线实时渲染，入场自动播放听筒拿起动画。
-					</p>
-				</section>
+	{
+			cat.key === '3d' ? (
+				/* 3D 页：全幅出血渲染窗即页首（标题/导语叠加画面左下），替代常规 PageHead */
+				<ModelStage
+					src="/models/telephone-2k.glb"
+					poster="/works/phone-front.jpg"
+					no={cat.no}
+					en={cat.en}
+					title={cat.label}
+					lead={LEADS[cat.key]}
+				/>
+			) : (
+				<PageHead no={cat.no} en={cat.en} title={cat.label} lead={LEADS[cat.key]} />
 			)
 		}
 
@@ -273,31 +275,6 @@ const LEADS: Record<string, string> = {
 <style>
 	.page {
 		padding-block: 1rem 6rem;
-	}
-
-	/* ---------- 地编/3D：座机 Hero ---------- */
-	.hero {
-		margin-bottom: 64px;
-	}
-
-	.hero-caption {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		margin-top: 14px;
-		font-size: 13px;
-		color: var(--ink-2);
-	}
-
-	.mono-tag {
-		font-family: var(--mono);
-		font-size: 10px;
-		letter-spacing: 0.16em;
-		color: var(--accent);
-		border: 1px solid var(--line);
-		border-radius: var(--radius-tag);
-		padding: 3px 8px;
-		white-space: nowrap;
 	}
 
 	/* ---------- Vibecoding：实机嵌入（全宽大窗）+ 状态侧栏 ---------- */

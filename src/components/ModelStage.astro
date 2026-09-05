@@ -1,34 +1,52 @@
 ---
-/** 3D 分类页 Hero：座机 glb 在线查看（交互规范 §5 v1）。
- * 入场自动播听筒拿起动画一次 + 拖转 + 缓慢自转；prefers-reduced-motion 时
- * 不自转不播动画（保留拖转）。加载前显示渲染图海报，失败时留在海报态。 */
+/** 3D 分类页首屏 Hero（2026-09-06 用户定稿）：
+ * 全幅出血渲染窗 = 页面页首——画布上/左/右越出屏幕、只露底边分界线；
+ * 标题/导语叠在画面左下。交互：鼠标位置微转（触屏关闭）+ 滚动 1:1 驱动听筒
+ * 动画（下滑拿起、停=停、回=倒，行程一屏）。不自动旋转、不拖转。 */
 interface Props {
 	src: string;
 	poster: string;
-	alt?: string;
+	no: string;
+	en: string;
+	title: string;
+	lead: string;
 }
-const { src, poster, alt = '老式电话机渲染图（模型加载前的占位帧）' } = Astro.props;
+const { src, poster, no, en, title, lead } = Astro.props;
 ---
 
-<div class="stage" id="model-stage" data-src={src}>
-	<img class="poster" src={poster} alt={alt} loading="eager" />
-	<p class="note" aria-live="polite"><span class="dot"></span>LOADING — 3D MODEL</p>
+<div class="hero3d" id="hero3d" data-src={src}>
+	<img class="poster" src={poster} alt="老式电话机渲染图（模型加载前的占位帧）" loading="eager" />
 	<canvas class="gl"></canvas>
-	<p class="hint">DRAG TO ROTATE</p>
+	<div class="hero-text">
+		<p class="kicker"><span class="no">{no} — </span>{en}</p>
+		<h1>{title}</h1>
+		<p class="lead">{lead}</p>
+	</div>
+	<p class="hint">SCROLL — 滚动拿起听筒 · 移动鼠标环视</p>
+	<p class="note" aria-live="polite"><span class="dot"></span>LOADING — 3D MODEL</p>
 </div>
 
 <style>
-	.stage {
+	/* 全幅出血：上/左/右越界（顶部被 fixed 顶栏盖住），只露底边 1px 分界线。
+	   margin-top 负值抵消 BaseLayout 让位（88/96px）+ 页面 1rem 顶距 → top=0，
+	   高度恰为 100vh → scrollY=0 时底边正好落在视口底。 */
+	.hero3d {
 		position: relative;
-		width: 100%;
-		aspect-ratio: 4 / 3;
-		max-height: 560px;
-		border: 1px solid var(--line);
-		border-radius: var(--radius-panel);
-		background:
-			radial-gradient(120% 90% at 50% 0%, rgba(143, 180, 158, 0.07), transparent 55%),
-			var(--dark-2);
+		height: 100vh;
+		margin-top: calc(-88px - 1rem);
+		margin-bottom: 70px;
+		border-bottom: 1px solid var(--line);
 		overflow: hidden;
+		background: var(--dark);
+	}
+
+	.hero3d::after {
+		/* 底部压暗渐变：托住叠加文字 */
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(to top, rgba(23, 25, 27, 0.72) 0%, transparent 42%);
+		pointer-events: none;
 	}
 
 	.poster {
@@ -37,34 +55,83 @@ const { src, poster, alt = '老式电话机渲染图（模型加载前的占位�
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		object-position: center 30%;
 		opacity: 0.9;
-		transition: opacity 0.7s ease;
+		transition: opacity 0.8s ease;
 	}
 
 	.gl {
 		position: absolute;
-		inset: 0;
-		width: 100%;
+		top: 0;
+		left: -15vw;
+		width: 130vw;
 		height: 100%;
 		opacity: 0;
-		transition: opacity 0.7s ease;
-		/* pan-y：竖向滑动还给页面滚动（手机上模型不再吞掉整屏手势），
-		   横向拖转仍由 OrbitControls 接管 */
-		touch-action: pan-y;
+		transition: opacity 0.8s ease;
 	}
 
-	.stage.ready .gl {
+	.hero3d.ready .gl {
 		opacity: 1;
 	}
 
-	.stage.ready .poster {
+	.hero3d.ready .poster {
 		opacity: 0;
+	}
+
+	.hero-text {
+		position: absolute;
+		left: clamp(20px, 4vw, 48px);
+		right: clamp(20px, 4vw, 48px);
+		bottom: clamp(26px, 6vh, 60px);
+		z-index: 2;
+		pointer-events: none;
+	}
+
+	.hero-text .kicker {
+		font-family: var(--mono);
+		font-size: 13px;
+		letter-spacing: 0.3em;
+		color: var(--dark-ink-2);
+		margin-bottom: 14px;
+	}
+
+	.hero-text .no {
+		color: var(--accent);
+	}
+
+	.hero-text h1 {
+		font-size: clamp(44px, 6vw, 76px);
+		font-weight: 600;
+		letter-spacing: 0.03em;
+		line-height: 1.02;
+		color: var(--dark-ink);
+	}
+
+	.hero-text .lead {
+		margin-top: 14px;
+		max-width: 520px;
+		font-size: 14.5px;
+		line-height: 1.8;
+		color: var(--dark-ink-3);
+	}
+
+	.hint {
+		position: absolute;
+		right: clamp(20px, 4vw, 48px);
+		bottom: clamp(26px, 6vh, 60px);
+		z-index: 2;
+		font-family: var(--mono);
+		font-size: 10.5px;
+		letter-spacing: 0.16em;
+		color: var(--dark-ink-2);
+		text-align: right;
 	}
 
 	.note {
 		position: absolute;
 		left: 16px;
-		top: 14px;
+		top: 84px;
+		z-index: 2;
 		font-family: var(--mono);
 		font-size: 10.5px;
 		letter-spacing: 0.18em;
@@ -92,35 +159,29 @@ const { src, poster, alt = '老式电话机渲染图（模型加载前的占位�
 		}
 	}
 
-	.stage.ready .note {
+	.hero3d.ready .note {
 		display: none;
 	}
 
-	.hint {
-		position: absolute;
-		right: 16px;
-		bottom: 12px;
-		font-family: var(--mono);
-		font-size: 10px;
-		letter-spacing: 0.18em;
-		color: var(--dark-ink-2);
-		opacity: 0;
-		transition: opacity 0.7s ease 0.4s;
-		pointer-events: none;
-	}
+	@media (max-width: 900px) {
+		.hero3d {
+			height: 100vh;
+			margin-top: calc(-96px - 1rem);
+		}
 
-	.stage.ready .hint {
-		opacity: 0.85;
-	}
-
-	.stage.touched .hint {
-		opacity: 0;
-		transition: opacity 0.3s ease;
+		.hint {
+			display: none;
+		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
 		.note .dot {
 			animation: none;
+		}
+
+		.gl,
+		.poster {
+			transition: none;
 		}
 	}
 </style>
@@ -129,14 +190,16 @@ const { src, poster, alt = '老式电话机渲染图（模型加载前的占位�
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+	import gsap from 'gsap';
+	import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-	const stage = document.getElementById('model-stage') as HTMLDivElement | null;
+	const hero = document.getElementById('hero3d') as HTMLDivElement | null;
 
-	if (stage) {
+	if (hero) {
 		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		const canvas = stage.querySelector('canvas')!;
-		const note = stage.querySelector('.note')!;
+		const finePointer = window.matchMedia('(pointer: fine)').matches;
+		const canvas = hero.querySelector('canvas')!;
+		const note = hero.querySelector('.note')!;
 
 		try {
 			const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -144,8 +207,9 @@ const { src, poster, alt = '老式电话机渲染图（模型加载前的占位�
 			renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 			const scene = new THREE.Scene();
-			const camera = new THREE.PerspectiveCamera(34, 4 / 3, 0.1, 100);
-			camera.position.set(3.4, 1.5, 5.4);
+			const camera = new THREE.PerspectiveCamera(30, 16 / 9, 0.1, 100);
+			camera.position.set(0, 0.5, 8.4); /* 拉远：整机入画 + 视差/文字留白 */
+			camera.lookAt(0, 0, 0);
 
 			scene.add(new THREE.HemisphereLight(0xf5f3ee, 0x2a2e30, 1.15));
 			const key = new THREE.DirectionalLight(0xffffff, 1.6);
@@ -160,12 +224,45 @@ const { src, poster, alt = '老式电话机渲染图（模型加载前的占位�
 			const loader = new GLTFLoader().setDRACOLoader(draco);
 
 			let mixer: THREE.AnimationMixer | null = null;
+			let clipDur = 0;
+			let scrubProgress = 0; // 滚动进度（0..1）→ 动画时间轴
+			const tilt = { x: 0, y: 0, tx: 0, ty: 0 }; // 鼠标视差当前/目标角
 
+			/* 鼠标视差：指针在哪，电话微微转向哪（触屏设备关闭） */
+			if (finePointer && !reduced) {
+				window.addEventListener('mousemove', (e) => {
+					tilt.ty = (e.clientX / window.innerWidth - 0.5) * 2 * 0.22;
+					tilt.tx = (e.clientY / window.innerHeight - 0.5) * 2 * 0.1;
+				});
+			}
+
+			/* 滚动驱动：一屏行程，scrub 1:1——停=停、回=倒（gsap onUpdate 即时读进度） */
+			if (!reduced) {
+				gsap.registerPlugin(ScrollTrigger);
+				ScrollTrigger.create({
+					trigger: hero,
+					start: 'top top',
+					end: '+=100%',
+					onUpdate: (self) => (scrubProgress = self.progress),
+				});
+			}
+
+			const fit = () => {
+				const w = canvas.clientWidth || 1;
+				const h = canvas.clientHeight || 1;
+				renderer.setSize(w, h, false);
+				camera.aspect = w / h;
+				camera.updateProjectionMatrix();
+			};
+			new ResizeObserver(fit).observe(canvas);
+			fit();
+
+			/* draco 解码器走本站静态目录（public/draco/），不依赖外部 CDN */
 			loader.load(
-				stage.dataset.src!,
+				hero.dataset.src!,
 				(gltf) => {
 					const model = gltf.scene;
-					/* 归一化：不依赖建模时的单位/位置——居中并等比缩放到固定尺寸 */
+					/* 归一化：居中 + 等比缩放到固定尺寸（不依赖建模单位/位置） */
 					model.updateMatrixWorld(true);
 					const box = new THREE.Box3().setFromObject(model);
 					const size = box.getSize(new THREE.Vector3());
@@ -179,53 +276,45 @@ const { src, poster, alt = '老式电话机渲染图（模型加载前的占位�
 					group.add(model);
 					scene.add(group);
 
-					const controls = new OrbitControls(camera, canvas);
-					controls.enableZoom = false;
-					controls.enablePan = false;
-					controls.autoRotate = !reduced;
-					controls.autoRotateSpeed = 1.1;
-					controls.target.set(0, 0, 0);
-					controls.update();
-					canvas.addEventListener('pointerdown', () => stage.classList.add('touched'), {
-						once: true,
-					});
-
-					/* 听筒拿起动画：入场播一次后停在末帧（交互规范 §5 v1） */
-					if (gltf.animations.length > 0 && !reduced) {
+					/* 听筒动画：不自动播——时间轴交给滚动（setTime 随 scrub 走） */
+					if (gltf.animations.length > 0) {
 						mixer = new THREE.AnimationMixer(model);
 						const action = mixer.clipAction(gltf.animations[0]);
 						action.setLoop(THREE.LoopOnce, 1);
 						action.clampWhenFinished = true;
 						action.play();
+						action.paused = true;
+						clipDur = gltf.animations[0].duration || 0;
 					}
 
-					const fit = () => {
-						const w = stage.clientWidth || 1;
-						const h = stage.clientHeight || 1;
-						renderer.setSize(w, h, false);
-						camera.aspect = w / h;
-						camera.updateProjectionMatrix();
-					};
-					new ResizeObserver(fit).observe(stage);
-					fit();
+					hero.classList.add('ready');
 
-					stage.classList.add('ready');
 					const clock = new THREE.Clock();
-					renderer.setAnimationLoop(() => {
-						mixer?.update(clock.getDelta());
-						controls.update();
+					const loop = () => {
+						const dt = clock.getDelta();
+						/* 鼠标视差阻尼跟随 */
+						tilt.y += (tilt.ty - tilt.y) * 0.06;
+						tilt.x += (tilt.tx - tilt.x) * 0.06;
+						group.rotation.y = tilt.y;
+						group.rotation.x = tilt.x;
+						/* 滚动 → 动画时间轴（1:1） */
+						if (mixer && clipDur > 0) mixer.setTime(scrubProgress * clipDur);
 						renderer.render(scene, camera);
+					};
+					renderer.setAnimationLoop(loop);
+					document.addEventListener('visibilitychange', () => {
+						renderer.setAnimationLoop(document.hidden ? null : loop);
 					});
 				},
 				undefined,
 				() => {
-					/* 失败：留在海报态，改状态文案 */
-					note.innerHTML = '<span class="dot" style="animation:none;background:#a9aca5"></span>MODEL OFFLINE — 请看下方渲染图';
+					note.innerHTML =
+						'<span class="dot" style="animation:none;background:#a9aca5"></span>MODEL OFFLINE — 请看下方渲染图';
 				},
 			);
 		} catch {
-			/* 无 WebGL 等：留在海报态 */
-			note.innerHTML = '<span class="dot" style="animation:none;background:#a9aca5"></span>WEBGL UNAVAILABLE — 请看下方渲染图';
+			note.innerHTML =
+				'<span class="dot" style="animation:none;background:#a9aca5"></span>WEBGL UNAVAILABLE — 请看下方渲染图';
 		}
 	}
 </script>
