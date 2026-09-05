@@ -24,7 +24,9 @@ const { title, description, fixedTheme } = Astro.props;
 	<body>
 		<div class="stack backgrounds">
 			<Nav hideThemeToggle={!!fixedTheme} />
-			<slot />
+			<div class="under-topbar">
+				<slot />
+			</div>
 			<Footer />
 		</div>
 
@@ -44,6 +46,16 @@ const { title, description, fixedTheme } = Astro.props;
 			@media (forced-colors: active) {
 				.backgrounds {
 					background: none;
+				}
+			}
+			/* 内页顶栏改首页同款 fixed 定位：用自己的包裹层让出顶栏高度
+			   （首页不经 BaseLayout，不受影响） */
+			.under-topbar {
+				padding-top: 88px;
+			}
+			@media (max-width: 900px) {
+				.under-topbar {
+					padding-top: 72px;
 				}
 			}
 		</style>

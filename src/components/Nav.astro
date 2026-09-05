@@ -1,6 +1,4 @@
 ---
-import Icon from './Icon.astro';
-import type { iconPaths } from './IconPaths';
 import ThemeToggle from './ThemeToggle.astro';
 
 interface Props {
@@ -10,20 +8,13 @@ interface Props {
 
 const { hideThemeToggle = false } = Astro.props;
 
-/** Main menu items */
-const textLinks: { label: string; href: string }[] = [
-	{ label: '首页', href: '/' },
+/** 顶栏导航（内页）：路由版；首页顶栏为锚点版（index.astro 内联，样式同源） */
+const links: { label: string; href: string }[] = [
 	{ label: '作品', href: '/works/' },
 	{ label: '关于', href: '/about/' },
 	{ label: '联系', href: '/contact/' },
 ];
 
-/** Icon links to social media — edit these with links to your profiles! */
-const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[] = [
-	{ label: 'GitHub', href: 'https://github.com/lenmou2929', icon: 'github-logo' },
-];
-
-/** Test if a link is pointing to the current page. */
 const isCurrentPage = (href: string) => {
 	let pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '');
 	if (pathname.at(0) !== '/') pathname = '/' + pathname;
@@ -32,304 +23,132 @@ const isCurrentPage = (href: string) => {
 };
 ---
 
-<nav>
-	<div class="menu-header">
-		<a href="/" class="site-title">
-			<Icon icon="terminal-window" color="var(--accent-regular)" size="1.6em" />
-			陈继祖
-		</a>
-		<menu-button>
-			<template>
-				<button class="menu-button" aria-expanded="false">
-					<span class="sr-only">Menu</span>
-					<Icon icon="list" />
-				</button>
-			</template>
-		</menu-button>
+<header class="topbar">
+	<div class="brand">
+		<a href="/"><b>陈继祖</b><span>CHEN JIZU — 3D / WEB</span></a>
 	</div>
-	<noscript>
-		<ul class="nav-items">
-			{
-				textLinks.map(({ label, href }) => (
-					<li>
-						<a aria-current={isCurrentPage(href) ? 'page' : null} class="link" href={href}>
-							{label}
-						</a>
-					</li>
-				))
-			}
-		</ul>
-	</noscript>
-	<noscript>
-		<div class="menu-footer">
-			<div class="socials">
-				{
-					iconLinks.map(({ href, icon, label }) => (
-						<a href={href} class="social">
-							<span class="sr-only">{label}</span>
-							<Icon icon={icon} />
-						</a>
-					))
-				}
-			</div>
-		</div>
-	</noscript>
-	<div id="menu-content" hidden>
-		<ul class="nav-items">
-			{
-				textLinks.map(({ label, href }) => (
-					<li>
-						<a aria-current={isCurrentPage(href) ? 'page' : null} class="link" href={href}>
-							{label}
-						</a>
-					</li>
-				))
-			}
-		</ul>
-		<div class="menu-footer">
-			<div class="socials">
-				{
-					iconLinks.map(({ href, icon, label }) => (
-						<a href={href} class="social">
-							<span class="sr-only">{label}</span>
-							<Icon icon={icon} />
-						</a>
-					))
-				}
-			</div>
-
-			{!hideThemeToggle && <div class="theme-toggle"><ThemeToggle /></div>}
-		</div>
-	</div>
-</nav>
-
-<script>
-	class MenuButton extends HTMLElement {
-		constructor() {
-			super();
-
-			// Inject menu toggle button when JS runs.
-			this.appendChild(this.querySelector('template')!.content.cloneNode(true));
-			const btn = this.querySelector('button')!;
-
-			// Hide menu (shown by default to support no-JS browsers).
-			const menu = document.getElementById('menu-content')!;
-			menu.hidden = true;
-			// Add "menu-content" class in JS to avoid covering content in non-JS browsers.
-			menu.classList.add('menu-content');
-
-			/** Set whether the menu is currently expanded or collapsed. */
-			const setExpanded = (expand: boolean) => {
-				btn.setAttribute('aria-expanded', expand ? 'true' : 'false');
-				menu.hidden = !expand;
-			};
-
-			// Toggle menu visibility when the menu button is clicked.
-			btn.addEventListener('click', () => setExpanded(menu.hidden === true));
-
-			// Hide menu button for large screens.
-			const handleViewports = (e: MediaQueryList | MediaQueryListEvent) => {
-				setExpanded(e.matches);
-				btn.hidden = e.matches;
-			};
-			const mediaQueries = window.matchMedia('(min-width: 50em)');
-			handleViewports(mediaQueries);
-			mediaQueries.addEventListener('change', handleViewports);
+	<nav class="nav-center" aria-label="主导航">
+		{
+			links.map(({ label, href }) => (
+				<a href={href} aria-current={isCurrentPage(href) ? 'page' : null}>
+					{label}
+				</a>
+			))
 		}
-	}
-	customElements.define('menu-button', MenuButton);
-</script>
+	</nav>
+	<div class="nav-right">
+		{!hideThemeToggle && <ThemeToggle />}
+		<span class="lang">中 / EN</span>
+		<a class="resume" href="/contact/">简历下载</a>
+	</div>
+</header>
 
 <style>
-	/* 线性 UI 语言（2026-09-06 统一）：去模板渐变/阴影/描边层，改 1px 细边框——
-	   与首页顶栏、诚实标注角标、分类胶囊同一套描边语言 */
-	nav {
-		z-index: 9999;
-		position: relative;
-		font-family: var(--font-brand);
-		font-weight: 500;
-		margin-bottom: 3.5rem;
-	}
-
-	.menu-header {
-		display: flex;
-		justify-content: space-between;
-		gap: 0.5rem;
-		padding: 1.5rem;
-	}
-
-	.site-title {
-		display: flex;
-		gap: 0.5rem;
-		align-items: center;
-		line-height: 1.1;
-		color: var(--gray-0);
-		text-decoration: none;
-	}
-
-	.menu-button {
-		position: relative;
-		display: flex;
-		border: 1px solid var(--gray-700);
-		border-radius: 999rem;
-		padding: 0.5rem;
-		font-size: 1.5rem;
-		color: var(--gray-300);
-		background: var(--gray-999);
-	}
-
-	.menu-button[aria-expanded='true'] {
-		color: var(--gray-0);
-	}
-
-	.menu-button[hidden] {
-		display: none;
-	}
-
-	.menu-content {
-		position: absolute;
+	/* 顶栏（2026-09-06 用户拍板：内页与首页同款——纯文字无边框，样式与
+	   index.astro .topbar 同源同值；当前页用强调色标记 */
+	.topbar {
+		position: fixed;
+		top: 0;
 		left: 0;
 		right: 0;
-	}
-
-	.nav-items {
-		margin: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		font-size: var(--text-md);
-		line-height: 1.2;
-		list-style: none;
-		padding: 2rem;
-		background-color: var(--gray-999);
-		border: 1px solid var(--gray-700);
-	}
-
-	.link {
-		display: inline-block;
-		color: var(--gray-300);
-		text-decoration: none;
-	}
-
-	.link[aria-current] {
-		color: var(--gray-0);
-	}
-
-	.menu-footer {
-		--icon-size: var(--text-xl);
-		--icon-padding: 0.5rem;
-
-		display: flex;
-		justify-content: space-between;
-		gap: 0.75rem;
-		padding: 1.5rem 2rem 1.5rem 1.5rem;
-		background-color: var(--gray-999);
-		border: 1px solid var(--gray-700);
-		border-top: 0;
-		border-radius: 0 0 0.75rem 0.75rem;
-	}
-
-	.socials {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.625rem;
-		font-size: var(--icon-size);
-	}
-
-	.social {
-		display: flex;
-		padding: var(--icon-padding);
-		text-decoration: none;
-		color: var(--accent-dark);
-		transition: color var(--theme-transition);
-	}
-
-	.social:hover,
-	.social:focus {
-		color: var(--accent-text-over);
-	}
-
-	.theme-toggle {
+		z-index: 50;
 		display: flex;
 		align-items: center;
-		height: calc(var(--icon-size) + 2 * var(--icon-padding));
+		padding: 20px 40px;
+		background: var(--bg);
+	}
+	.brand {
+		display: flex;
+		align-items: baseline;
+		gap: 12px;
+	}
+	.brand a {
+		display: flex;
+		align-items: baseline;
+		gap: 12px;
+		text-decoration: none;
+	}
+	.brand b {
+		font-size: 17px;
+		letter-spacing: 0.06em;
+		font-weight: 700;
+		color: var(--ink);
+	}
+	.brand span {
+		font-family: var(--mono);
+		font-size: 11px;
+		color: var(--ink-2);
+		letter-spacing: 0.08em;
+	}
+	.nav-center {
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		gap: 44px;
+	}
+	.nav-center a {
+		font-size: 14px;
+		letter-spacing: 0.04em;
+		color: var(--ink);
+		text-decoration: none;
+		transition: color 0.2s;
+	}
+	.nav-center a:hover {
+		color: var(--accent);
+	}
+	.nav-center a[aria-current='page'] {
+		color: var(--accent);
+	}
+	.nav-right {
+		margin-left: auto;
+		display: flex;
+		align-items: center;
+		gap: 16px;
+	}
+	.nav-right :global(button) {
+		cursor: pointer;
+	}
+	.nav-right .lang {
+		font-family: var(--mono);
+		font-size: 12px;
+		color: var(--ink-2);
+	}
+	.nav-right .resume {
+		font-size: 17px;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		color: var(--ink);
+		text-decoration: none;
+		transition: color 0.2s;
+	}
+	.nav-right .resume:hover {
+		color: var(--accent);
 	}
 
-	@media (min-width: 50em) {
-		nav {
-			display: grid;
-			grid-template-columns: 1fr auto 1fr;
-			align-items: center;
-			padding: 2.5rem 5rem;
-			gap: 1rem;
+	/* 移动端：首页隐藏中导航（单页锚点），内页保留链接改为同行紧凑排布 */
+	@media (max-width: 900px) {
+		.topbar {
+			padding: 14px 20px;
 		}
-
-		.menu-header {
-			padding: 0;
-		}
-
-		.site-title {
-			font-size: var(--text-lg);
-		}
-
-		.menu-content {
-			display: contents;
-		}
-
-		.nav-items {
-			position: relative;
-			flex-direction: row;
-			font-size: var(--text-sm);
-			border-radius: 999rem;
-			padding: 0.5rem 0.5625rem;
-			background: var(--gray-999);
-			border: 1px solid var(--gray-700);
-		}
-
-		.link {
-			padding: 0.5rem 1rem;
-			border-radius: 999rem;
-			transition:
-				color var(--theme-transition),
-				background-color var(--theme-transition);
-		}
-
-		.link:hover,
-		.link:focus {
-			color: var(--gray-100);
-			background-color: var(--accent-subtle-overlay);
-		}
-
-		.link[aria-current='page'] {
-			color: var(--accent-text-over);
-			background-color: var(--accent-regular);
-		}
-
-		.menu-footer {
-			--icon-padding: 0.375rem;
-
-			justify-self: flex-end;
-			align-items: center;
-			padding: 0;
-			background-color: transparent;
-			border: 0;
-		}
-
-		.socials {
+		.brand span {
 			display: none;
 		}
-	}
-
-	@media (min-width: 60em) {
-		.socials {
-			display: flex;
-			justify-content: flex-end;
-			gap: 0;
+		.nav-center {
+			position: static;
+			transform: none;
+			margin-left: auto;
+			gap: 18px;
 		}
-	}
-	@media (forced-colors: active) {
-		.link[aria-current='page'] {
-			color: SelectedItem;
+		.nav-right {
+			gap: 12px;
+			margin-left: 14px;
+		}
+		.nav-right .lang {
+			display: none;
+		}
+		.nav-right .resume {
+			font-size: 15px;
 		}
 	}
 </style>
