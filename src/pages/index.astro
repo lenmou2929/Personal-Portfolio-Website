@@ -247,7 +247,7 @@ const blocks = [
 		   ⚠️ 不能用 'top bottom'——负 margin 使 about 提前 100vh，会让四块在首屏
 		   pin 内（页面还没开始滑）就提前下移 */
 		gsap.to('.blocks', {
-			y: '8vh',
+			y: '2vh',
 			ease: 'none',
 			scrollTrigger: {
 				trigger: '#scene-about',
@@ -269,7 +269,7 @@ const blocks = [
 				scrollTrigger: {
 					trigger: '#scene-about',
 					start: 'top top',
-					end: () => '+=' + Math.round(window.innerHeight * 1.35),
+					end: () => '+=' + Math.round(window.innerHeight * 1.40),
 					pin: true,
 					scrub: 0.5,
 				},
@@ -293,7 +293,7 @@ const blocks = [
 				scrollTrigger: {
 					trigger: '#scene-cats',
 					start: 'top top',
-					end: () => '+=' + Math.round(window.innerHeight * 1.35),
+					end: () => '+=' + Math.round(window.innerHeight * 1.40),
 					pin: true,
 					scrub: 0.5,
 				},
@@ -322,7 +322,7 @@ const blocks = [
 				scrollTrigger: {
 					trigger: '#scene-rail',
 					start: 'top top',
-					end: () => '+=' + Math.round(window.innerHeight * 1.35),
+					end: () => '+=' + Math.round(window.innerHeight * 1.40),
 					pin: true,
 					scrub: 0.5,
 				},
