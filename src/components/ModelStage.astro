@@ -328,8 +328,12 @@ const { src, poster, no, en, title, lead } = Astro.props;
 						tilt.x += (tilt.tx - tilt.x) * 0.06;
 						group.rotation.y = BASE_Y + tilt.y;
 						group.rotation.x = tilt.x;
-						/* 滚动 → 动画时间轴（1:1；不调 mixer.update，动作不自行前进） */
-						if (mixer && clipDur > 0) mixer.setTime(scrubProgress * clipDur);
+						/* 滚动 → 动画时间轴（1:1；不调 mixer.update，动作不自行前进）。
+						   采样点收在末帧前 1ms：LoopRepeat 在整段时长处会取模回 0 帧
+						   （滚过行程终点即跳第 0 帧），收进 ε 后永远落在最后一帧姿态上 */
+						if (mixer && clipDur > 0) {
+							mixer.setTime(Math.min(scrubProgress, 1) * Math.max(clipDur - 0.001, 0));
+						}
 						renderer.render(scene, camera);
 					};
 					renderer.setAnimationLoop(loop);
