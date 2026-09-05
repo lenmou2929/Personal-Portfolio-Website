@@ -18,6 +18,7 @@
  */
 import { getCollection } from 'astro:content';
 import { WORK_CATEGORIES } from '../lib/categories';
+import { CATEGORY_IMAGES } from '../lib/category-images';
 import '../styles/global.css';
 
 const featured = (await getCollection('work', ({ data }) => !data.draft && data.level === 'S')).sort(
@@ -26,13 +27,8 @@ const featured = (await getCollection('work', ({ data }) => !data.draft && data.
 
 const ATTR_EN = { 原创: 'ORIGINAL', 参考还原: 'REFERENCE', 教程跟做: 'TUTORIAL' } as const;
 
-/* 分类卡 = WORK_CATEGORIES 单一来源（label/顺序），首页只补图 */
-const CAT_IMGS: Record<(typeof WORK_CATEGORIES)[number]['key'], string> = {
-	'3d': '/works/scarab-sphere.jpg',
-	vibecoding: '/works/vibecoding-cat.png',
-	graphic: '/works/galaxy-poster.jpg',
-};
-const cats = WORK_CATEGORIES.map((c) => ({ ...c, img: CAT_IMGS[c.key] }));
+/* 分类卡 = WORK_CATEGORIES 单一来源（label/顺序），配图单一来源 category-images */
+const cats = WORK_CATEGORIES.map((c) => ({ ...c, img: CATEGORY_IMAGES[c.key] }));
 
 const blocks = [
 	{
@@ -171,7 +167,7 @@ const blocks = [
 						{
 							featured.map((w) => (
 								<div class="work">
-									<a class="ph" href={`/works/${w.data.category}/${w.id}/`}>
+									<a class="ph" href={`/works/${w.data.category}/?w=${w.id}`}>
 										<span class="attr">
 											{w.data.attribution} · {ATTR_EN[w.data.attribution]}
 										</span>
