@@ -160,6 +160,7 @@ const blocks = [
 
 		<!-- S7 精选（v4）：深色底随场升起至满屏→pin 冻结，底块+卡片在固定层内滑入 -->
 		<section class="scene scene-dark" id="scene-rail">
+			<div class="scene-dark-bg"></div>
 			<div class="scene-inner">
 				<div class="sec-head"><h2>精选作品</h2><span class="idx">03 — Selected</span></div>
 				<div class="rail-wrap">
@@ -241,11 +242,19 @@ const blocks = [
 			.to('.hero-cluster', { y: '-20vh', duration: 0.5, ease: 'none' }, 0)
 			.to({}, { duration: 0.12 });
 
-		/* 首屏划走期间：四块相对首屏下滑 8vh（滞后出画，画面持续有内容） */
+		/* 首屏划走期间：四块相对首屏下滑 8vh（滞后出画，画面持续有内容）。
+		   v4 窗口 = about 层钉住后的第一屏（= 首屏在其后方 1:1 退场的行程）。
+		   ⚠️ 不能用 'top bottom'——负 margin 使 about 提前 100vh，会让四块在首屏
+		   pin 内（页面还没开始滑）就提前下移 */
 		gsap.to('.blocks', {
 			y: '8vh',
 			ease: 'none',
-			scrollTrigger: { trigger: '#scene-about', start: 'top bottom', end: 'top top', scrub: 0.5 },
+			scrollTrigger: {
+				trigger: '#scene-about',
+				start: 'top top',
+				end: () => '+=' + window.innerHeight,
+				scrub: 0.5,
+			},
 		});
 
 		/* ============ 三场景（v4 固定层架构，README 决策表 2026-09-04） ============
@@ -318,13 +327,15 @@ const blocks = [
 					scrub: 0.5,
 				},
 			})
-			.from('#scene-rail .sec-head', { autoAlpha: 0, duration: 0.22 }, 0.4)
+			/* 深色底在固定层内部升起（0→0.3 升满）——分类场随行阶段保持全透明不被入侵 */
+			.from('#scene-rail .scene-dark-bg', { y: '100vh', duration: 0.3, ease: 'none' }, 0)
+			.from('#scene-rail .sec-head', { autoAlpha: 0, duration: 0.22 }, 0.28)
 			.from(
 				'#scene-rail .sec-head h2, #scene-rail .sec-head .idx',
 				{ x: -90, duration: 0.28, stagger: 0.05, ease: 'power2.out' },
-				0.4,
+				0.28,
 			)
-			.from('#scene-rail .rail-bg', { x: '100vw', duration: 0.4, ease: 'power1.out' }, 0.38)
+			.from('#scene-rail .rail-bg', { x: '100vw', duration: 0.38, ease: 'power1.out' }, 0.32)
 			.from(
 				'#scene-rail .rail',
 				{
@@ -335,7 +346,7 @@ const blocks = [
 					duration: 0.42,
 					ease: 'power3.out',
 				},
-				0.45,
+				0.42,
 			);
 
 		/* S8 页尾：从下渐显进场 */
@@ -592,6 +603,7 @@ const blocks = [
 		color: var(--ink); /* 浅色场景=墨色，scene-dark 内被覆盖为暖白 */
 	}
 	.scene-inner {
+		position: relative; /* 压在 absolute 的 .scene-dark-bg 之上 */
 		width: 100%;
 		max-width: 1460px;
 		margin: 0 auto;
@@ -757,10 +769,17 @@ const blocks = [
 		transform: scale(1.05);
 	}
 
-	/* S7 精选（深色场景） */
+	/* S7 精选（深色场景）。
+	   v4：深色底不放 section 背景——负 margin 会让它在上一场（分类）pin 内提前升起
+	   入侵；改为场内绝对定位层 .scene-dark-bg，随行阶段全透明（分类场干净），
+	   pin 冻结后在固定层内部升起（纯动画，无补偿竞态） */
 	.scene-dark {
-		background: var(--dark);
 		color: var(--dark-ink);
+	}
+	.scene-dark-bg {
+		position: absolute;
+		inset: 0;
+		background: var(--dark);
 	}
 	.scene-dark .sec-head {
 		border-color: #2c2f32;
