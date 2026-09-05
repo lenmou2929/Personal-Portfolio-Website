@@ -608,6 +608,17 @@ const blocks = [
 		align-items: center;
 		padding: 40px;
 		color: var(--ink); /* 浅色场景=墨色，scene-dark 内被覆盖为暖白 */
+		/* 全屏场景层不拦指针：pin/负 margin 交接期，下一场盒子总会叠在本场上方——
+		   层只管画面，输入放行给下方仍可见的卡片（配合下方 pointer-events:auto 组） */
+		pointer-events: none;
+	}
+	/* 指针放行组：交互元素各自接管；.scene-dark-bg 是不透明的"可见性边界"——
+	   被深色底盖住的卡片看不见也不可点，露出的部分照常可悬停可点 */
+	.scene a,
+	.cats,
+	.rail,
+	.scene-dark-bg {
+		pointer-events: auto;
 	}
 	.scene-inner {
 		position: relative; /* 压在 absolute 的 .scene-dark-bg 之上 */
@@ -699,12 +710,13 @@ const blocks = [
 	}
 
 	/* S6 分类：悬停一角后压 + 纯白覆盖聚焦（悬停形变在内层，与 GSAP 位移隔离——勿合并）。
-	   3 列 + max-width：卡片保持 4 列时代的尺寸量级（3 列铺满会 oversized 且小屏溢出） */
+	   3 列 + max-width + margin auto：整排落点屏幕横向居中；卡片保持 4 列时代的尺寸量级 */
 	.cats {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
-		gap: 18px;
-		max-width: 1100px;
+		gap: 32px; /* 用户 2026-09-06：间距拉开（原 18px），嫌大嫌小改这里 */
+		max-width: 1130px; /* 随 gap 补偿，卡片尺寸与 4 列时代基本一致 */
+		margin: 0 auto;
 		perspective: 1200px;
 	}
 	.cat {
