@@ -253,6 +253,21 @@ const LEADS: Record<string, string> = {
 		const w = new URLSearchParams(location.search).get('w');
 		if (w) open(w, false);
 	}
+
+	/* Vibecoding 实机 iframe：点击激活 + 加载失败兜底 */
+	const liveFrame = document.querySelector('.live-frame');
+	if (liveFrame) {
+		const activate = liveFrame.querySelector('.activate');
+		const fail = liveFrame.querySelector('.load-fail');
+		const iframe = liveFrame.querySelector('iframe');
+		activate?.addEventListener('click', () => liveFrame.classList.add('active'));
+		let loaded = false;
+		iframe?.addEventListener('load', () => (loaded = true));
+		window.setTimeout(() => {
+			if (!loaded) fail?.removeAttribute('hidden');
+		}, 8000);
+		iframe?.addEventListener('load', () => fail?.setAttribute('hidden', ''));
+	}
 </script>
 
 <style>
@@ -285,13 +300,18 @@ const LEADS: Record<string, string> = {
 		white-space: nowrap;
 	}
 
-	/* ---------- Vibecoding：实机嵌入 + 状态侧栏 ---------- */
+	/* ---------- Vibecoding：实机嵌入（全宽大窗）+ 状态侧栏 ---------- */
 	.showcase {
 		display: grid;
-		grid-template-columns: 1.7fr 1fr;
 		gap: 22px;
 		margin-bottom: 64px;
 		align-items: start;
+	}
+
+	.side {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 16px;
 	}
 
 	.live-frame {
@@ -408,11 +428,6 @@ const LEADS: Record<string, string> = {
 		color: var(--accent);
 		text-decoration: none;
 		border-bottom: 1px solid var(--line);
-	}
-
-	.side {
-		display: grid;
-		gap: 16px;
 	}
 
 	.status-card {
@@ -674,7 +689,7 @@ const LEADS: Record<string, string> = {
 		bottom: 0;
 		transform: translate(-50%, 100%);
 		width: min(1100px, 100%);
-		height: min(86vh, 920px);
+		height: min(93vh, 1000px);
 		background: var(--dark-2);
 		border: 1px solid var(--line);
 		border-bottom: 0;
@@ -688,8 +703,8 @@ const LEADS: Record<string, string> = {
 
 	.sheet-close {
 		position: absolute;
-		top: -46px;
-		right: 0;
+		top: 16px;
+		right: 16px;
 		z-index: 2;
 		width: 38px;
 		height: 38px;
@@ -816,6 +831,10 @@ const LEADS: Record<string, string> = {
 			grid-template-columns: 1fr;
 		}
 
+		.side {
+			grid-template-columns: 1fr;
+		}
+
 		.cards {
 			grid-template-columns: 1fr;
 		}
@@ -835,12 +854,7 @@ const LEADS: Record<string, string> = {
 
 		.sheet {
 			width: 100%;
-			height: 92vh;
-		}
-
-		.sheet-close {
-			top: -44px;
-			right: 8px;
+			height: 94vh;
 		}
 	}
 
