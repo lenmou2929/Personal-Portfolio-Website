@@ -258,18 +258,20 @@ const blocks = [
 		});
 
 		/* ============ 三场景（v4 固定层架构，README 决策表 2026-09-04） ============
-		   每场被 GSAP pin 钉住 135vh（进场 900 + 停留 315）：内容层 position:fixed 原生
-		   锁在屏幕——新内容出现即在固定高度、左右滑入，零补偿竞态（v2 的病根不存在）。
-		   pin 前半旧内容以原生滚动从其后方退场（透明层透出；时序上旧内容退出 ~60% 后
-		   新内容才出现，避免叠字）。margin-top:-100vh（见 CSS）使每场自然顶 = 上一场
-		   pin 结束点，场间在 pin 边界无缝交接。子元素补间 scrub 0.5（纯外观平滑，
-		   位置锁由 pin 承担，与 v2 的补偿锁有本质区别） */
+		   每场被 GSAP pin 钉住 140vh（SCENE_PIN_VH，进场一屏 + 停留 0.4 屏）：内容层
+		   position:fixed 原生锁在屏幕——新内容出现即在固定高度、左右滑入，零补偿竞态
+		   （v2 的病根不存在）。pin 前半旧内容以原生滚动从其后方退场（透明层透出；时序上
+		   旧内容退出 ~60% 后新内容才出现，避免叠字）。margin-top:-100vh（见 CSS）使每场
+		   自然顶 = 上一场 pin 结束点，场间在 pin 边界无缝交接。子元素补间 scrub 0.5
+		   （纯外观平滑，位置锁由 pin 承担，与 v2 的补偿锁有本质区别） */
+		/* 场长唯一入口：pin 三处与导航落点共用——调这里即可，勿单改一处 */
+		const SCENE_PIN_VH = 1.4;
 		gsap
 			.timeline({
 				scrollTrigger: {
 					trigger: '#scene-about',
 					start: 'top top',
-					end: () => '+=' + Math.round(window.innerHeight * 1.40),
+					end: () => '+=' + Math.round(window.innerHeight * SCENE_PIN_VH),
 					pin: true,
 					scrub: 0.5,
 				},
@@ -293,7 +295,7 @@ const blocks = [
 				scrollTrigger: {
 					trigger: '#scene-cats',
 					start: 'top top',
-					end: () => '+=' + Math.round(window.innerHeight * 1.40),
+					end: () => '+=' + Math.round(window.innerHeight * SCENE_PIN_VH),
 					pin: true,
 					scrub: 0.5,
 				},
@@ -322,7 +324,7 @@ const blocks = [
 				scrollTrigger: {
 					trigger: '#scene-rail',
 					start: 'top top',
-					end: () => '+=' + Math.round(window.innerHeight * 1.40),
+					end: () => '+=' + Math.round(window.innerHeight * SCENE_PIN_VH),
 					pin: true,
 					scrub: 0.5,
 				},
@@ -358,7 +360,7 @@ const blocks = [
 			scrollTrigger: { trigger: 'footer', start: 'top 65%', end: 'top 20%', scrub: 0.5 },
 		});
 
-		/* 导航点击：落到场景 pin 的停留段（pin 起点 + 135vh×0.9，入场已完成、内容完整固定）。
+		/* 导航点击：落到场景 pin 的停留段（pin 起点 + 场长×0.9，入场已完成、内容完整固定）。
 		   注意必须从 ScrollTrigger 实例取 start——pin 包装后 offsetTop/rect 都是相对 spacer 的，不可靠 */
 		document.querySelectorAll<HTMLAnchorElement>('.nav-center a').forEach((a) => {
 			a.addEventListener('click', (e) => {
@@ -368,7 +370,7 @@ const blocks = [
 					(t) => t.trigger && t.trigger.id === sel.slice(1) && t.pin,
 				);
 				if (t) {
-					window.scrollTo(0, t.start + Math.round(window.innerHeight * 1.35 * 0.9));
+					window.scrollTo(0, t.start + Math.round(window.innerHeight * SCENE_PIN_VH * 0.9));
 				} else {
 					window.scrollTo(0, document.documentElement.scrollHeight);
 				}
