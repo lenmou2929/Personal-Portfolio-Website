@@ -2,8 +2,9 @@
 title: 失联 · 游戏Demo
 category: 3d
 level: A
-cover: /videos/shilian-demo.jpg
-cover_alt: 失联游戏全流程演示视频封面
+order: 3
+cover: /works/shilian-card.jpg
+cover_alt: 失联游戏 Demo 卡片封面
 date: 2025-11-01
 tools: [UE5]
 attribution: 基于案例二创

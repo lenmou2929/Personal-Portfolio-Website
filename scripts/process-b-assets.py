@@ -34,7 +34,7 @@ MAPPINGS = {
     '平面类/logo&字体设计/Logo&字体合集_2.png': 'graphic/logo-set-2.jpg',
     '平面类/logo&字体设计/logo排列.jpg': 'graphic/logo-grid.jpg',
     # Wine bottle spatula Logo（废）.jpg —— 用户已标废，不上站
-    '平面类/logo&字体设计/Len mou 白.png': 'graphic/logo-lenmou-w.jpg',
+    # 「Len mou 白.png」白底白 logo 上站呈全白（2026-09-06 用户确认移除），不再入库
     '平面类/logo&字体设计/len mou 黑.png': 'graphic/logo-lenmou-b.jpg',
     '平面类/OnBoard（我的vibecoding类别作品中的3D预览器品牌）/OnBoard品牌logo排版.png': 'graphic/onboard-brand.jpg',
     # ---- 3D 类：座机四视角（正面已有 phone-front.jpg）----
@@ -62,6 +62,7 @@ MAPPINGS = {
     '3D类/圣甲虫球体地编项目/材质、布料制作图/圣甲虫球体材质球节点及材质展示.png': 'scarab-nodes.jpg',
     # ---- 3D 类：Blender 渲染练习（原创条目）----
     '3D类/Blender渲染图/余晖废墟渲染图.png': 'blender-ruins.jpg',
+    '3D类/失联游戏全流程演示（玩法内容在教程之上进行了大改）/失联全流程卡片封面.png': 'shilian-card.jpg',
     '3D类/Blender渲染图/医院一楼.png': 'blender-hospital-1.jpg',
     '3D类/Blender渲染图/医院空房.jpg': 'blender-hospital-2.jpg',
     '3D类/Blender渲染图/地球.png': 'blender-earth.jpg',

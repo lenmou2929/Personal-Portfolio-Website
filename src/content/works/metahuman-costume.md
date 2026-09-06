@@ -5,7 +5,7 @@ level: S
 order: 2
 cover: /works/meta-card.jpg
 cover_alt: Metahuman 服装角色卡片封面
-date: 2025-06-01
+date: 2026-06-01
 tools: [UE5, 即梦AI, Hyper3D]
 attribution: 原创
 summary: 为原创游戏《404航班》制作的主角角色：AI 辅助生成设定与高模，UE5 Metahuman 集成，手动拓扑与法线烘焙。
