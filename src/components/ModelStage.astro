@@ -206,10 +206,14 @@ const { src, poster, no, en, title, lead } = Astro.props;
 		const canvas = hero.querySelector('canvas')!;
 		const note = hero.querySelector('.note')!;
 		const space = document.getElementById('hero3d-space')!;
-		/* 动画行程：滚动这段距离时只播听筒动画、内容不动（走完后内容才上移）。
-		   单位=视口高；改这里即可，文字层高度会自动跟随 */
-		const ANIM_VH = 1;
-		space.style.height = `calc(${(1 + ANIM_VH).toFixed(2)} * 100vh)`;
+		/* 动画行程：滚动这段距离时听筒动画播完（1:1，随滚停/倒）；
+		   内容上移时机由 CONTENT_ENTER_AT 决定（可早于行程结束，与动画尾段同步上移） */
+		const ANIM_VH = 0.6; // 用户自调值，保留
+		/* 内容开始上移时动画已播到的进度（0.65 = 动画播到 65% 时内容进入，与尾段同步上移）；
+		   1 = 动画播完内容才进入 */
+		const CONTENT_ENTER_AT = 0.65;
+		/* 文字层高度 = 首屏 + 内容进入行程：内容底边在动画播到 CONTENT_ENTER_AT 时到达视口底 */
+		space.style.height = `calc(100vh + ${CONTENT_ENTER_AT * ANIM_VH * 100}vh)`;
 
 		try {
 			const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });

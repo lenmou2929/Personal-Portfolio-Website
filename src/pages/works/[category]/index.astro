@@ -286,15 +286,23 @@ const LEADS: Record<string, string> = {
 		padding-block: 1rem 0;
 	}
 
-	/* 内容层：不透明底——3D 页滚动时上移覆盖 fixed 渲染层；底边线即滚动分界 */
+	/* 内容层：全幅出血（左右到屏幕边），内容子项保持 .wrapper 对齐——
+	   3D 页滚动时上移覆盖 fixed 渲染层；底边线即滚动分界 */
 	.page-body {
 		position: relative;
 		z-index: 1;
+		width: 100vw;
+		margin-inline: calc(50% - 50vw);
 		padding-bottom: 6rem;
 	}
 
-	/* 分界色块（仅 3D 页）：略亮一档的底色让"内容滑上覆盖模型"的分界可辨；
-	   宽度跟随全局 .wrapper（global.css max-width: 83rem），单独改请在此层加 max-width */
+	.page-body > * {
+		max-width: 83rem;
+		margin-inline: auto;
+		padding-inline: 1.5rem;
+	}
+
+	/* 分界色块（仅 3D 页）：略亮一档的底色让"内容滑上覆盖模型"的分界可辨 */
 	.page-body.cover {
 		background: var(--dark);
 	}
