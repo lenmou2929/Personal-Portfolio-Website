@@ -2,6 +2,7 @@
 title: Logo & 字体设计
 category: graphic
 level: A
+order: 1
 cover: /works/graphic/logo-lenmou-b.jpg
 cover_alt: 个人品牌 lenmou 黑底标志
 date: 2025-01-01

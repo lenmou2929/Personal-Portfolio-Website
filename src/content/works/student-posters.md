@@ -2,6 +2,7 @@
 title: 海报作品选集
 category: graphic
 level: A
+order: 2
 cover: /works/graphic/poster-yinhe.jpg
 cover_alt: 银河主题海报
 date: 2025-01-01

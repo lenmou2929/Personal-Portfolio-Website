@@ -2,6 +2,7 @@
 title: 隅野 WanderBrew · 包装设计
 category: graphic
 level: A
+order: 4
 cover: /works/graphic/yuye-cover.jpg
 cover_alt: 隅野速溶咖啡包装设计封面板——枫叶主视觉与品牌字标
 date: 2025-01-01

@@ -2,6 +2,7 @@
 title: 翔驰运动 · 门店易拉宝
 category: graphic
 level: A
+order: 3
 cover: /works/graphic/rollup-01.jpg
 cover_alt: 翔驰运动门店易拉宝海报其一
 date: 2026-08-01
