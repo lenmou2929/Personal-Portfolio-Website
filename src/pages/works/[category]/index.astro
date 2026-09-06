@@ -110,7 +110,7 @@ const LEADS: Record<string, string> = {
 							<div class="status-card muted">
 								<p class="status"><span class="pulse dev" />DEV — 开发中</p>
 								<p class="desc">
-									3D 模型预览器（雪板专用）——部署后以同款方式嵌入本页，演示录屏备制中。
+									3D 雪板预览器「OnBoard 上板」已上架本类作品条——部署后以同款实机 iframe 嵌入本页。
 								</p>
 							</div>
 						</aside>
@@ -259,16 +259,22 @@ const LEADS: Record<string, string> = {
 </BaseLayout>
 
 <script>
-	/* 底部作品条：开合 + 深链同步（?w=作品id）+ 三重退出（✕/黑罩/ESC）+ 滚动隔离 */
+	/* 底部作品条：开合 + 深链同步（?w=作品id）+ 三重退出（✕/黑罩/ESC）+ 滚动隔离
+	   + 滚动记忆（换作品回顶、重开同作品续位）+ 关条停播 */
 	const layer = document.getElementById('work-sheet');
 	if (layer) {
 		const body = layer.querySelector('.sheet-body')!;
 		let pushed = false; // 本次打开是否压入了历史记录
+		let currentId: string | null = null; // 当前（或最近一次）打开的作品
+		const scrollTops = new Map<string, number>(); // 各作品条的滚动位置记忆
 
 		const panelOf = (id: string) => body.querySelector(`[data-panel="${CSS.escape(id)}"]`);
 
 		function uiOpen(id: string) {
+			if (currentId) scrollTops.set(currentId, body.scrollTop); // 记住上一条滚到哪
 			for (const p of body.querySelectorAll('.work-panel')) p.hidden = p.dataset.panel !== id;
+			currentId = id;
+			body.scrollTop = scrollTops.get(id) ?? 0; // 换作品=回顶；重开同作品=续位；深链首开=顶
 			layer!.classList.add('open');
 			/* 滚动隔离：本站滚动容器是根元素 html（global 设了 overflow-x:clip），
 			   锁 body 拦不住视口滚动——必须锁 html；body 一并锁上双保险 */
@@ -286,6 +292,9 @@ const LEADS: Record<string, string> = {
 		}
 
 		function uiClose() {
+			if (currentId) scrollTops.set(currentId, body.scrollTop);
+			/* 关条停播：✕/黑罩/ESC/后退全部经由这里，条内所有视频（主视频+多视频区）一并暂停 */
+			body.querySelectorAll('video').forEach((v) => v.pause());
 			layer!.classList.remove('open');
 			document.documentElement.style.overflow = '';
 			document.body.style.overflow = '';

@@ -37,22 +37,45 @@ MAPPINGS = {
     # 「Len mou 白.png」白底白 logo 上站呈全白（2026-09-06 用户确认移除），不再入库
     '平面类/logo&字体设计/len mou 黑.png': 'graphic/logo-lenmou-b.jpg',
     '平面类/OnBoard（我的vibecoding类别作品中的3D预览器品牌）/OnBoard品牌logo排版.png': 'graphic/onboard-brand.jpg',
+    # ---- vibecoding：BitSugar / OnBoard 实机截图（尾缀定序；比特糖 -1 即封面）----
+    'vibecoding/BitSugar · 比特糖/比特糖网站截图展示-1.png': 'bitsugar-cover.jpg',
+    'vibecoding/BitSugar · 比特糖/比特糖网站截图展示-英文版-2.png': 'bitsugar-en.jpg',
+    'vibecoding/BitSugar · 比特糖/首页下方的图纸预览界面截图-3.png': 'bitsugar-preview.jpg',
+    'vibecoding/BitSugar · 比特糖/拼豆绘制界面截图-4.png': 'bitsugar-paint.jpg',
+    'vibecoding/OnBoard · 上板/01-默认界面截图.png': 'onboard-01.jpg',
+    'vibecoding/OnBoard · 上板/02-贴花效果截图.png': 'onboard-02.jpg',
+    'vibecoding/OnBoard · 上板/03-弹窗设置截图.png': 'onboard-03.jpg',
+    'vibecoding/OnBoard · 上板/04-整体效果截图.png': 'onboard-04.jpg',
     # ---- 3D 类：座机四视角（正面已有 phone-front.jpg）----
     '3D类/老式电话机/老式电话渲染图/老式电话背面细节图.png': 'phone-back.jpg',
     '3D类/老式电话机/老式电话渲染图/老式电话左侧面细节图.png': 'phone-left.jpg',
     '3D类/老式电话机/老式电话渲染图/老式电话右侧面细节图.png': 'phone-right.jpg',
-    # ---- 3D 类：Metahuman 图集 + AI 辅助过程 ----
-    '3D类/Metahuman服装角色流程/UE5中角色全身截图（用于生成AI做参考）.png': 'meta-fullbody.jpg',
+    # ---- 3D 类：Metahuman 图集 + AI 辅助过程（过程图按用户尾缀 -1..-8 定序）----
+    '3D类/Metahuman服装角色流程/UE5中角色全身截图（用于生成AI做参考）-3.png': 'meta-fullbody.jpg',
     '3D类/Metahuman服装角色流程/Metahuman卡片封面.png': 'meta-card.jpg',
     '3D类/Metahuman服装角色流程/上衣渲染图.png': 'meta-top-render.jpg',
     '3D类/Metahuman服装角色流程/上衣高模.png': 'meta-top-high.jpg',
     '3D类/Metahuman服装角色流程/上衣低模.png': 'meta-top-low.jpg',
     '3D类/Metahuman服装角色流程/上衣低模拓扑线图.png': 'meta-top-wire.jpg',
-    '3D类/Metahuman服装角色流程/法线烘培结果.png': 'meta-bake.jpg',
-    '3D类/Metahuman服装角色流程/AI辅助角色制作流程/01-即梦AI角色头部形象生成截图.png': 'meta-ai-01.jpg',
-    '3D类/Metahuman服装角色流程/AI辅助角色制作流程/02-Hyper3D生成头部高模与基本贴图截图.png': 'meta-ai-02.jpg',
-    '3D类/Metahuman服装角色流程/AI生成角色着装图.png': 'meta-ai-03.jpg',
-    '3D类/Metahuman服装角色流程/AI生成上衣拆分图.png': 'meta-ai-04.jpg',
+    '3D类/Metahuman服装角色流程/上衣法线烘培结果.png': 'meta-bake.jpg',
+    '3D类/Metahuman服装角色流程/裤子渲染图.png': 'meta-pants-render.jpg',
+    '3D类/Metahuman服装角色流程/裤子高模.png': 'meta-pants-high.jpg',
+    '3D类/Metahuman服装角色流程/裤子低模.png': 'meta-pants-low.jpg',
+    '3D类/Metahuman服装角色流程/裤子低模拓扑线图.png': 'meta-pants-wire.jpg',
+    '3D类/Metahuman服装角色流程/裤子法线烘培结果.png': 'meta-pants-bake.jpg',
+    '3D类/Metahuman服装角色流程/皮鞋渲染图.png': 'meta-shoes-render.jpg',
+    '3D类/Metahuman服装角色流程/皮鞋高模.png': 'meta-shoes-high.jpg',
+    '3D类/Metahuman服装角色流程/皮鞋低模.png': 'meta-shoes-low.jpg',
+    '3D类/Metahuman服装角色流程/皮鞋低模拓扑线图.png': 'meta-shoes-wire.jpg',
+    '3D类/Metahuman服装角色流程/皮鞋法线烘培结果.png': 'meta-shoes-bake.jpg',
+    '3D类/Metahuman服装角色流程/即梦AI角色头部形象生成截图-1.png': 'meta-ai-01.jpg',
+    '3D类/Metahuman服装角色流程/02-Hyper3D生成头部高模与基本贴图截图-2.png': 'meta-ai-02.jpg',
+    # 过程第 3 步（UE5 全身参考）与图集 meta-fullbody 同源同图，直接复用不另存
+    '3D类/Metahuman服装角色流程/AI生成角色着装图-4.png': 'meta-ai-04.jpg',
+    '3D类/Metahuman服装角色流程/AI生成去除角色图-5.png': 'meta-ai-05.jpg',
+    '3D类/Metahuman服装角色流程/AI生成上衣拆分图-6.png': 'meta-ai-06.jpg',
+    '3D类/Metahuman服装角色流程/AI生成裤子拆分图-7.png': 'meta-ai-07.jpg',
+    '3D类/Metahuman服装角色流程/AI生成皮鞋拆分图-8.png': 'meta-ai-08.jpg',
     # ---- 3D 类：圣甲虫过程（成品渲染图已有 scarab-sphere.jpg）----
     **{
         f'3D类/圣甲虫球体地编项目/圣甲虫球体UE5场景搭建步骤图/BuZ.{i}.jpeg': f'scarab-step-{i + 1}.jpg'
