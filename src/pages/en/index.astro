@@ -1,5 +1,7 @@
 ---
 /**
+ * EN 首页（2026-09-06 第 20 次会话）：index.astro v4.2 的翻译副本——动效/样式原样保留，
+ * 文案英译；中文首页改数值后需手动同步本文件（含 SCENE_PIN_VH 等常量）。
  * 首页 —— 自定稿示意稿 mockups/方案A-v3-衬线编辑风.html 逐屏迁移（2026-09-04 第 17 次会话）。
  * 与示意稿的差异（定稿约定）：
  * 1. 动效为 scroll 事件驱动（示意稿的 setInterval 兜底轮询是测试环境专用，正式站禁用）
@@ -17,9 +19,9 @@
  * 动效定稿数值以 mockups/手动调整手册.md 为索引（pin 170% / 视差 8/16/16/13vh / rail 1s·0.25 / 页尾 y:150 等）。
  */
 import { getCollection } from 'astro:content';
-import { WORK_CATEGORIES } from '../lib/categories';
-import { CATEGORY_IMAGES } from '../lib/category-images';
-import '../styles/global.css';
+import { WORK_CATEGORIES } from '../../lib/categories';
+import { CATEGORY_IMAGES } from '../../lib/category-images';
+import '../../styles/global.css';
 
 /* 精选 = level S；排序与分类页同规则：order 置顶（小者在前）→ 日期新→旧 → id
    （order 在条目 frontmatter，用户可直接改 md 调精选顺序） */
@@ -38,6 +40,33 @@ const featured = (await getCollection('work', ({ data }) => !data.draft && data.
 
 const ATTR_EN = { 原创: 'ORIGINAL', 参考还原: 'REFERENCE', 教程跟做: 'TUTORIAL' } as const;
 
+/* EN 文案词典：精选卡标题/摘要（按条目 id），未收录条目回退中文 */
+const T: Record<string, { t: string; s: string }> = {
+	'scarab-sphere': {
+		t: 'Scarab Sphere — The Dig Site',
+		s: 'Cinematic environment short: hand-sculpted terrain, procedural sphere materials, a military tent simulated in Marvelous Designer, graded in After Effects.',
+	},
+	'metahuman-costume': {
+		t: 'Metahuman — Costume Character',
+		s: 'Hero character for my original game Flight 404: AI-assisted concept and high-poly, integrated into UE5 Metahuman, with manual retopology and normal baking.',
+	},
+	'bitsugar': {
+		t: 'BitSugar — Fuse-Bead Pattern Studio',
+		s: 'Free public web tool, live in production. Domain, DNS, deployment and search-engine submission all done independently; open-sourced on GitHub.',
+	},
+	'telephone-pbr': {
+		t: 'Vintage Telephone — PBR',
+		s: 'Full-pipeline PBR product render: modeling, UVs, Substance Painter texturing, Cycles renders. Also the live hero of the 3D category page.',
+	},
+};
+
+/* EN 分类名（卡片主行）；小行保留中文原名作双语点缀 */
+const CAT_EN: Record<string, string> = {
+	'3d': 'Environment Art / 3D',
+	vibecoding: 'Vibecoding',
+	graphic: 'Graphic Design',
+};
+
 /* 分类卡 = WORK_CATEGORIES 单一来源（label/顺序），配图单一来源 category-images */
 const cats = WORK_CATEGORIES.map((c) => ({ ...c, img: CATEGORY_IMAGES[c.key] }));
 
@@ -45,40 +74,40 @@ const blocks = [
 	{
 		side: 'col-l',
 		no: 'no.01',
-		title: 'UE5地编 / 3D美术',
-		lines: '影视向 · 产品向<br>Blender · UE5 全流程',
+		title: 'UE5 Environment Art / 3D',
+		lines: 'Film & Product<br>Blender · UE5 Pipeline',
 	},
 	{
 		side: 'col-l',
 		no: 'no.02',
-		title: 'AI 辅助开发者',
-		lines: '2 个上线 Web 产品<br>Vibecoding 工作流',
+		title: 'AI-Assisted Developer',
+		lines: '2 Live Web Products<br>Vibecoding Workflow',
 	},
 	{
 		side: 'col-r',
 		no: 'no.03',
-		title: '深圳 · 随时到岗',
-		lines: '2026 届应届<br>接受大小周',
+		title: 'Shenzhen · Available Now',
+		lines: 'Class of 2026<br>Alternate 6-day weeks OK',
 	},
 	{
 		side: 'col-r',
 		no: 'no.04',
-		title: '工具箱',
+		title: 'Toolbox',
 		lines: 'UE5 · Blender · MD · SP<br>PS · AI · PR · AE · AU · RESOLVE · ZB',
 	},
 ];
 ---
 
-<html lang="zh-CN">
+<html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta
 			name="description"
-			content="陈继祖作品集：UE5地编 / 3D美术（影视向 · 产品向）与 AI 辅助开发。深圳 · 随时到岗。"
+			content="CHEN JIZU portfolio: UE5 environment art / 3D (film & product) and AI-assisted web development. Shenzhen · available now."
 		/>
 		<meta name="generator" content={Astro.generator} />
-		<title>陈继祖 · 作品集 — 3D 美术 / 地编 · AI 辅助开发</title>
+		<title>CHEN JIZU · Portfolio — 3D Art / UE5 Environment · AI-Assisted Dev</title>
 		<link rel="alternate" hreflang="zh" href="/" />
 		<link rel="alternate" hreflang="en" href="/en/" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -88,13 +117,13 @@ const blocks = [
 		<header class="topbar">
 			<div class="brand"><b>陈继祖</b><span>CHEN JIZU — 3D / WEB</span></div>
 			<nav class="nav-center">
-				<a href="#scene-cats">作品</a>
-				<a href="#scene-about">关于</a>
-				<a href="#contact">联系</a>
+				<a href="#scene-cats">Works</a>
+				<a href="#scene-about">About</a>
+				<a href="#contact">Contact</a>
 			</nav>
 			<div class="nav-right">
-				<a class="lang" href="/en/" aria-label="Switch to English">中 / EN</a>
-				<a class="resume" href="/contact/">简历下载</a>
+				<a class="lang" href="/">中 / EN</a>
+				<a class="resume" href="/contact/">Resume</a>
 			</div>
 		</header>
 
@@ -102,7 +131,7 @@ const blocks = [
 		<section id="stage1">
 			<div class="hero-cluster">
 				<span class="kicker">PORTFOLIO · 2023 — 2026</span>
-				<h1>作品集</h1>
+				<h1>Portfolio</h1>
 				<span class="en">Selected Works</span>
 			</div>
 			<div class="blocks">
@@ -123,24 +152,25 @@ const blocks = [
 		     新内容于固定高度从左右滑入；pin 前半旧内容（首屏）以原生滚动从其后方退场 -->
 		<section class="scene" id="scene-about">
 			<div class="scene-inner">
-				<div class="sec-head"><h2>关于我</h2><span class="idx">01 — Profile</span></div>
+				<div class="sec-head"><h2>About</h2><span class="idx">01 — Profile</span></div>
 				<div class="intro-grid">
 					<p class="lead">
-						平面设计科班，自学贯通 3D 全流程——从 <em>建模、材质、布料</em>
-						到引擎渲染与后期调色；同时用 AI 辅助开发做出两个可访问的上线产品。我相信<em>先规划、后动手</em
-						>，喜欢跨软件管线解决问题。
+						Trained in graphic design, self-taught across the full 3D pipeline — from
+						<em>modeling, texturing and cloth</em> to engine rendering and post-production color;
+						along the way I shipped two live web products with AI-assisted development. I believe in
+						<em>plan first, build second</em>, and enjoy solving problems across software pipelines.
 					</p>
 					<div class="facts">
-						<div class="fact"><span>教育</span><b>武汉工程职业技术学院 · 2026 届</b></div>
-						<div class="fact"><span>求职意向</span><b>UE5地编 / 3D美术（深圳）</b></div>
-						<div class="fact"><span>工作经历</span><b>翔驰运动 · 剪辑/平面（2026.07–08）</b></div>
-						<div class="fact"><span>副方向</span><b>AIGC / AI 辅助前端开发</b></div>
-						<div class="fact"><span>性格关键词</span><b>自信 · 包容 · 专业</b></div>
+						<div class="fact"><span>Education</span><b>Wuhan Engineering Vocational College · Class of 2026</b></div>
+						<div class="fact"><span>Objective</span><b>UE5 Environment Art / 3D (Shenzhen)</b></div>
+						<div class="fact"><span>Experience</span><b>Xiangchi Sports · Editing / Graphic (Jul–Aug 2026)</b></div>
+						<div class="fact"><span>Secondary</span><b>AIGC / AI-Assisted Front-End</b></div>
+						<div class="fact"><span>Personality</span><b>Confident · Open-minded · Professional</b></div>
 					</div>
 				</div>
 				<div class="award-line">
-					<span class="tag">AWARD</span>2025 年湖北省职业院校技能大赛 · 数字艺术设计赛项 ——
-					<b>&nbsp;二等奖&nbsp;</b> ｜ 优秀毕业生
+					<span class="tag">AWARD</span>2025 Hubei Vocational College Skills Competition · Digital Art —
+					<b>&nbsp;Second Prize&nbsp;</b> ｜ Outstanding Graduate
 				</div>
 			</div>
 		</section>
@@ -148,18 +178,18 @@ const blocks = [
 		<!-- S6 分类（v4）：同一固定层机制，整排从左滑入 -->
 		<section class="scene" id="scene-cats">
 			<div class="scene-inner">
-				<div class="sec-head"><h2>作品分类</h2><span class="idx">02 — Categories</span></div>
+				<div class="sec-head"><h2>Categories</h2><span class="idx">02 — Categories</span></div>
 				<div class="cats">
 					{
 						cats.map((c) => (
 							<a class="cat" href={`/works/${c.key}/`}>
 								<div class="catbox">
-									<img src={c.img} alt={c.label} loading="lazy" />
+									<img src={c.img} alt={CAT_EN[c.key]} loading="lazy" />
 									<div class="veil" />
 									<span class="no">{String(cats.indexOf(c) + 1).padStart(2, '0')}</span>
 									<div class="label">
-										<b>{c.label}</b>
-										<span>{c.en}</span>
+										<b>{CAT_EN[c.key]}</b>
+										<span>{c.label}</span>
 									</div>
 								</div>
 							</a>
@@ -173,7 +203,7 @@ const blocks = [
 		<section class="scene scene-dark" id="scene-rail">
 			<div class="scene-dark-bg"></div>
 			<div class="scene-inner">
-				<div class="sec-head"><h2>精选作品</h2><span class="idx">03 — Selected</span></div>
+				<div class="sec-head"><h2>Selected Works</h2><span class="idx">03 — Selected</span></div>
 				<div class="rail-wrap">
 					<div class="rail-bg"></div>
 					<div class="rail">
@@ -181,16 +211,14 @@ const blocks = [
 							featured.map((w) => (
 								<div class="work">
 									<a class="ph" href={`/works/${w.data.category}/?w=${w.id}`}>
-										<span class="attr">
-											{w.data.attribution} · {ATTR_EN[w.data.attribution]}
-										</span>
+										<span class="attr">{ATTR_EN[w.data.attribution]}</span>
 										<img src={w.data.cover} alt={w.data.cover_alt} loading="lazy" />
 									</a>
 									<div class="row">
-										<b>{w.data.title}</b>
+										<b>{T[w.id]?.t ?? w.data.title}</b>
 										<span class="tools">{w.data.tools.join(' / ')}</span>
 									</div>
-									<p>{w.data.summary}</p>
+									<p>{T[w.id]?.s ?? w.data.summary}</p>
 								</div>
 							))
 						}
@@ -202,7 +230,7 @@ const blocks = [
 		<!-- S8 页尾：满一屏高，版权行贴底 -->
 		<footer id="contact">
 			<div class="foot-inner">
-				<div class="foot-big">Let's <em>talk</em> — 联系我</div>
+				<div class="foot-big">Let's <em>talk</em></div>
 				<div class="foot-grid">
 					<div>
 						<h4>CONTACT</h4>
@@ -217,13 +245,13 @@ const blocks = [
 					</div>
 					<div>
 						<h4>DOWNLOAD</h4>
-						<a href="/contact/">简历 PDF（中文）</a>
+						<a href="/contact/">Resume PDF (CN)</a>
 						<a href="/contact/">Resume PDF (EN)</a>
 					</div>
 					<div>
 						<h4>BASE</h4>
-						<p>深圳 · 随时到岗</p>
-						<p>接受大小周</p>
+						<p>Shenzhen · Available immediately</p>
+						<p>Alternate 6-day weeks OK</p>
 					</div>
 				</div>
 				<div class="foot-bottom">
