@@ -15,14 +15,14 @@ export const collections = {
 			category: z.enum(['3d', 'vibecoding', 'graphic']),
 			/** 作品分级（03-作品集规划）：S 精选 / A 完整 / B 简历附表 */
 			level: z.enum(['S', 'A', 'B']).default('A'),
-			/** 策展排序：同日期同级内小者在前（缺省排后）；用户手动调序入口 */
+			/** 策展置顶序：有值者排在本类最前（小者在前），其余按日期→分级→id；用户手动调序入口 */
 			order: z.number().optional(),
 			cover: z.string(),
 			cover_alt: z.string().default(''),
 			date: z.coerce.date(),
 			tools: z.array(z.string()).default([]),
-			/** 诚实标注：原创 / 参考还原 / 教程跟做；来源写 attribution_source */
-			attribution: z.enum(['原创', '参考还原', '教程跟做']),
+			/** 诚实标注：原创 / 参考还原 / 教程跟做 / 基于案例二创；来源写 attribution_source */
+			attribution: z.enum(['原创', '参考还原', '教程跟做', '基于案例二创']),
 			attribution_source: z.string().optional(),
 			summary: z.string(),
 			video: z.string().optional(),
@@ -36,7 +36,12 @@ export const collections = {
 					}),
 				)
 				.default([]),
-			gallery: z.array(z.string()).default([]),
+			/** 图集：字符串=普通两列项；对象可标 wide=true 占满一整行（横图/收尾大图） */
+			gallery: z
+				.array(z.union([z.string(), z.object({ src: z.string(), wide: z.boolean().optional() })]))
+				.default([]),
+			/** 图集版式：grid=两列错落（默认）；single=单列通栏（横版排版图、包装展开图等易看不清的） */
+			gallery_layout: z.enum(['grid', 'single']).default('grid'),
 			process: z.array(z.object({ img: z.string(), caption: z.string() })).default([]),
 			links: z.array(z.object({ label: z.string(), url: z.string() })).default([]),
 			/** glb 地址（public/models/，可选，详情页 model-viewer 用） */

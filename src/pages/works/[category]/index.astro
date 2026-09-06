@@ -13,20 +13,22 @@ export async function getStaticPaths() {
 
 type Props = { cat: (typeof WORK_CATEGORIES)[number] };
 const { cat } = Astro.props;
-/* 排序：日期新→旧，同日期按分级 S→A→B（S 主推在前、B 跟练类沉底，03-作品集规划），
-   同级内按 order（策展序，缺省排后），最后按 id 保证稳定 */
+/* 排序：order 有值者=策展置顶（小者在前）；其余按 日期新→旧 → 分级 S→A→B（B 跟练类沉底，
+   03-作品集规划）→ id。置顶序是用户手动调序入口（md frontmatter order 字段） */
 const LEVEL_RANK: Record<string, number> = { S: 0, A: 1, B: 2 };
 const sorted = (
 	await getCollection('work', ({ data }) => !data.draft && data.category === cat.key)
 ).sort((a, b) => {
+	const oa = a.data.order ?? null;
+	const ob = b.data.order ?? null;
+	if (oa !== null && ob !== null) return oa - ob;
+	if (oa !== null) return -1;
+	if (ob !== null) return 1;
 	if (a.data.date.valueOf() !== b.data.date.valueOf())
 		return b.data.date.valueOf() - a.data.date.valueOf();
 	const ra = LEVEL_RANK[a.data.level] ?? 1;
 	const rb = LEVEL_RANK[b.data.level] ?? 1;
 	if (ra !== rb) return ra - rb;
-	const oa = a.data.order ?? Number.MAX_SAFE_INTEGER;
-	const ob = b.data.order ?? Number.MAX_SAFE_INTEGER;
-	if (oa !== ob) return oa - ob;
 	return a.id < b.id ? -1 : 1;
 });
 const entries = [
@@ -221,8 +223,20 @@ const LEADS: Record<string, string> = {
 								)
 							}
 							{w.data.gallery.length > 0 && (
-								<div class="wp-gallery">
-									{w.data.gallery.map((g) => <img src={g} alt="" loading="lazy" />)}
+								<div
+									class:list={['wp-gallery', { single: w.data.gallery_layout === 'single' }]}
+								>
+									{w.data.gallery.map((g) => {
+										const item = typeof g === 'string' ? { src: g } : g;
+										return (
+											<img
+												src={item.src}
+												alt=""
+												loading="lazy"
+												class:list={[{ wide: item.wide }]}
+											/>
+										);
+									})}
 								</div>
 							)}
 							{w.data.process.length > 0 && (
@@ -888,7 +902,9 @@ const LEADS: Record<string, string> = {
 		text-align: center;
 	}
 
-	/* 图集：两列错落（保原比例不裁切），移动端单列 */
+	/* 图集：两列错落（保原比例不裁切），移动端单列；
+	   single=整条单列通栏（排版图/包装展开图），竖版限高防拖太长；
+	   wide=两列模式下占满一整行 */
 	.wp-gallery {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
@@ -902,6 +918,20 @@ const LEADS: Record<string, string> = {
 		width: 100%;
 		border-radius: var(--radius-tag);
 		background: #101214;
+	}
+
+	.wp-gallery img.wide {
+		grid-column: 1 / -1;
+	}
+
+	.wp-gallery.single {
+		grid-template-columns: 1fr;
+	}
+
+	.wp-gallery.single img {
+		width: 100%;
+		max-height: 82vh;
+		object-fit: contain;
 	}
 
 	/* 制作过程：区块题 + 单列图文 */
