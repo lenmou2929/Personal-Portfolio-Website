@@ -9,7 +9,7 @@ tools: [Blender]
 attribution: 原创
 summary: Blender 自由练习渲染：场景搭建、灯光与氛围（余晖废墟 / 医院 / 地球 / 产品渲染）。
 gallery:
-  [/works/blender-hospital-1.jpg, /works/blender-hospital-2.jpg, /works/blender-earth.jpg, /works/blender-chips.jpg]
+  [/works/blender-hospital-1.jpg, /works/blender-hospital-2.jpg, /works/blender-ruins.jpg, /works/blender-chips.jpg, { src: /works/blender-earth.jpg, wide: true }]
 ---
 
 ## 制作说明

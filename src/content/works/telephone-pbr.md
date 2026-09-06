@@ -2,6 +2,7 @@
 title: 老式电话机 · PBR
 category: 3d
 level: S
+order: 3
 cover: /works/phone-front.jpg
 cover_alt: 老式电话机 PBR 渲染正面全景图
 date: 2026-09-03
