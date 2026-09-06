@@ -17,7 +17,8 @@ SRC = os.path.join(ROOT, 'assets', '原始素材')
 DST = os.path.join(ROOT, 'website', 'public', 'videos')
 FF = get_ffmpeg_exe()
 
-# (源, 目标名, poster 采样点占全片比例) —— 地铁通道含片头，取后半段
+# (源, 目标名, poster 采样点占全片比例[, 视频码率上限, 音频码率])
+# 长片用低码率档保住 GitHub 50MB 警戒线（失联全流程 4min55s → 1280k+64k ≈ 42MB，≤15MB 会糊不可用）
 JOBS = [
     ('3D类/学生时期的跟练渲染作品/地铁通道_含片头.mp4', 'practice-subway.mp4', 0.55),
     ('3D类/学生时期的跟练渲染作品/暴风海洋.mp4', 'practice-ocean.mp4', 0.35),
@@ -25,6 +26,8 @@ JOBS = [
     ('3D类/学生时期的跟练渲染作品/罗马式小建筑.mp4', 'practice-rome.mp4', 0.35),
     ('3D类/学生时期的跟练渲染作品/黑暗小巷视频.mp4', 'practice-alley.mp4', 0.35),
     ('3D类/圣甲虫球体地编项目/圣甲虫球体场景渲染视频.mp4', 'scarab-sphere.mp4', 0.4),
+    ('3D类/Metahuman服装角色流程/Metahuman角色套装动作展示视频.mp4', 'metahuman-suit.mp4', 0.4),
+    ('3D类/失联游戏全流程演示（玩法内容在教程之上进行了大改）/失联全流程游戏案例演示.mp4', 'shilian-demo.mp4', 0.4, '1280k', '64k'),
 ]
 MAX_BYTES = 15 * 1024 * 1024
 
@@ -35,8 +38,8 @@ def duration(path: str) -> float:
     return int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3)) if m else 0.0
 
 
-def encode(src: str, dst: str) -> None:
-    """统一压到 1080 级（长边 1920）、CRF25 限速 5M。圣甲虫源码率已达标但仍走同管线，保证 faststart。"""
+def encode(src: str, dst: str, maxrate: str = '5M', abitrate: str = '128k') -> None:
+    """统一压到 1080 级（长边 1920）、CRF25 限速。圣甲虫源码率已达标但仍走同管线，保证 faststart。"""
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     tmp = dst + '.tmp.mp4'
     subprocess.run(
@@ -44,8 +47,8 @@ def encode(src: str, dst: str) -> None:
             FF, '-y', '-i', src,
             '-vf', "scale='if(gt(iw,ih),min(1920,iw),-2)':'if(gt(iw,ih),-2,min(1920,ih))'",
             '-c:v', 'libx264', '-crf', '25', '-preset', 'medium',
-            '-maxrate', '5M', '-bufsize', '10M',
-            '-c:a', 'aac', '-b:a', '128k',
+            '-maxrate', maxrate, '-bufsize', '10M',
+            '-c:a', 'aac', '-b:a', abitrate,
             '-movflags', '+faststart',
             tmp,
         ],
@@ -66,14 +69,17 @@ def poster(src: str, dst: str, at: float) -> None:
 
 
 def main():
-    for src_rel, name, at in JOBS:
+    for job in JOBS:
+        src_rel, name, at = job[:3]
+        maxrate = job[3] if len(job) > 3 else '5M'
+        abitrate = job[4] if len(job) > 4 else ('96k' if maxrate != '5M' else '128k')
         src = os.path.join(SRC, src_rel)
         dst_mp4 = os.path.join(DST, name)
         dst_jpg = os.path.join(DST, name.replace('.mp4', '.jpg'))
         if not os.path.exists(src):
             print(f'[缺] {src_rel}')
             continue
-        encode(src, dst_mp4)
+        encode(src, dst_mp4, maxrate, abitrate)
         poster(src, dst_jpg, at)
         mb = os.path.getsize(dst_mp4) / 1024 / 1024
         flag = ' ⚠️超15MB' if os.path.getsize(dst_mp4) > MAX_BYTES else ''

@@ -43,6 +43,7 @@ MAPPINGS = {
     '3D类/老式电话机/老式电话渲染图/老式电话右侧面细节图.png': 'phone-right.jpg',
     # ---- 3D 类：Metahuman 图集 + AI 辅助过程 ----
     '3D类/Metahuman服装角色流程/UE5中角色全身截图（用于生成AI做参考）.png': 'meta-fullbody.jpg',
+    '3D类/Metahuman服装角色流程/Metahuman卡片封面.png': 'meta-card.jpg',
     '3D类/Metahuman服装角色流程/上衣渲染图.png': 'meta-top-render.jpg',
     '3D类/Metahuman服装角色流程/上衣高模.png': 'meta-top-high.jpg',
     '3D类/Metahuman服装角色流程/上衣低模.png': 'meta-top-low.jpg',
