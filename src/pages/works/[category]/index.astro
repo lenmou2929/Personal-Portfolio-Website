@@ -220,7 +220,10 @@ const LEADS: Record<string, string> = {
 		function uiOpen(id: string) {
 			for (const p of body.querySelectorAll('.work-panel')) p.hidden = p.dataset.panel !== id;
 			layer!.classList.add('open');
-			document.body.style.overflow = 'hidden'; // 滚动隔离：条内滚动不穿透
+			/* 滚动隔离：本站滚动容器是根元素 html（global 设了 overflow-x:clip），
+			   锁 body 拦不住视口滚动——必须锁 html；body 一并锁上双保险 */
+			document.documentElement.style.overflow = 'hidden';
+			document.body.style.overflow = 'hidden';
 		}
 
 		function open(id: string, push = true) {
@@ -234,6 +237,7 @@ const LEADS: Record<string, string> = {
 
 		function uiClose() {
 			layer!.classList.remove('open');
+			document.documentElement.style.overflow = '';
 			document.body.style.overflow = '';
 		}
 
@@ -670,6 +674,7 @@ const LEADS: Record<string, string> = {
 		inset: 0;
 		z-index: 80;
 		visibility: hidden;
+		overscroll-behavior: contain; /* 双保险：层内滚轮不串链到文档 */
 		transition: visibility 0s linear 0.5s;
 	}
 
