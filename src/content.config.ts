@@ -15,6 +15,8 @@ export const collections = {
 			category: z.enum(['3d', 'vibecoding', 'graphic']),
 			/** 作品分级（03-作品集规划）：S 精选 / A 完整 / B 简历附表 */
 			level: z.enum(['S', 'A', 'B']).default('A'),
+			/** 策展排序：同日期同级内小者在前（缺省排后）；用户手动调序入口 */
+			order: z.number().optional(),
 			cover: z.string(),
 			cover_alt: z.string().default(''),
 			date: z.coerce.date(),
@@ -24,6 +26,16 @@ export const collections = {
 			attribution_source: z.string().optional(),
 			summary: z.string(),
 			video: z.string().optional(),
+			/** 多视频（如跟练练习集）：面板逐条渲染；poster=抽帧封面（preload="none" 需要封面图） */
+			videos: z
+				.array(
+					z.object({
+						src: z.string(),
+						poster: z.string().optional(),
+						caption: z.string().optional(),
+					}),
+				)
+				.default([]),
 			gallery: z.array(z.string()).default([]),
 			process: z.array(z.object({ img: z.string(), caption: z.string() })).default([]),
 			links: z.array(z.object({ label: z.string(), url: z.string() })).default([]),
