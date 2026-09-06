@@ -7,11 +7,13 @@ cover_alt: 老式电话机 PBR 渲染正面全景图
 date: 2026-09-03
 tools: [Blender, SP]
 attribution: 原创
-summary: 全流程 PBR 产品级渲染：建模、UV、SP 材质绘制、Cycles 渲染。可在线转动查看。
+summary: 全流程 PBR 产品级渲染：建模、UV、SP 材质绘制、Cycles 渲染。3D 分类页 Hero 可在线查看。
+gallery:
+  [/works/phone-back.jpg, /works/phone-left.jpg, /works/phone-right.jpg]
 ---
 
 ## 制作说明
 
-（占位正文——制作过程图文待 Phase 5 填充：建模 / UV / SP 材质绘制 / Cycles 渲染各环节。）
-
-后续可在详情页嵌入 glb（model-viewer 在线转动查看，模型放 public/models/）。
+全流程 PBR 产品级渲染：Blender 建模、UV 展开、Substance Painter
+材质绘制、Cycles 渲染。同模型（含听筒拿起动画）为 3D 分类页
+Hero 实时渲染主体。
