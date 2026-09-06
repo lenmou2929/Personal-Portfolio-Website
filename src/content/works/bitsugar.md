@@ -2,6 +2,7 @@
 title: BitSugar 拼豆图纸站
 category: vibecoding
 level: S
+order: 3
 cover: /works/bitsugar-cover.png
 cover_alt: 比特糖网站截图展示——像素风首页与拼豆图纸操作面板
 date: 2026-09-02

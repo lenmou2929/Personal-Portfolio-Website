@@ -21,8 +21,19 @@ import { WORK_CATEGORIES } from '../lib/categories';
 import { CATEGORY_IMAGES } from '../lib/category-images';
 import '../styles/global.css';
 
+/* 精选 = level S；排序与分类页同规则：order 置顶（小者在前）→ 日期新→旧 → id
+   （order 在条目 frontmatter，用户可直接改 md 调精选顺序） */
 const featured = (await getCollection('work', ({ data }) => !data.draft && data.level === 'S')).sort(
-	(a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+	(a, b) => {
+		const oa = a.data.order ?? null;
+		const ob = b.data.order ?? null;
+		if (oa !== null && ob !== null) return oa - ob;
+		if (oa !== null) return -1;
+		if (ob !== null) return 1;
+		if (a.data.date.valueOf() !== b.data.date.valueOf())
+			return b.data.date.valueOf() - a.data.date.valueOf();
+		return a.id < b.id ? -1 : 1;
+	},
 );
 
 const ATTR_EN = { 原创: 'ORIGINAL', 参考还原: 'REFERENCE', 教程跟做: 'TUTORIAL' } as const;
