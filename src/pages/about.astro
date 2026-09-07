@@ -1,41 +1,41 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-/* 技能矩阵（2026-09-06 上线版）：分组 + 5 点自评刻度，以把握机会为主、不作弱化措辞 */
+/* 技能矩阵（2026-09-06 上线版）：分组清单，不作自评刻度——覆盖面由作品证明，熟不熟面试口头核 */
 const groups = [
 	{
 		name: '3D / 引擎',
 		items: [
-			{ name: 'UE5', desc: '场景搭建 · 地形手绘 · 材质 · Metahuman · 蓝图', dots: 5 },
-			{ name: 'Blender', desc: '建模 · 程序化材质节点 · 拓扑 · 烘焙 · 布料联动', dots: 4 },
-			{ name: 'Substance Painter', desc: 'PBR 材质绘制（老式电话机全流程）', dots: 4 },
-			{ name: 'Marvelous Designer', desc: '布料模拟（军用帐篷案例）', dots: 4 },
-			{ name: 'ZBrush', desc: '数字雕刻', dots: 3 },
+			{ name: 'UE5', desc: '场景搭建 · 地形手绘 · 材质 · Metahuman · 蓝图' },
+			{ name: 'Blender', desc: '建模 · 程序化材质节点 · 拓扑 · 烘焙 · 布料联动' },
+			{ name: 'Substance Painter', desc: 'PBR 材质绘制（老式电话机全流程）' },
+			{ name: 'Marvelous Designer', desc: '布料模拟（军用帐篷案例）' },
+			{ name: 'ZBrush', desc: '数字雕刻' },
 		],
 	},
 	{
 		name: '影视 / 后期',
 		items: [
-			{ name: 'After Effects', desc: '特效与短片调色（UE 短片后期）', dots: 4 },
-			{ name: 'Premiere', desc: '剪辑（品牌口播视频实拍项目）', dots: 4 },
-			{ name: 'DaVinci Resolve', desc: '调色', dots: 3 },
-			{ name: 'Audition', desc: '音频处理', dots: 3 },
+			{ name: 'After Effects', desc: '特效与短片调色（UE 短片后期）' },
+			{ name: 'Premiere', desc: '剪辑（品牌口播视频实拍项目）' },
+			{ name: 'DaVinci Resolve', desc: '调色' },
+			{ name: 'Audition', desc: '音频处理' },
 		],
 	},
 	{
 		name: '平面 / 设计',
 		items: [
-			{ name: 'Photoshop', desc: '海报 · 合成 · 版式', dots: 5 },
-			{ name: 'Illustrator', desc: 'Logo · 字体 · 品牌物料', dots: 5 },
-			{ name: '包装 / 品牌', desc: '隅野包装全套 · 翔驰门店易拉宝', dots: 4 },
+			{ name: 'Photoshop', desc: '海报 · 合成 · 版式' },
+			{ name: 'Illustrator', desc: 'Logo · 字体 · 品牌物料' },
+			{ name: '包装 / 品牌', desc: '隅野包装全套 · 翔驰门店易拉宝' },
 		],
 	},
 	{
 		name: 'AI / Web',
 		items: [
-			{ name: 'AI 辅助开发', desc: '多智能体工作流 · 两个上线 Web 产品', dots: 5 },
-			{ name: 'AI 生成 3D 管线', desc: '即梦 AI / Hyper3D → UE5 · Blender', dots: 4 },
-			{ name: '部署 / SEO', desc: '域名 · DNS · 部署 · 百度站长提交', dots: 4 },
+			{ name: 'AI 辅助开发', desc: '多智能体工作流 · 两个上线 Web 产品' },
+			{ name: 'AI 生成 3D 管线', desc: '即梦 AI / Hyper3D → UE5 · Blender' },
+			{ name: '部署 / SEO', desc: '域名 · DNS · 部署 · 百度站长提交' },
 		],
 	},
 ];
@@ -73,17 +73,12 @@ const groups = [
 					<div class="group">
 						<h3>{g.name}</h3>
 						<ul>
-							{g.items.map((it) => (
-								<li>
-									<b>{it.name}</b>
-									<span class="desc">{it.desc}</span>
-									<span class="dots" aria-label={`熟练度 ${it.dots} / 5`}>
-										{Array.from({ length: 5 }).map((_, i) => (
-											<i class:list={[{ on: i < it.dots }]} />
-										))}
-									</span>
-								</li>
-							))}
+						{g.items.map((it) => (
+							<li>
+								<b>{it.name}</b>
+								<span class="desc">{it.desc}</span>
+							</li>
+						))}
 						</ul>
 					</div>
 				))
@@ -143,7 +138,7 @@ const groups = [
 		color: var(--accent);
 	}
 
-	/* 技能矩阵：分组 mono 绿标 + 工具行（名称/说明/五点刻度） */
+	/* 技能矩阵：分组 mono 绿标 + 工具行（名称/说明） */
 	.group {
 		max-width: 720px;
 	}
@@ -182,25 +177,6 @@ const groups = [
 		color: var(--ink-2);
 		font-size: 13px;
 		margin-right: auto;
-	}
-
-	.dots {
-		display: inline-flex;
-		gap: 5px;
-		align-items: center;
-	}
-
-	.dots i {
-		width: 7px;
-		height: 7px;
-		border-radius: 50%;
-		border: 1px solid var(--accent);
-		opacity: 0.55;
-	}
-
-	.dots i.on {
-		background: var(--accent);
-		opacity: 1;
 	}
 
 	/* 奖项栏：左 3px 绿线（同示意稿 award-line） */
