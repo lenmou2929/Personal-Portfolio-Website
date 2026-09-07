@@ -65,58 +65,93 @@ const LEADS: Record<string, string> = {
 
 		<!-- 内容层：3D 页带分界底色（覆盖 fixed 渲染层的滚动分界）；其它分类页透明（无渲染层） -->
 		<div class:list={['page-body', { cover: cat.key === '3d' }]}>
-			{
-				cat.key === 'vibecoding' && (
-					<section class="showcase">
-						<div class="live-frame">
-							<div class="chrome">
-								<span class="dots" aria-hidden="true"><i /><i /><i /></span>
-								<span class="url">bitsugar.top</span>
-								<a class="open" href="https://bitsugar.top" target="_blank" rel="noopener">
-									新窗口打开 ↗
-								</a>
-							</div>
-							<div class="frame-box">
-								<iframe
-									src="https://bitsugar.top"
-									loading="lazy"
-									title="BitSugar 拼豆图纸站（在线实时嵌入）"
-								/>
-								<button class="activate" type="button">
-									<span class="activate-pill">点击互动实机</span>
-								</button>
-								<p class="load-fail" hidden>
-									嵌入加载失败——<a
-										href="https://bitsugar.top"
-										target="_blank"
-										rel="noopener">bitsugar.top ↗</a
-									>
-								</p>
-							</div>
-						</div>
-						<aside class="side">
-							<div class="status-card">
-								<p class="status"><span class="pulse" />LIVE — 已上线</p>
-								<p class="desc">域名、DNS、部署、站长平台提交全流程独立完成，GitHub 开源。</p>
-								<div class="links">
-									<a href="https://bitsugar.top" target="_blank" rel="noopener">bitsugar.top ↗</a>
-									<a
-										href="https://github.com/lenmou2929/BitSugar"
-										target="_blank"
-										rel="noopener">GitHub ↗</a
-									>
+				{
+					cat.key === 'vibecoding' && (
+						<>
+							<section class="showcase">
+								<div class="live-frame">
+									<div class="chrome">
+										<span class="dots" aria-hidden="true"><i /><i /><i /></span>
+										<span class="url">bitsugar.top</span>
+										<a class="open" href="https://bitsugar.top" target="_blank" rel="noopener">
+											新窗口打开 ↗
+										</a>
+									</div>
+									<div class="frame-box">
+										<iframe
+											src="https://bitsugar.top"
+											loading="lazy"
+											title="BitSugar 拼豆图纸站（在线实时嵌入）"
+										/>
+										<button class="activate" type="button">
+											<span class="activate-pill">点击互动实机</span>
+										</button>
+										<p class="load-fail" hidden>
+											嵌入加载失败——<a
+												href="https://bitsugar.top"
+												target="_blank"
+												rel="noopener">bitsugar.top ↗</a
+											>
+										</p>
+									</div>
 								</div>
-							</div>
-							<div class="status-card muted">
-								<p class="status"><span class="pulse dev" />DEV — 开发中</p>
-								<p class="desc">
-									3D 雪板预览器「OnBoard 上板」已上架本类作品条——部署后以同款实机 iframe 嵌入本页。
-								</p>
-							</div>
-						</aside>
-					</section>
-				)
-			}
+								<aside class="side">
+									<div class="status-card">
+										<p class="status"><span class="pulse" />LIVE — 已上线</p>
+										<p class="desc">域名、DNS、部署、站长平台提交全流程独立完成，GitHub 开源。</p>
+										<div class="links">
+											<a href="https://bitsugar.top" target="_blank" rel="noopener">bitsugar.top ↗</a>
+											<a
+												href="https://github.com/lenmou2929/BitSugar"
+												target="_blank"
+												rel="noopener">GitHub ↗</a
+											>
+										</div>
+									</div>
+								</aside>
+							</section>
+							<section class="showcase">
+								<div class="live-frame">
+									<div class="chrome">
+										<span class="dots" aria-hidden="true"><i /><i /><i /></span>
+										<span class="url">onboard.wang</span>
+										<a class="open" href="https://onboard.wang" target="_blank" rel="noopener">
+											新窗口打开 ↗
+										</a>
+									</div>
+									<div class="frame-box">
+										<iframe
+											src="https://onboard.wang"
+											loading="lazy"
+											title="OnBoard 上板 · 3D 雪板预览器（在线实时嵌入）"
+										/>
+										<button class="activate" type="button">
+											<span class="activate-pill">点击互动实机</span>
+										</button>
+										<p class="load-fail" hidden>
+											嵌入加载失败——<a
+												href="https://onboard.wang"
+												target="_blank"
+												rel="noopener">onboard.wang ↗</a
+											>
+										</p>
+									</div>
+								</div>
+								<aside class="side">
+									<div class="status-card">
+										<p class="status"><span class="pulse" />LIVE — 已上线</p>
+										<p class="desc">
+											3D 雪板预览器（自研，AI 辅助开发）：换材质、贴花、调 HDRI 环境，烘焙导出成品贴图——浏览器里实时看板面。
+										</p>
+										<div class="links">
+											<a href="https://onboard.wang" target="_blank" rel="noopener">onboard.wang ↗</a>
+										</div>
+									</div>
+								</aside>
+							</section>
+						</>
+					)
+				}
 
 			{
 				cat.key === 'graphic' && (
@@ -328,20 +363,21 @@ const LEADS: Record<string, string> = {
 		if (w) open(w, false);
 	}
 
-	/* Vibecoding 实机 iframe：点击激活 + 加载失败兜底 */
-	const liveFrame = document.querySelector('.live-frame');
-	if (liveFrame) {
+	/* Vibecoding 实机 iframe：点击激活 + 加载失败兜底（多个实机窗各自独立激活/计时） */
+	document.querySelectorAll('.live-frame').forEach((liveFrame) => {
 		const activate = liveFrame.querySelector('.activate');
 		const fail = liveFrame.querySelector('.load-fail');
 		const iframe = liveFrame.querySelector('iframe');
 		activate?.addEventListener('click', () => liveFrame.classList.add('active'));
 		let loaded = false;
-		iframe?.addEventListener('load', () => (loaded = true));
+		iframe?.addEventListener('load', () => {
+			loaded = true;
+			fail?.setAttribute('hidden', '');
+		});
 		window.setTimeout(() => {
 			if (!loaded) fail?.removeAttribute('hidden');
 		}, 8000);
-		iframe?.addEventListener('load', () => fail?.setAttribute('hidden', ''));
-	}
+	});
 </script>
 
 <style>
@@ -506,10 +542,6 @@ const LEADS: Record<string, string> = {
 		padding: 22px;
 	}
 
-	.status-card.muted {
-		opacity: 0.85;
-	}
-
 	.status {
 		display: flex;
 		align-items: center;
@@ -526,11 +558,6 @@ const LEADS: Record<string, string> = {
 		border-radius: 50%;
 		background: var(--accent);
 		animation: blink 1.6s ease-in-out infinite;
-	}
-
-	.pulse.dev {
-		background: var(--dark-ink-3);
-		animation: none;
 	}
 
 	@keyframes blink {
