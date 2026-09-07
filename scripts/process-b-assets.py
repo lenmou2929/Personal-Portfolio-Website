@@ -42,6 +42,7 @@ MAPPINGS = {
     'vibecoding/BitSugar · 比特糖/比特糖网站截图展示-英文版-2.png': 'bitsugar-en.jpg',
     'vibecoding/BitSugar · 比特糖/首页下方的图纸预览界面截图-3.png': 'bitsugar-preview.jpg',
     'vibecoding/BitSugar · 比特糖/拼豆绘制界面截图-4.png': 'bitsugar-paint.jpg',
+    'vibecoding/BitSugar · 比特糖/vibecoding分类展示图.png': 'vibecoding-cat.jpg',
     'vibecoding/OnBoard · 上板/01-默认界面截图.png': 'onboard-01.jpg',
     'vibecoding/OnBoard · 上板/02-贴花效果截图.png': 'onboard-02.jpg',
     'vibecoding/OnBoard · 上板/03-弹窗设置截图.png': 'onboard-03.jpg',
@@ -76,6 +77,14 @@ MAPPINGS = {
     '3D类/Metahuman服装角色流程/AI生成上衣拆分图-6.png': 'meta-ai-06.jpg',
     '3D类/Metahuman服装角色流程/AI生成裤子拆分图-7.png': 'meta-ai-07.jpg',
     '3D类/Metahuman服装角色流程/AI生成皮鞋拆分图-8.png': 'meta-ai-08.jpg',
+    '3D类/Metahuman服装角色流程/AI生成高模-9.png': 'meta-ai-09.jpg',
+    '3D类/Metahuman服装角色流程/在Blender中完成剩余操作-10.png': 'meta-ai-10.jpg',
+    # ---- 3D 类：失联游戏场景截图（尾缀定序）----
+    **{
+        f'3D类/失联游戏全流程演示（玩法内容在教程之上进行了大改）/游戏场景-{n}.png': f'shilian-scene-{n:02d}.jpg'
+        for n in range(1, 12)
+    },
+    '3D类/失联游戏全流程演示（玩法内容在教程之上进行了大改）/失联全流程卡片封面.png': 'shilian-card.jpg',
     # ---- 3D 类：圣甲虫过程（成品渲染图已有 scarab-sphere.jpg）----
     **{
         f'3D类/圣甲虫球体地编项目/圣甲虫球体UE5场景搭建步骤图/BuZ.{i}.jpeg': f'scarab-step-{i + 1}.jpg'
@@ -122,6 +131,29 @@ def main():
         total_out += size
         print(f'[入] {dst_rel}  {w}x{h}  {size // 1024}KB')
     print(f'-- 合计 {len(MAPPINGS)} 张：{total_in // 1024 // 1024}MB → {total_out // 1024 // 1024}MB --')
+    recompress_heavy()
+
+
+def recompress_heavy(threshold_kb: int = 350, quality: int = 82) -> None:
+    """后处理：works/ 下超阈值的 JPG 二次压缩（q82），进一步压加载体积。"""
+    saved = 0
+    count = 0
+    for root, _dirs, files in os.walk(DST):
+        for f in files:
+            if not f.lower().endswith('.jpg'):
+                continue
+            p = os.path.join(root, f)
+            if os.path.getsize(p) <= threshold_kb * 1024:
+                continue
+            before = os.path.getsize(p)
+            im = Image.open(p)
+            im.save(p, 'JPEG', quality=quality, optimize=True, progressive=True)
+            after = os.path.getsize(p)
+            if after < before:
+                saved += before - after
+                count += 1
+                print(f'[压] {os.path.relpath(p, DST)}  {before // 1024}KB → {after // 1024}KB')
+    print(f'-- 二次压缩 {count} 张，省 {saved // 1024}KB --')
 
 
 if __name__ == '__main__':

@@ -10,6 +10,21 @@ tools: [UE5]
 attribution: 基于案例二创
 summary: 蓝图开发的可玩游戏 Demo（全流程演示）：在教程案例基础上对玩法内容进行了大改。
 video: https://media.onboard.wang/shilian-demo.mp4
+gallery_layout: single
+gallery:
+  [
+    /works/shilian-scene-01.jpg,
+    /works/shilian-scene-02.jpg,
+    /works/shilian-scene-03.jpg,
+    /works/shilian-scene-04.jpg,
+    /works/shilian-scene-05.jpg,
+    /works/shilian-scene-06.jpg,
+    /works/shilian-scene-07.jpg,
+    /works/shilian-scene-08.jpg,
+    /works/shilian-scene-09.jpg,
+    /works/shilian-scene-10.jpg,
+    /works/shilian-scene-11.jpg,
+  ]
 ---
 
 ## 制作说明
