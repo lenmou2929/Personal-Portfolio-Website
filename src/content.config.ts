@@ -42,7 +42,16 @@ export const collections = {
 				.default([]),
 			/** 图集版式：grid=两列错落（默认）；single=单列通栏（横版排版图、包装展开图等易看不清的） */
 			gallery_layout: z.enum(['grid', 'single']).default('grid'),
-			process: z.array(z.object({ img: z.string(), caption: z.string() })).default([]),
+			process: z
+				.array(
+					z.object({
+						img: z.string(),
+						caption: z.string(),
+						/** 竖图半宽标记：连续 two 个 half 并排成一行（如 Metahuman 过程 3/4 步） */
+						half: z.boolean().optional(),
+					}),
+				)
+				.default([]),
 			links: z.array(z.object({ label: z.string(), url: z.string() })).default([]),
 			/** glb 地址（public/models/，可选，详情页 model-viewer 用） */
 			model3d: z.string().optional(),

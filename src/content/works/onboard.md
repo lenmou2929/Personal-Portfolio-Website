@@ -1,7 +1,8 @@
 ---
 title: OnBoard 上板 · 3D 雪板预览器
 category: vibecoding
-level: A
+level: S
+order: 3
 cover: /works/onboard-04.jpg
 cover_alt: OnBoard 雪板预览器整体效果——雪地场景中的雪板与贴花编辑面板
 date: 2026-09-01

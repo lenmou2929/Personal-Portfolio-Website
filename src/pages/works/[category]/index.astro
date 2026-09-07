@@ -141,7 +141,7 @@ const LEADS: Record<string, string> = {
 									<div class="status-card">
 										<p class="status"><span class="pulse" />LIVE — 已上线</p>
 										<p class="desc">
-											3D 雪板预览器（自研，AI 辅助开发）：换材质、贴花、调 HDRI 环境，烘焙导出成品贴图——浏览器里实时看板面。
+											3D 雪板预览器「上板 · OnBoard」（自研，AI 辅助开发）：换材质、贴花、调 HDRI 环境，烘焙导出成品贴图——浏览器里实时看板面。
 										</p>
 										<div class="links">
 											<a href="https://onboard.wang" target="_blank" rel="noopener">onboard.wang ↗</a>
@@ -278,7 +278,7 @@ const LEADS: Record<string, string> = {
 								<section class="wp-process">
 									<h4>制作过程</h4>
 									{w.data.process.map((p) => (
-										<figure class="wp-process-item">
+										<figure class:list={['wp-process-item', { half: p.half }]}>
 											<img src={p.img} alt={p.caption} loading="lazy" />
 											<figcaption>{p.caption}</figcaption>
 										</figure>
@@ -970,24 +970,33 @@ const LEADS: Record<string, string> = {
 		object-fit: contain;
 	}
 
-	/* 制作过程：区块题 + 单列图文 */
+	/* 制作过程：区块题 + 两列网格（默认整行跨两列；half=半宽，连续两个 half 并排放竖图） */
 	.wp-process {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 12px 22px;
 		margin-top: 34px;
 		padding-top: 22px;
 		border-top: 1px solid var(--line);
 	}
 
 	.wp-process h4 {
+		grid-column: 1 / -1;
 		font-family: var(--mono);
 		font-size: 11.5px;
 		font-weight: 400;
 		letter-spacing: 0.22em;
 		color: var(--accent);
-		margin-bottom: 18px;
+		margin-bottom: 6px;
 	}
 
 	.wp-process-item {
-		margin-bottom: 22px;
+		grid-column: 1 / -1;
+		margin: 0;
+	}
+
+	.wp-process-item.half {
+		grid-column: auto / span 1;
 	}
 
 	.wp-process-item img {

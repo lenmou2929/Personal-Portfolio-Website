@@ -16,6 +16,9 @@ const currentYear = new Date().getFullYear();
 </footer>
 <style>
 	footer {
+		position: relative;
+		z-index: 2; /* 3D 页渲染层 fixed z-0 盖满视口：页脚必须带底色抬层，否则整段被模型盖住（2026-09-07） */
+		background: var(--gray-999);
 		display: flex;
 		flex-direction: column;
 		gap: 3rem;

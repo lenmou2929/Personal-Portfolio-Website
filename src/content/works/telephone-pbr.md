@@ -1,7 +1,7 @@
 ---
 title: 老式电话机 · PBR
 category: 3d
-level: S
+level: A
 order: 4
 cover: /works/phone-front.jpg
 cover_alt: 老式电话机 PBR 渲染正面全景图
