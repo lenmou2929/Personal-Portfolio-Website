@@ -1,30 +1,107 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+/* 技能矩阵（2026-09-06 上线版）：分组 + 5 点自评刻度，以把握机会为主、不作弱化措辞 */
+const groups = [
+	{
+		name: '3D / 引擎',
+		items: [
+			{ name: 'UE5', desc: '场景搭建 · 地形手绘 · 材质 · Metahuman · 蓝图', dots: 5 },
+			{ name: 'Blender', desc: '建模 · 程序化材质节点 · 拓扑 · 烘焙 · 布料联动', dots: 4 },
+			{ name: 'Substance Painter', desc: 'PBR 材质绘制（老式电话机全流程）', dots: 4 },
+			{ name: 'Marvelous Designer', desc: '布料模拟（军用帐篷案例）', dots: 4 },
+			{ name: 'ZBrush', desc: '数字雕刻', dots: 3 },
+		],
+	},
+	{
+		name: '影视 / 后期',
+		items: [
+			{ name: 'After Effects', desc: '特效与短片调色（UE 短片后期）', dots: 4 },
+			{ name: 'Premiere', desc: '剪辑（品牌口播视频实拍项目）', dots: 4 },
+			{ name: 'DaVinci Resolve', desc: '调色', dots: 3 },
+			{ name: 'Audition', desc: '音频处理', dots: 3 },
+		],
+	},
+	{
+		name: '平面 / 设计',
+		items: [
+			{ name: 'Photoshop', desc: '海报 · 合成 · 版式', dots: 5 },
+			{ name: 'Illustrator', desc: 'Logo · 字体 · 品牌物料', dots: 5 },
+			{ name: '包装 / 品牌', desc: '隅野包装全套 · 翔驰门店易拉宝', dots: 4 },
+		],
+	},
+	{
+		name: 'AI / Web',
+		items: [
+			{ name: 'AI 辅助开发', desc: '多智能体工作流 · 两个上线 Web 产品', dots: 5 },
+			{ name: 'AI 生成 3D 管线', desc: '即梦 AI / Hyper3D → UE5 · Blender', dots: 4 },
+			{ name: '部署 / SEO', desc: '域名 · DNS · 部署 · 百度站长提交', dots: 4 },
+		],
+	},
+];
 ---
 
-<BaseLayout fixedTheme="light" title="关于 | 陈继祖作品集" description="关于陈继祖：UE5地编 / 3D美术 与 AI 辅助开发。">
+<BaseLayout fixedTheme="light" title="关于 | 陈继祖作品集" description="关于陈继祖：平面科班自学 3D 全流程，UE5 地编 / 3D 美术 + AI 辅助开发，深圳随时到岗。">
 	<main class="wrapper stack gap-10 page">
 		<header class="stack gap-3">
-			<p class="kicker">01 — PROFILE</p>
+			<p class="kicker">04 — ABOUT</p>
 			<h1>关于我</h1>
 		</header>
 
-		<section class="stack gap-2">
+		<section class="stack gap-3">
 			<h2>定位</h2>
-			<p class="ph-note">
-				占位：定位陈述按示意稿「关于我」屏与简历内容迁移（平面设计科班 → 自学 3D 全流程 → AI
-				辅助开发）。
+			<p class="lead">
+				广告艺术设计科班出身，从平面与版式的基本功出发，自学贯通 3D 全流程——
+				<em>UE5 场景搭建与地形</em>、Blender 建模与渲染、Marvelous Designer 布料、
+				Substance Painter 材质，直到 Ae 后期调色。
+			</p>
+			<p class="lead">
+				代表作品《圣甲虫球体 · 挖掘现场》获 2025 年湖北省职业院校技能大赛数字艺术设计赛项二等奖；
+				另一条线上，用 AI 辅助开发做出<em>两个可访问的 Web 产品</em>——BitSugar
+				拼豆图纸站（已上线开源）与 OnBoard 3D 雪板预览器，从需求、开发到域名、部署、站长提交独立完成。
+			</p>
+			<p class="lead">
+				我相信<em>先规划、后动手</em>，喜欢跨软件管线解决问题。求职方向：UE5 地编 / 3D 美术
+				（影视向 · 产品向），坐标深圳、随时到岗；副方向 AIGC / AI 辅助前端开发。
 			</p>
 		</section>
 
-		<section class="stack gap-2">
+		<section class="stack gap-4">
 			<h2>技能矩阵</h2>
-			<p class="ph-note">占位：技能矩阵可视化，内容来自 00-个人画像 技能矩阵（诚实标注熟练度）。</p>
+			{
+				groups.map((g) => (
+					<div class="group">
+						<h3>{g.name}</h3>
+						<ul>
+							{g.items.map((it) => (
+								<li>
+									<b>{it.name}</b>
+									<span class="desc">{it.desc}</span>
+									<span class="dots" aria-label={`熟练度 ${it.dots} / 5`}>
+										{Array.from({ length: 5 }).map((_, i) => (
+											<i class:list={[{ on: i < it.dots }]} />
+										))}
+									</span>
+								</li>
+							))}
+						</ul>
+					</div>
+				))
+			}
 		</section>
 
-		<section class="stack gap-2">
+		<section class="stack gap-3">
 			<h2>奖项</h2>
-			<p class="award">2025 年湖北省职业院校技能大赛 · 数字艺术设计赛项 —— 二等奖 ｜ 优秀毕业生</p>
+			<p class="award">
+				<span class="tag">AWARD</span>2025 年湖北省职业院校技能大赛 · 数字艺术设计赛项 ——
+				<b>&nbsp;二等奖&nbsp;</b> ｜ 优秀毕业生
+			</p>
+		</section>
+
+		<section class="cta-row">
+			<a href="/resume/resume-chenjizu-3d.pdf" download>简历 PDF · 3D / 地编方向 ↓</a>
+			<a href="/resume/resume-chenjizu-aigc.pdf" download>简历 PDF · AIGC 方向 ↓</a>
+			<a class="ghost" href="/contact/">联系方式 →</a>
 		</section>
 	</main>
 </BaseLayout>
@@ -54,9 +131,76 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 		padding-bottom: 10px;
 	}
 
-	.ph-note {
+	.lead {
+		max-width: 720px;
+		font-size: 15.5px;
+		line-height: 2;
+		color: var(--ink);
+	}
+
+	.lead em {
+		font-style: normal;
+		color: var(--accent);
+	}
+
+	/* 技能矩阵：分组 mono 绿标 + 工具行（名称/说明/五点刻度） */
+	.group {
+		max-width: 720px;
+	}
+
+	.group h3 {
+		font-family: var(--mono);
+		font-size: 11.5px;
+		font-weight: 400;
+		letter-spacing: 0.22em;
+		color: var(--accent);
+		margin-bottom: 10px;
+	}
+
+	.group ul {
+		list-style: none;
+		margin: 0 0 6px;
+		padding: 0;
+	}
+
+	.group li {
+		display: flex;
+		align-items: baseline;
+		gap: 16px;
+		padding: 9px 0;
+		border-bottom: 1px dashed var(--line);
+		font-size: 14px;
+	}
+
+	.group b {
+		min-width: 150px;
+		color: var(--ink);
+		font-weight: 600;
+	}
+
+	.group .desc {
 		color: var(--ink-2);
-		line-height: 1.8;
+		font-size: 13px;
+		margin-right: auto;
+	}
+
+	.dots {
+		display: inline-flex;
+		gap: 5px;
+		align-items: center;
+	}
+
+	.dots i {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		border: 1px solid var(--accent);
+		opacity: 0.55;
+	}
+
+	.dots i.on {
+		background: var(--accent);
+		opacity: 1;
 	}
 
 	/* 奖项栏：左 3px 绿线（同示意稿 award-line） */
@@ -66,5 +210,53 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 		padding: 14px 20px;
 		font-size: 14.5px;
 		color: var(--ink);
+		max-width: 720px;
+	}
+
+	.award .tag {
+		font-family: var(--mono);
+		font-size: 10.5px;
+		letter-spacing: 0.18em;
+		color: var(--accent);
+		margin-right: 10px;
+	}
+
+	/* 底部 CTA 行：两份简历直下 + 联系页 */
+	.cta-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 14px;
+	}
+
+	.cta-row a {
+		font-size: 14px;
+		color: var(--ink);
+		text-decoration: none;
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		padding: 10px 20px;
+		transition:
+			color 0.2s,
+			border-color 0.2s;
+	}
+
+	.cta-row a:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+	}
+
+	.cta-row a.ghost {
+		border-style: dashed;
+	}
+
+	@media (max-width: 640px) {
+		.group li {
+			flex-wrap: wrap;
+		}
+
+		.group .desc {
+			flex-basis: 100%;
+			order: 3;
+		}
 	}
 </style>

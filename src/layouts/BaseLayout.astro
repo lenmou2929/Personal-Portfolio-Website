@@ -22,9 +22,11 @@ const { title, description, fixedTheme } = Astro.props;
 		<MainHead title={title} description={description} fixedTheme={fixedTheme} />
 	</head>
 	<body>
+		<!-- 无障碍：skip-to-content（impeccable 遗留项，2026-09-06 补）——Tab 首焦直达正文 -->
+		<a class="skip-link" href="#main">跳到主要内容</a>
 		<div class="stack backgrounds">
 			<Nav hideThemeToggle={!!fixedTheme} />
-			<div class="under-topbar">
+			<div class="under-topbar" id="main">
 				<slot />
 			</div>
 			<Footer />
@@ -36,6 +38,25 @@ const { title, description, fixedTheme } = Astro.props;
 		</script>
 
 		<style>
+			/* 无障碍跳转链接：平时隐藏，键盘 Tab 聚焦时出现在左上角 */
+			.skip-link {
+				position: fixed;
+				top: -52px;
+				left: 16px;
+				z-index: 100;
+				padding: 9px 16px;
+				background: var(--accent);
+				color: #fff;
+				border-radius: 999px;
+				font-size: 13px;
+				text-decoration: none;
+				transition: top 0.2s;
+			}
+
+			.skip-link:focus {
+				top: 12px;
+			}
+
 			/* 模板星云背景图系统已剥离（2026-09-04），2026-09-06 清掉残留的死变量——
 			   纯色底由项目 tokens（--gray-999 主题感知）控制 */
 			.backgrounds {
