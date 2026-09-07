@@ -9,7 +9,7 @@ date: 2025-11-01
 tools: [UE5]
 attribution: 基于案例二创
 summary: 蓝图开发的可玩游戏 Demo（全流程演示）：在教程案例基础上对玩法内容进行了大改。
-video: /videos/shilian-demo.mp4
+video: https://media.onboard.wang/shilian-demo.mp4
 ---
 
 ## 制作说明
