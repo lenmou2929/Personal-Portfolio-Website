@@ -1,6 +1,6 @@
 ---
-import CategoryView from '../../../components/CategoryView.astro';
-import { WORK_CATEGORIES } from '../../../lib/categories';
+import CategoryView from '../../../../components/CategoryView.astro';
+import { WORK_CATEGORIES } from '../../../../lib/categories';
 
 export async function getStaticPaths() {
 	return WORK_CATEGORIES.map((cat) => ({ params: { category: cat.key }, props: { cat } }));
@@ -10,4 +10,4 @@ type Props = { cat: (typeof WORK_CATEGORIES)[number] };
 const { cat } = Astro.props;
 ---
 
-<CategoryView cat={cat} lang="zh" />
+<CategoryView cat={cat} lang="en" />

@@ -12,18 +12,20 @@ interface Props {
 	description?: string | undefined;
 	/** 固定主题（分类页差异化固定深色）：传 'dark' 后页面钉死深色且隐藏主题切换器 */
 	fixedTheme?: 'dark' | 'light' | undefined;
+	/** 文档语言（EN 页传 'en'） */
+	lang?: string | undefined;
 }
 
-const { title, description, fixedTheme } = Astro.props;
+const { title, description, fixedTheme, lang = 'zh-CN' } = Astro.props;
 ---
 
-<html lang="zh-CN">
+<html lang={lang}>
 	<head>
 		<MainHead title={title} description={description} fixedTheme={fixedTheme} />
 	</head>
 	<body>
 		<!-- 无障碍：skip-to-content（impeccable 遗留项，2026-09-06 补）——Tab 首焦直达正文 -->
-		<a class="skip-link" href="#main">跳到主要内容</a>
+		<a class="skip-link" href="#main">{lang === "en" ? "Skip to content" : "跳到主要内容"}</a>
 		<div class="stack backgrounds">
 			<Nav hideThemeToggle={!!fixedTheme} />
 			<div class="under-topbar" id="main">

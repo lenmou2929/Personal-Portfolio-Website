@@ -1,13 +1,23 @@
 ---
 import { WORK_CATEGORIES } from '../lib/categories';
+import { CAT_EN } from '../lib/i18n-en';
 
 /** 顶栏导航（内页，2026-09-06 用户拍板五项直连）：三个分类直进 + 关于/联系；
- * 首页顶栏为锚点版（index.astro 内联，样式同源、条目按语境）。 */
+ * 首页顶栏为锚点版（index.astro 内联，样式同源、条目按语境）。
+ * 2026-09-08：EN 内页上线——按路径自动切 EN 标签，中/EN 按钮互跳对应语言版本。 */
+const isEn = Astro.url.pathname.startsWith('/en');
 const links: { label: string; href: string }[] = [
-	...WORK_CATEGORIES.map((c) => ({ label: c.label, href: `/works/${c.key}/` })),
-	{ label: '关于', href: '/about/' },
-	{ label: '联系', href: '/contact/' },
+	...WORK_CATEGORIES.map((c) => ({
+		label: isEn ? CAT_EN[c.key] : c.label,
+		href: `${isEn ? '/en' : ''}/works/${c.key}/`,
+	})),
+	{ label: isEn ? 'About' : '关于', href: `${isEn ? '/en' : ''}/about/` },
+	{ label: isEn ? 'Contact' : '联系', href: `${isEn ? '/en' : ''}/contact/` },
 ];
+/* 中英互跳：EN 页回中文版（去前缀），中文页去 EN 版（加前缀）；首页根路径兜底 */
+const langHref = isEn
+	? Astro.url.pathname.replace(/^\/en/, '') || '/'
+	: '/en' + (Astro.url.pathname === '/' ? '/' : Astro.url.pathname);
 
 const isCurrentPage = (href: string) => {
 	let pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '');
@@ -21,7 +31,7 @@ const isCurrentPage = (href: string) => {
 	<div class="brand">
 		<a href="/"><b>陈继祖</b><span>CHEN JIZU — 3D / WEB</span></a>
 	</div>
-	<nav class="nav-center" aria-label="主导航">
+	<nav class="nav-center" aria-label={isEn ? "Main navigation" : "主导航"}>
 		{
 			links.map(({ label, href }) => (
 				<a href={href} aria-current={isCurrentPage(href) ? 'page' : null}>
@@ -31,8 +41,8 @@ const isCurrentPage = (href: string) => {
 		}
 	</nav>
 	<div class="nav-right">
-		<span class="lang">中 / EN</span>
-		<a class="resume" href="/contact/">简历下载</a>
+		<a class="lang" href={langHref} aria-label={isEn ? '切换到中文' : 'Switch to English'}>中 / EN</a>
+		<a class="resume" href={`${isEn ? '/en' : ''}/contact/`}>{isEn ? 'Resume' : '简历下载'}</a>
 	</div>
 </header>
 

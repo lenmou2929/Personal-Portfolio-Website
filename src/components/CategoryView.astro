@@ -1,0 +1,1087 @@
+---
+import { getCollection } from 'astro:content';
+import ModelStage from './ModelStage.astro';
+import PageHead from './PageHead.astro';
+import WorkCard from './WorkCard.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { WORK_CATEGORIES } from '../lib/categories';
+import { CATEGORY_IMAGES } from '../lib/category-images';
+
+import { CAT_EN, LEADS_EN, ATTR_EN, CAPTION_EN, TOOL_EN, WORK_EN, UI_EN } from '../lib/i18n-en';
+
+interface Props {
+	cat: (typeof WORK_CATEGORIES)[number];
+	lang: 'zh' | 'en';
+}
+const { cat, lang } = Astro.props;
+const en = lang === 'en';
+const t = (zh: string, enStr: string) => (en ? enStr : zh);
+const catLabel = en ? (CAT_EN[cat.key] ?? cat.label) : cat.label;
+const lead = en ? (LEADS_EN[cat.key] ?? '') : '';
+const ws = (id: string, fallback: string) => (en ? (WORK_EN[id]?.s ?? fallback) : fallback);
+const caption = (key: string, fallback: string) => (en ? (CAPTION_EN[key] ?? fallback) : fallback);
+const attr = (a: string) => (en ? (ATTR_EN[a] ?? a) : a);
+const toolList = (tools: string[]) => tools.map((tl) => (en ? (TOOL_EN[tl] ?? tl) : tl)).join(' · ');
+/* 排序：order 有值者=策展置顶（小者在前）；其余按 日期新→旧 → 分级 S→A→B（B 跟练类沉底，
+   03-作品集规划）→ id。置顶序是用户手动调序入口（md frontmatter order 字段） */
+const LEVEL_RANK: Record<string, number> = { S: 0, A: 1, B: 2 };
+const sorted = (
+	await getCollection('work', ({ data }) => !data.draft && data.category === cat.key)
+).sort((a, b) => {
+	const oa = a.data.order ?? null;
+	const ob = b.data.order ?? null;
+	if (oa !== null && ob !== null) return oa - ob;
+	if (oa !== null) return -1;
+	if (ob !== null) return 1;
+	if (a.data.date.valueOf() !== b.data.date.valueOf())
+		return b.data.date.valueOf() - a.data.date.valueOf();
+	const ra = LEVEL_RANK[a.data.level] ?? 1;
+	const rb = LEVEL_RANK[b.data.level] ?? 1;
+	if (ra !== rb) return ra - rb;
+	return a.id < b.id ? -1 : 1;
+});
+const entries = [
+	...sorted.filter((e) => !e.data.title.startsWith('占位')),
+	...sorted.filter((e) => e.data.title.startsWith('占位')),
+];
+/* 底部互推：另外两个分类（2026-09-06 IA 重构——索引页退役后跨类动线落在这里） */
+const others = WORK_CATEGORIES.filter((c) => c.key !== cat.key);
+
+const LEADS: Record<string, string> = {
+	'3d': 'UE5 地编与 Blender 全流程——场景搭建、材质 lookdev、灯光渲染出图，影视向与产品向并行。',
+	vibecoding: 'AI 辅助开发的上线 Web 产品——需求、开发、部署独立完成，能点开的 Demo 就是作品本身。',
+	graphic: '平面科班底子——品牌、包装、海报与线下物料，一切版式功底的地基。',
+};
+---
+
+<BaseLayout
+	title={en ? `${catLabel} | CHEN JIZU Portfolio` : `${cat.label} | 陈继祖作品集`}
+	description={en ? `CHEN JIZU portfolio — ${catLabel}.` : `陈继祖作品集 · ${cat.label}分类作品`}
+	fixedTheme="dark"
+	lang={lang}
+>
+	<main class="wrapper page">
+	{
+			cat.key === '3d' ? (
+				/* 3D 页：fixed 渲染层铺满视口 = 页首（标题/导语随内容上移，模型与渲染框不动） */
+				<ModelStage
+					src="/models/telephone-2k.glb"
+					poster="/works/phone-front.jpg"
+					no={cat.no}
+					en={cat.en}
+					title={catLabel}
+					lead={en ? lead : LEADS[cat.key]}
+					hint={t('SCROLL — 滚动拿起听筒 · 移动鼠标环视', UI_EN.hint3d)}
+				/>
+			) : (
+				<PageHead no={cat.no} en={cat.en} title={catLabel} lead={en ? lead : LEADS[cat.key]} />
+			)
+		}
+
+		<!-- 内容层：3D 页带分界底色（覆盖 fixed 渲染层的滚动分界）；其它分类页透明（无渲染层） -->
+		<div class:list={['page-body', { cover: cat.key === '3d' }]}>
+				{
+					cat.key === 'vibecoding' && (
+						<>
+							<section class="showcase">
+								<div class="live-frame">
+									<div class="chrome">
+										<span class="dots" aria-hidden="true"><i /><i /><i /></span>
+										<span class="url">bitsugar.top</span>
+										<a class="open" href="https://bitsugar.top" target="_blank" rel="noopener">
+											{t('新窗口打开 ↗', UI_EN.newWindow)}
+										</a>
+									</div>
+									<div class="frame-box">
+										<iframe
+											src="https://bitsugar.top"
+											loading="lazy"
+											title={t('BitSugar 拼豆图纸站（在线实时嵌入）', 'BitSugar fuse-bead pattern studio (live embed)')}
+										/>
+										<button class="activate" type="button">
+											<span class="activate-pill">{t('点击互动实机', UI_EN.activate)}</span>
+										</button>
+										<p class="load-fail" hidden>
+											{t('嵌入加载失败——', UI_EN.loadFail)}<a
+												href="https://bitsugar.top"
+												target="_blank"
+												rel="noopener">bitsugar.top ↗</a
+											>
+										</p>
+									</div>
+								</div>
+								<aside class="side">
+									<div class="status-card">
+										<p class="status"><span class="pulse" />{t('LIVE — 已上线', UI_EN.live)}</p>
+										<p class="desc">{t('域名、DNS、部署、站长平台提交全流程独立完成，GitHub 开源。', UI_EN.bitsugarDesc)}</p>
+										<div class="links">
+											<a href="https://bitsugar.top" target="_blank" rel="noopener">bitsugar.top ↗</a>
+											<a
+												href="https://github.com/lenmou2929/BitSugar"
+												target="_blank"
+												rel="noopener">GitHub ↗</a
+											>
+										</div>
+									</div>
+								</aside>
+							</section>
+							<section class="showcase">
+								<div class="live-frame">
+									<div class="chrome">
+										<span class="dots" aria-hidden="true"><i /><i /><i /></span>
+										<span class="url">onboard.wang</span>
+										<a class="open" href="https://onboard.wang" target="_blank" rel="noopener">
+											{t('新窗口打开 ↗', UI_EN.newWindow)}
+										</a>
+									</div>
+									<div class="frame-box">
+										<iframe
+											src="https://onboard.wang"
+											loading="lazy"
+											title={t('OnBoard 上板 · 3D 雪板预览器（在线实时嵌入）', 'OnBoard 3D snowboard previewer (live embed)')}
+										/>
+										<button class="activate" type="button">
+											<span class="activate-pill">{t('点击互动实机', UI_EN.activate)}</span>
+										</button>
+										<p class="load-fail" hidden>
+											{t('嵌入加载失败——', UI_EN.loadFail)}<a
+												href="https://onboard.wang"
+												target="_blank"
+												rel="noopener">onboard.wang ↗</a
+											>
+										</p>
+									</div>
+								</div>
+								<aside class="side">
+									<div class="status-card">
+										<p class="status"><span class="pulse" />{t('LIVE — 已上线', UI_EN.live)}</p>
+										<p class="desc">
+											{t(
+											'3D 雪板预览器「上板 · OnBoard」（自研，AI 辅助开发）：换材质、贴花、调 HDRI 环境，烘焙导出成品贴图——浏览器里实时看板面。',
+											UI_EN.onboardDesc,
+										)}
+										</p>
+										<div class="links">
+											<a href="https://onboard.wang" target="_blank" rel="noopener">onboard.wang ↗</a>
+										</div>
+									</div>
+								</aside>
+							</section>
+						</>
+					)
+				}
+
+			{
+				cat.key === 'graphic' && (
+					<section class="graph-hero">
+						<span class="ghost" aria-hidden="true">Graphic</span>
+					</section>
+				)
+			}
+
+			<section class="works">
+				<h2>
+					{t('本类作品', UI_EN.works)}
+					<span class="count">{String(entries.length).padStart(2, '0')}</span>
+				</h2>
+				{
+					entries.length === 0 ? (
+						<p class="empty">{t('本分类作品整理中——素材核对完成后逐件上架。', UI_EN.empty)}</p>
+					) : (
+						<ul class:list={['cards', { single: entries.length === 1 }]}>
+							{entries.map((w, i) => <WorkCard entry={w} index={i} lang={lang} />)}
+						</ul>
+					)
+				}
+			</section>
+
+			{
+				others.length > 0 && (
+					<section class="more-cats">
+						<h2>
+							{t('继续看', UI_EN.moreCats)}
+						<span class="count-alt">{t('其它两类作品', UI_EN.moreCatsSub)}</span>
+						</h2>
+						<div class="more-grid">
+							{others.map((c) => (
+								<a
+									class="more-card"
+									href={`${lang === 'en' ? '/en' : ''}/works/${c.key}/`}
+									aria-label={`${en ? 'Open category: ' : '进入「'}${en ? (CAT_EN[c.key] ?? c.label) : c.label}${en ? '' : '」分类'}`}
+								>
+									<div class="catbox">
+										<img
+										src={CATEGORY_IMAGES[c.key]}
+										alt={`${en ? (CAT_EN[c.key] ?? c.label) : c.label} ${en ? 'category cover' : '分类封面'}`}
+										loading="lazy"
+									/>
+										<div class="veil" />
+										<span class="no">{c.no}</span>
+										<div class="label">
+											<b>{c.label}</b>
+											<span>{c.en}</span>
+										</div>
+									</div>
+								</a>
+							))}
+						</div>
+					</section>
+				)
+			}
+		</div>
+	</main>
+
+	<!-- 作品条：点击卡片自下滑出（2026-09-06 IA 重构——详情页退役，?w=id 深链直达） -->
+	<div class="sheet-layer" id="work-sheet">
+		<div class="sheet-backdrop" data-sheet-close />
+		<div class="sheet" role="dialog" aria-modal="true" aria-label={`${catLabel} ${en ? "work preview" : "作品预览"}`}>
+			<button class="sheet-close" type="button" data-sheet-close aria-label={en ? "Close work preview" : "关闭作品预览"}>
+				✕
+			</button>
+			<div class="sheet-body">
+				{
+					entries.map((w, i) => (
+						<article class="work-panel" data-panel={w.id} hidden>
+							<div class="wp-head">
+								<span class="wp-no">no.{String(i + 1).padStart(2, '0')}</span>
+								<h3>{en ? (WORK_EN[w.id]?.t ?? w.data.title) : w.data.title}</h3>
+								<span class="attr">{attr(w.data.attribution)}</span>
+							</div>
+							<div class="wp-media">
+								{
+									w.data.video ? (
+										<video controls preload="none" playsinline poster={w.data.cover} src={w.data.video} />
+									) : (
+										<img src={w.data.cover} alt={w.data.cover_alt} />
+									)
+								}
+							</div>
+							<div class="wp-meta">
+								<span>{toolList(w.data.tools)}</span>
+								<span class="wp-date">
+									{w.data.date.getFullYear()}·{String(w.data.date.getMonth() + 1).padStart(2, '0')}
+								</span>
+							</div>
+							<p class="wp-summary">{ws(w.id, w.data.summary)}</p>
+							{w.data.links.length > 0 && (
+								<div class="wp-links">
+									{w.data.links.map((l) => (
+										<a href={l.url} target="_blank" rel="noopener">
+											{l.label} ↗
+										</a>
+									))}
+								</div>
+							)}
+							{
+								w.data.videos.length > 0 && (
+									<div class="wp-videos">
+										{w.data.videos.map((v) => (
+											<figure class="wp-video-item">
+												<video controls preload="none" playsinline poster={v.poster} src={v.src} />
+												{(en ? (CAPTION_EN[v.src] ?? v.caption) : v.caption) && (
+													<figcaption>{en ? (CAPTION_EN[v.src] ?? v.caption) : v.caption}</figcaption>
+												)}
+											</figure>
+										))}
+									</div>
+								)
+							}
+							{w.data.gallery.length > 0 && (
+								<div
+									class:list={['wp-gallery', { single: w.data.gallery_layout === 'single' }]}
+								>
+									{w.data.gallery.map((g) => {
+										const item = typeof g === 'string' ? { src: g } : g;
+										return (
+											<img
+												src={item.src}
+												alt=""
+												loading="lazy"
+												class:list={[{ wide: item.wide }]}
+											/>
+										);
+									})}
+								</div>
+							)}
+							{w.data.process.length > 0 && (
+								<section class="wp-process">
+									<h4>{t('制作过程', UI_EN.process)}</h4>
+									{w.data.process.map((p) => (
+										<figure class:list={['wp-process-item', { half: p.half }]}>
+											<img src={p.img} alt={caption(p.img, p.caption)} loading="lazy" />
+											<figcaption>{caption(p.img, p.caption)}</figcaption>
+										</figure>
+									))}
+								</section>
+							)}
+						</article>
+					))
+				}
+			</div>
+		</div>
+	</div>
+</BaseLayout>
+
+<script>
+	/* 底部作品条：开合 + 深链同步（?w=作品id）+ 三重退出（✕/黑罩/ESC）+ 滚动隔离
+	   + 滚动记忆（换作品回顶、重开同作品续位）+ 关条停播 */
+	const layer = document.getElementById('work-sheet');
+	if (layer) {
+		const body = layer.querySelector('.sheet-body')!;
+		let pushed = false; // 本次打开是否压入了历史记录
+		let currentId: string | null = null; // 当前（或最近一次）打开的作品
+		const scrollTops = new Map<string, number>(); // 各作品条的滚动位置记忆
+
+		const panelOf = (id: string) => body.querySelector(`[data-panel="${CSS.escape(id)}"]`);
+
+		function uiOpen(id: string) {
+			if (currentId) scrollTops.set(currentId, body.scrollTop); // 记住上一条滚到哪
+			for (const p of body.querySelectorAll('.work-panel')) p.hidden = p.dataset.panel !== id;
+			currentId = id;
+			body.scrollTop = scrollTops.get(id) ?? 0; // 换作品=回顶；重开同作品=续位；深链首开=顶
+			layer!.classList.add('open');
+			/* 滚动隔离：本站滚动容器是根元素 html（global 设了 overflow-x:clip），
+			   锁 body 拦不住视口滚动——必须锁 html；body 一并锁上双保险 */
+			document.documentElement.style.overflow = 'hidden';
+			document.body.style.overflow = 'hidden';
+		}
+
+		function open(id: string, push = true) {
+			if (!panelOf(id)) return;
+			uiOpen(id);
+			if (push) {
+				history.pushState({ w: id }, '', `?w=${encodeURIComponent(id)}`);
+				pushed = true;
+			}
+		}
+
+		function uiClose() {
+			if (currentId) scrollTops.set(currentId, body.scrollTop);
+			/* 关条停播：✕/黑罩/ESC/后退全部经由这里，条内所有视频（主视频+多视频区）一并暂停 */
+			body.querySelectorAll('video').forEach((v) => v.pause());
+			layer!.classList.remove('open');
+			document.documentElement.style.overflow = '';
+			document.body.style.overflow = '';
+		}
+
+		function close() {
+			if (!layer!.classList.contains('open')) return;
+			if (pushed) {
+				pushed = false;
+				history.back(); // popstate 里做 uiClose
+			} else {
+				history.replaceState(null, '', location.pathname); // 深链直达后关闭：抹掉参数
+				uiClose();
+			}
+		}
+
+		document.querySelectorAll('[data-open-work]').forEach((btn) =>
+			btn.addEventListener('click', () => open((btn as HTMLElement).dataset.openWork!)),
+		);
+		layer.querySelectorAll('[data-sheet-close]').forEach((el) => el.addEventListener('click', close));
+		window.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape') close();
+		});
+		window.addEventListener('popstate', () => {
+			pushed = false;
+			uiClose();
+		});
+
+		/* 深链直达：/works/3d/?w=scarab-sphere 直接滑出对应作品条 */
+		const w = new URLSearchParams(location.search).get('w');
+		if (w) open(w, false);
+	}
+
+	/* Vibecoding 实机 iframe：点击激活 + 加载失败兜底（多个实机窗各自独立激活/计时） */
+	document.querySelectorAll('.live-frame').forEach((liveFrame) => {
+		const activate = liveFrame.querySelector('.activate');
+		const fail = liveFrame.querySelector('.load-fail');
+		const iframe = liveFrame.querySelector('iframe');
+		activate?.addEventListener('click', () => liveFrame.classList.add('active'));
+		let loaded = false;
+		iframe?.addEventListener('load', () => {
+			loaded = true;
+			fail?.setAttribute('hidden', '');
+		});
+		window.setTimeout(() => {
+			if (!loaded) fail?.removeAttribute('hidden');
+		}, 8000);
+	});
+</script>
+
+<style>
+	.page {
+		padding-block: 1rem 0;
+	}
+
+	/* 内容层：全幅出血（左右到屏幕边），内容子项保持 .wrapper 对齐——
+	   3D 页滚动时上移覆盖 fixed 渲染层；底边线即滚动分界 */
+	.page-body {
+		position: relative;
+		z-index: 1;
+		width: 100vw;
+		margin-inline: calc(50% - 50vw);
+		padding-bottom: 6rem;
+	}
+
+	.page-body > * {
+		max-width: 83rem;
+		margin-inline: auto;
+		padding-inline: 1.5rem;
+	}
+
+	/* 分界色块（仅 3D 页）：略亮一档的底色让"内容滑上覆盖模型"的分界可辨 */
+	.page-body.cover {
+		background: var(--dark);
+	}
+
+	/* ---------- Vibecoding：实机嵌入（约 1.2 倍，状态卡保持同排） ---------- */
+	.showcase {
+		display: grid;
+		grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+		gap: 22px;
+		margin-bottom: 64px;
+		align-items: start;
+	}
+
+	.side {
+		display: grid;
+		gap: 16px;
+	}
+
+	.live-frame {
+		border: 1px solid var(--line);
+		border-radius: var(--radius-panel);
+		overflow: hidden;
+		background: var(--dark-2);
+	}
+
+	.chrome {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		padding: 10px 14px;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.dots {
+		display: flex;
+		gap: 5px;
+	}
+
+	.dots i {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		border: 1px solid var(--dark-line-2);
+	}
+
+	.url {
+		flex: 1;
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.08em;
+		color: var(--ink-2);
+	}
+
+	.open {
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.06em;
+		color: var(--accent);
+		text-decoration: none;
+	}
+
+	.open:hover {
+		text-decoration: underline;
+	}
+
+	.frame-box {
+		position: relative;
+	}
+
+	/* 点击激活：iframe 默认不收指针（防滚动劫持），点覆盖层后开放交互 */
+	.frame-box iframe {
+		display: block;
+		width: 100%;
+		aspect-ratio: 16 / 10;
+		border: 0;
+		background: var(--dark-2);
+		pointer-events: none;
+	}
+
+	.live-frame.active .frame-box iframe {
+		pointer-events: auto;
+	}
+
+	.activate {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-items: center;
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+	}
+
+	.activate-pill {
+		font-family: var(--mono);
+		font-size: 12px;
+		letter-spacing: 0.14em;
+		color: var(--dark-ink);
+		background: rgba(23, 25, 27, 0.78);
+		border: 1px solid var(--dark-line-2);
+		border-radius: 999px;
+		padding: 10px 22px;
+		backdrop-filter: blur(3px);
+		transition:
+			opacity 0.25s,
+			transform 0.25s;
+	}
+
+	.activate:hover .activate-pill {
+		transform: translateY(-2px);
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+
+	.live-frame.active .activate {
+		display: none;
+	}
+
+	.load-fail {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-items: center;
+		font-size: 13.5px;
+		color: var(--ink-2);
+		background: var(--dark-2);
+	}
+
+	.load-fail a {
+		color: var(--accent);
+		text-decoration: none;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.status-card {
+		border: 1px solid var(--line);
+		border-radius: var(--radius-panel);
+		padding: 22px;
+	}
+
+	.status {
+		display: flex;
+		align-items: center;
+		gap: 9px;
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.16em;
+		color: var(--accent);
+	}
+
+	.pulse {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: var(--accent);
+		animation: blink 1.6s ease-in-out infinite;
+	}
+
+	@keyframes blink {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.25;
+		}
+	}
+
+	.desc {
+		margin-top: 12px;
+		font-size: 13.5px;
+		line-height: 1.8;
+		color: var(--ink-2);
+	}
+
+	.links {
+		display: flex;
+		gap: 18px;
+		margin-top: 16px;
+	}
+
+	.links a {
+		font-family: var(--mono);
+		font-size: 12px;
+		color: var(--ink);
+		text-decoration: none;
+		border-bottom: 1px solid var(--line);
+		padding-bottom: 2px;
+	}
+
+	.links a:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+	}
+
+	/* ---------- 平面：破格排版 ---------- */
+	.graph-hero {
+		position: relative;
+		margin-bottom: 64px;
+		padding: 30px 0 10px;
+		overflow: hidden;
+	}
+
+	.ghost {
+		display: block;
+		font-family: var(--serif);
+		font-style: italic;
+		font-size: clamp(110px, 18vw, 250px);
+		line-height: 0.9;
+		letter-spacing: 0.02em;
+		color: var(--ink);
+		opacity: 0.08;
+		user-select: none;
+		margin-left: -0.04em;
+	}
+
+	/* ---------- 作品网格 ---------- */
+	.works h2,
+	.more-cats h2 {
+		display: flex;
+		align-items: baseline;
+		gap: 12px;
+		font-size: 20px;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		color: var(--ink);
+		border-top: 1px solid var(--line);
+		padding-top: 26px;
+		margin-bottom: 30px;
+	}
+
+	.count,
+	.count-alt {
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.12em;
+		color: var(--ink-2);
+	}
+
+	.empty {
+		color: var(--ink-2);
+	}
+
+	.cards {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 44px 26px;
+	}
+
+	.cards.single {
+		grid-template-columns: 1fr;
+		max-width: 640px;
+	}
+
+	/* ---------- 互推卡（首页分类卡同语言） ---------- */
+	.more-cats {
+		margin-top: 70px;
+	}
+
+	.more-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 18px;
+		max-width: 900px;
+	}
+
+	.more-card {
+		display: block;
+		text-decoration: none;
+		perspective: 1200px; /* 悬停一角后压（与首页分类卡同语言） */
+	}
+
+	.catbox {
+		position: relative;
+		aspect-ratio: 3 / 4;
+		overflow: hidden;
+		border-radius: var(--radius-card);
+		background: var(--dark);
+		transform-origin: 72% 26%;
+		transition: transform 0.24s cubic-bezier(0.2, 0.7, 0.3, 1);
+	}
+
+	.more-card:hover .catbox {
+		transform: translateY(-5px) rotateX(6deg) rotateY(-8deg);
+	}
+
+	.catbox img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		opacity: 0.88;
+		transition: transform 0.5s ease;
+	}
+
+	.more-card:hover .catbox img {
+		transform: scale(1.05);
+	}
+
+	.catbox .veil {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(to top, rgba(20, 20, 18, 0.72) 0%, transparent 46%);
+	}
+
+	.catbox .label {
+		position: absolute;
+		left: 18px;
+		bottom: 16px;
+		color: #fff;
+		z-index: 3;
+	}
+
+	.catbox .label b {
+		font-size: 20px;
+		letter-spacing: 0.06em;
+		display: block;
+		font-weight: 600;
+	}
+
+	.catbox .label span {
+		font-family: var(--mono);
+		font-size: 11px;
+		opacity: 0.75;
+		letter-spacing: 0.14em;
+	}
+
+	.catbox .no {
+		position: absolute;
+		top: 14px;
+		right: 16px;
+		font-family: var(--serif);
+		font-style: italic;
+		color: #fff;
+		opacity: 0.85;
+		font-size: 15px;
+		z-index: 3;
+	}
+
+	/* ---------- 底部作品条 ---------- */
+	.sheet-layer {
+		position: fixed;
+		inset: 0;
+		z-index: 80;
+		visibility: hidden;
+		overscroll-behavior: contain; /* 双保险：层内滚轮不串链到文档 */
+		transition: visibility 0s linear 0.5s;
+	}
+
+	.sheet-layer.open {
+		visibility: visible;
+		transition-delay: 0s;
+	}
+
+	.sheet-backdrop {
+		position: absolute;
+		inset: 0;
+		background: rgba(10, 11, 12, 0.6);
+		opacity: 0;
+		transition: opacity 0.4s ease;
+	}
+
+	.sheet-layer.open .sheet-backdrop {
+		opacity: 1;
+	}
+
+	.sheet {
+		position: absolute;
+		left: 50%;
+		bottom: 0;
+		transform: translate(-50%, 100%);
+		width: min(1100px, 100%);
+		height: min(93vh, 1000px);
+		background: var(--dark-2);
+		border: 1px solid var(--line);
+		border-bottom: 0;
+		border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+		transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.3, 1);
+	}
+
+	.sheet-layer.open .sheet {
+		transform: translate(-50%, 0);
+	}
+
+	.sheet-close {
+		position: absolute;
+		top: 16px;
+		right: 16px;
+		z-index: 2;
+		width: 38px;
+		height: 38px;
+		border: 1px solid var(--dark-line-2);
+		border-radius: 50%;
+		background: rgba(23, 25, 27, 0.85);
+		color: var(--dark-ink);
+		font-size: 14px;
+		line-height: 1;
+		cursor: pointer;
+		transition:
+			color 0.2s,
+			border-color 0.2s;
+	}
+
+	.sheet-close:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+	}
+
+	.sheet-body {
+		height: 100%;
+		overflow-y: auto;
+		overscroll-behavior: contain; /* 条内滚动不穿透到页面 */
+		padding: 30px clamp(20px, 4vw, 48px) 64px;
+	}
+
+	.work-panel[hidden] {
+		display: none;
+	}
+
+	.wp-head {
+		display: flex;
+		align-items: baseline;
+		gap: 16px;
+		border-bottom: 1px solid var(--line);
+		padding-bottom: 16px;
+		margin-bottom: 22px;
+	}
+
+	.wp-no {
+		font-family: var(--serif);
+		font-style: italic;
+		font-size: 16px;
+		letter-spacing: 0.08em;
+		color: var(--ink-2);
+	}
+
+	.wp-head h3 {
+		font-size: clamp(22px, 3vw, 32px);
+		font-weight: 600;
+		letter-spacing: 0.03em;
+		color: var(--ink);
+		margin-right: auto;
+	}
+
+	.attr {
+		font-family: var(--mono);
+		font-size: 10.5px;
+		letter-spacing: 0.12em;
+		color: var(--accent);
+		border: 1px solid var(--line);
+		border-radius: var(--radius-tag);
+		padding: 3px 8px;
+		white-space: nowrap;
+	}
+
+	.wp-media {
+		aspect-ratio: 16 / 9;
+		overflow: hidden;
+		border-radius: var(--radius-panel);
+		background: #101214;
+	}
+
+	.wp-media img,
+	.wp-media video {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.wp-meta {
+		display: flex;
+		justify-content: space-between;
+		gap: 16px;
+		margin-top: 16px;
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.1em;
+		color: var(--dark-ink-2);
+	}
+
+	.wp-summary {
+		margin-top: 14px;
+		max-width: 720px;
+		font-size: 15px;
+		line-height: 1.9;
+		color: var(--dark-ink-3);
+	}
+
+	.wp-links {
+		display: flex;
+		gap: 18px;
+		margin-top: 18px;
+	}
+
+	.wp-links a {
+		font-family: var(--mono);
+		font-size: 12px;
+		color: var(--ink);
+		text-decoration: none;
+		border-bottom: 1px solid var(--line);
+		padding-bottom: 2px;
+	}
+
+	.wp-links a:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+	}
+
+	/* 多视频（跟练练习集等）：纵/横视频保持原比例，限高防竖版撑爆条体 */
+	.wp-videos {
+		display: grid;
+		gap: 22px;
+		margin-top: 26px;
+	}
+
+	.wp-video-item video {
+		display: block;
+		max-width: 100%;
+		max-height: 66vh;
+		margin-inline: auto;
+		border-radius: var(--radius-panel);
+		background: #101214;
+	}
+
+	.wp-video-item figcaption {
+		margin-top: 8px;
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.1em;
+		color: var(--dark-ink-2);
+		text-align: center;
+	}
+
+	/* 图集：两列错落（保原比例不裁切），移动端单列；
+	   single=整条单列通栏（排版图/包装展开图），竖版限高防拖太长；
+	   wide=两列模式下占满一整行 */
+	.wp-gallery {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 12px;
+		align-items: start;
+		margin-top: 26px;
+	}
+
+	.wp-gallery img {
+		display: block;
+		width: 100%;
+		border-radius: var(--radius-tag);
+		background: #101214;
+	}
+
+	.wp-gallery img.wide {
+		grid-column: 1 / -1;
+	}
+
+	.wp-gallery.single {
+		grid-template-columns: 1fr;
+	}
+
+	.wp-gallery.single img {
+		width: 100%;
+		max-height: 82vh;
+		object-fit: contain;
+	}
+
+	/* 制作过程：区块题 + 两列网格（默认整行跨两列；half=半宽，连续两个 half 并排放竖图） */
+	.wp-process {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 12px 22px;
+		margin-top: 34px;
+		padding-top: 22px;
+		border-top: 1px solid var(--line);
+	}
+
+	.wp-process h4 {
+		grid-column: 1 / -1;
+		font-family: var(--mono);
+		font-size: 11.5px;
+		font-weight: 400;
+		letter-spacing: 0.22em;
+		color: var(--accent);
+		margin-bottom: 6px;
+	}
+
+	.wp-process-item {
+		grid-column: 1 / -1;
+		margin: 0;
+	}
+
+	.wp-process-item.half {
+		grid-column: auto / span 1;
+	}
+
+	.wp-process-item img {
+		display: block;
+		width: 100%;
+		border-radius: var(--radius-tag);
+		background: #101214;
+	}
+
+	.wp-process-item figcaption {
+		margin-top: 8px;
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.08em;
+		color: var(--dark-ink-2);
+	}
+
+	@media (max-width: 900px) {
+		.showcase {
+			grid-template-columns: 1fr;
+		}
+
+		.cards {
+			grid-template-columns: 1fr;
+		}
+
+		.cards.single {
+			grid-template-columns: 1fr;
+		}
+
+		.more-grid {
+			grid-template-columns: 1fr;
+			max-width: none;
+		}
+
+		.wp-gallery {
+			grid-template-columns: 1fr;
+		}
+
+		.sheet {
+			width: 100%;
+			height: 94vh;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.pulse {
+			animation: none;
+		}
+
+		.sheet-layer,
+		.sheet-backdrop,
+		.sheet,
+		.catbox,
+		.catbox img {
+			transition: none;
+		}
+	}
+</style>

@@ -1,21 +1,29 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { ATTR_EN, TOOL_EN, WORK_EN } from '../lib/i18n-en';
 
 interface Props {
 	entry: CollectionEntry<'work'>;
 	/** 编辑部编号（分类页按序传入）→ 衬线斜体 no.xx */
 	index?: number;
+	/** EN 页传入 'en'：标题/摘要/角标/工具名查 i18n 字典，缺省回退中文 */
+	lang?: 'zh' | 'en';
 }
-const { entry, index } = Astro.props;
+const { entry, index, lang = 'zh' } = Astro.props;
+const en = lang === 'en';
+const title = en ? (WORK_EN[entry.id]?.t ?? entry.data.title) : entry.data.title;
+const summary = en ? (WORK_EN[entry.id]?.s ?? entry.data.summary) : entry.data.summary;
+const attr = en ? (ATTR_EN[entry.data.attribution] ?? entry.data.attribution) : entry.data.attribution;
+const tools = entry.data.tools.map((tl) => (en ? (TOOL_EN[tl] ?? tl) : tl)).join(' · ');
 ---
 
 <li class="card">
-	<button type="button" class="open-btn" data-open-work={entry.id} aria-label={`查看作品：${entry.data.title}`}>
+	<button type="button" class="open-btn" data-open-work={entry.id} aria-label={`${en ? 'View work: ' : '查看作品：'}${title}`}>
 		{
 			index !== undefined && (
 				<div class="meta">
 					<span class="no">no.{String(index + 1).padStart(2, '0')}</span>
-					<span class="attr">{entry.data.attribution}</span>
+					<span class="attr">{attr}</span>
 				</div>
 			)
 		}
@@ -23,11 +31,11 @@ const { entry, index } = Astro.props;
 			<img src={entry.data.cover} alt={entry.data.cover_alt} width="800" height="450" loading="lazy" />
 		</div>
 		<div class="row">
-			<b>{entry.data.title}</b>
-			<span class="open-hint">查看 ↗</span>
+			<b>{title}</b>
+			<span class="open-hint">{en ? 'View ↗' : '查看 ↗'}</span>
 		</div>
-		<p>{entry.data.summary}</p>
-		<div class="tools">{entry.data.tools.join(' · ')}</div>
+		<p>{summary}</p>
+		<div class="tools">{tools}</div>
 	</button>
 </li>
 

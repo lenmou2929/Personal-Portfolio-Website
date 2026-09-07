@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const contacts = [
+	{ label: 'Email', value: 'chenjizulenning@163.com', href: 'mailto:chenjizulenning@163.com' },
+	{ label: 'Phone', value: '187 7262 5248', href: 'tel:18772625248' },
+	{ label: 'GitHub', value: 'lenmou2929', href: 'https://github.com/lenmou2929', ext: true },
+	{ label: 'Public site', value: 'bitsugar.top', href: 'https://bitsugar.top', ext: true },
+	{ label: 'OnBoard', value: 'onboard.wang', href: 'https://onboard.wang', ext: true },
+	{ label: 'Bilibili', value: 'Lenmou · video channel', href: 'https://b23.tv/BNE4IKm', ext: true },
+	{
+		label: 'Xiaohongshu',
+		value: 'Profile · 1,000+ likes & saves',
+		href: 'https://xhslink.cn/m/A7J14qagF7t',
+		ext: true,
+	},
+];
+---
+
+<BaseLayout lang="en" title="Contact | CHEN JIZU Portfolio" description="Contact CHEN JIZU: email, phone, GitHub, social media and resume downloads.">
+	<main class="wrapper stack gap-10 page">
+		<header class="stack gap-3">
+			<p class="kicker">05 — CONTACT</p>
+			<h1>Contact</h1>
+		</header>
+
+		<ul class="facts">
+			{
+				contacts.map((c) => (
+					<li>
+						<span>{c.label}</span>
+						{c.href ? (
+							<a href={c.href} target={c.ext ? '_blank' : undefined} rel={c.ext ? 'noopener' : undefined}>
+								{c.value}
+							</a>
+						) : (
+							<b>{c.value}</b>
+						)}
+					</li>
+				))
+			}
+			<li>
+				<span>Resume PDF</span>
+				<a href="/resume/resume-chenjizu-3d.pdf" download>3D / Environment (CN) ↓</a>
+			</li>
+			<li>
+				<span>Resume PDF</span>
+				<a href="/resume/resume-chenjizu-aigc.pdf" download>AIGC (CN) ↓</a>
+			</li>
+			<li>
+				<span>Resume PDF</span>
+				<a href="/resume/resume-chenjizu-3d-en.pdf" download>3D / Environment (EN) ↓</a>
+			</li>
+			<li>
+				<span>Resume PDF</span>
+				<a href="/resume/resume-chenjizu-aigc-en.pdf" download>AIGC (EN) ↓</a>
+			</li>
+		</ul>
+	</main>
+</BaseLayout>
+
+<style>
+	.page {
+		padding-block: 3rem 5rem;
+	}
+
+	.kicker {
+		font-family: var(--mono);
+		font-size: 12px;
+		letter-spacing: 0.2em;
+		color: var(--ink-2);
+	}
+
+	h1 {
+		color: var(--ink);
+		font-size: clamp(28px, 3.6vw, 44px);
+		letter-spacing: 0.03em;
+	}
+
+	.facts {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		max-width: 560px;
+	}
+
+	.facts li {
+		display: flex;
+		justify-content: space-between;
+		gap: 20px;
+		padding: 14px 0;
+		border-bottom: 1px dashed var(--line);
+		font-size: 14.5px;
+	}
+
+	.facts span {
+		color: var(--ink-2);
+	}
+
+	.facts a,
+	.facts b {
+		color: var(--ink);
+		font-weight: 600;
+		text-align: right;
+		text-decoration: none;
+	}
+
+	.facts a:hover {
+		color: var(--accent);
+	}
+</style>

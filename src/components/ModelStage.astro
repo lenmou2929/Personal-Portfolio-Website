@@ -11,8 +11,10 @@ interface Props {
 	en: string;
 	title: string;
 	lead: string;
+	/** 滚动提示行（EN 页传英文） */
+	hint?: string;
 }
-const { src, poster, no, en, title, lead } = Astro.props;
+const { src, poster, no, en, title, lead, hint = 'SCROLL — 滚动拿起听筒 · 移动鼠标环视' } = Astro.props;
 ---
 
 <div class="hero3d" id="hero3d" data-src={src} aria-hidden="true">
@@ -30,7 +32,7 @@ const { src, poster, no, en, title, lead } = Astro.props;
 			<h1>{title}</h1>
 			<p class="lead">{lead}</p>
 		</div>
-		<p class="hint">SCROLL — 滚动拿起听筒 · 移动鼠标环视</p>
+		<p class="hint">{hint}</p>
 	</div>
 </div>
 

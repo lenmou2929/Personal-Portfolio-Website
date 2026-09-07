@@ -1,0 +1,241 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+/* EN 关于页（2026-09-08）：CN 版翻译副本；改中文版内容后需手动同步本文件 */
+const groups = [
+	{
+		name: '3D / Engine',
+		items: [
+			{ name: 'UE5', desc: 'Scene building · terrain sculpting · materials · Metahuman · Blueprints' },
+			{ name: 'Blender', desc: 'Modeling · procedural material nodes · retopology · baking · cloth interop' },
+			{ name: 'Substance Painter', desc: 'High/low-poly baking · PBR texturing' },
+			{ name: 'Marvelous Designer', desc: 'Cloth simulation (military tent case)' },
+			{ name: 'ZBrush', desc: 'Digital sculpting' },
+		],
+	},
+	{
+		name: 'Film / Post',
+		items: [
+			{ name: 'After Effects', desc: 'VFX and short-film grading (UE short post)' },
+			{ name: 'Premiere', desc: 'Editing (brand voice-over video project)' },
+			{ name: 'DaVinci Resolve', desc: 'Color grading' },
+			{ name: 'Audition', desc: 'Audio' },
+		],
+	},
+	{
+		name: 'Graphic / Design',
+		items: [
+			{ name: 'Photoshop', desc: 'Posters · compositing · layout' },
+			{ name: 'Illustrator', desc: 'Logo · lettering · brand assets' },
+			{ name: 'Packaging / Brand', desc: 'Yuye coffee packaging set · Xiangchi in-store roll-ups' },
+		],
+	},
+	{
+		name: 'AI / Web',
+		items: [
+			{ name: 'AI-assisted development', desc: 'Multi-agent workflow · two live web products' },
+			{ name: 'AI-to-3D pipeline', desc: 'Jimeng AI / Hyper3D → UE5 · Blender' },
+			{ name: 'Deployment / SEO', desc: 'Domain · DNS · hosting · search-engine submission' },
+		],
+	},
+];
+---
+
+<BaseLayout lang="en" title="About | CHEN JIZU Portfolio" description="About CHEN JIZU: graphic-design trained, self-taught across the full 3D pipeline; UE5 environment art + AI-assisted development. Shenzhen, available now.">
+	<main class="wrapper stack gap-10 page">
+		<header class="stack gap-3">
+			<p class="kicker">04 — ABOUT</p>
+			<h1>About</h1>
+		</header>
+
+		<section class="stack gap-3">
+			<h2>Profile</h2>
+			<p class="lead">
+				Trained in advertising &amp; graphic design, I built my foundation on layout and branding,
+				then taught myself the full 3D pipeline — <em>UE5 scene building and terrain</em>, Blender
+				modeling and rendering, Marvelous Designer cloth, Substance Painter texturing, through to
+				After Effects color grading.
+			</p>
+			<p class="lead">
+				My representative work is the environment short <em>Scarab Sphere — The Dig Site</em>; in
+				2025 I won Second Prize in the Digital Art event of the Hubei Vocational College Skills
+				Competition. On another track I shipped <em>two live web products</em> with AI-assisted
+				development — BitSugar (open-sourced) and OnBoard, a 3D snowboard previewer — handling
+				requirements, coding, domain, deployment and search-engine submission independently.
+			</p>
+			<p class="lead">
+				<em>Plan first, build second</em> — I enjoy solving problems across software pipelines.
+				Looking for UE5 environment art / 3D roles (film &amp; product tracks) in Shenzhen,
+				available immediately; secondary focus on AIGC / AI-assisted front-end development.
+			</p>
+		</section>
+
+		<section class="stack gap-4">
+			<h2>Skills</h2>
+			{
+				groups.map((g) => (
+					<div class="group">
+						<h3>{g.name}</h3>
+						<ul>
+							{g.items.map((it) => (
+								<li>
+									<b>{it.name}</b>
+									<span class="desc">{it.desc}</span>
+								</li>
+							))}
+						</ul>
+					</div>
+				))
+			}
+		</section>
+
+		<section class="stack gap-3">
+			<h2>Awards</h2>
+			<p class="award">
+				<span class="tag">AWARD</span>2025 Hubei Vocational College Skills Competition · Digital Art
+				Event — <b>&nbsp;Second Prize&nbsp;</b> ｜ Outstanding Graduate
+			</p>
+		</section>
+
+		<section class="cta-row">
+			<a href="/resume/resume-chenjizu-3d.pdf" download>Resume PDF · 3D / Environment (CN) ↓</a>
+			<a href="/resume/resume-chenjizu-aigc.pdf" download>Resume PDF · AIGC (CN) ↓</a>
+			<a href="/resume/resume-chenjizu-3d-en.pdf" download>Resume PDF · 3D / Environment ↓</a>
+			<a href="/resume/resume-chenjizu-aigc-en.pdf" download>Resume PDF · AIGC ↓</a>
+			<a class="ghost" href="/en/contact/">Contact →</a>
+		</section>
+	</main>
+</BaseLayout>
+
+<style>
+	.page {
+		padding-block: 3rem 5rem;
+	}
+
+	.kicker {
+		font-family: var(--mono);
+		font-size: 12px;
+		letter-spacing: 0.2em;
+		color: var(--ink-2);
+	}
+
+	h1 {
+		color: var(--ink);
+		font-size: clamp(28px, 3.6vw, 44px);
+		letter-spacing: 0.03em;
+	}
+
+	section h2 {
+		font-size: 20px;
+		color: var(--ink);
+		border-bottom: 1px solid var(--line);
+		padding-bottom: 10px;
+	}
+
+	.lead {
+		max-width: 720px;
+		font-size: 15.5px;
+		line-height: 2;
+		color: var(--ink);
+	}
+
+	.lead em {
+		font-style: normal;
+		color: var(--accent);
+	}
+
+	.group {
+		max-width: 720px;
+	}
+
+	.group h3 {
+		font-family: var(--mono);
+		font-size: 11.5px;
+		font-weight: 400;
+		letter-spacing: 0.22em;
+		color: var(--accent);
+		margin-bottom: 10px;
+	}
+
+	.group ul {
+		list-style: none;
+		margin: 0 0 6px;
+		padding: 0;
+	}
+
+	.group li {
+		display: flex;
+		align-items: baseline;
+		gap: 16px;
+		padding: 9px 0;
+		border-bottom: 1px dashed var(--line);
+		font-size: 14px;
+	}
+
+	.group b {
+		min-width: 180px;
+		color: var(--ink);
+		font-weight: 600;
+	}
+
+	.group .desc {
+		color: var(--ink-2);
+		font-size: 13px;
+		margin-right: auto;
+	}
+
+	.award {
+		border: 1px solid var(--line);
+		border-left: 3px solid var(--accent);
+		padding: 14px 20px;
+		font-size: 14.5px;
+		color: var(--ink);
+		max-width: 720px;
+	}
+
+	.award .tag {
+		font-family: var(--mono);
+		font-size: 10.5px;
+		letter-spacing: 0.18em;
+		color: var(--accent);
+		margin-right: 10px;
+	}
+
+	.cta-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 14px;
+	}
+
+	.cta-row a {
+		font-size: 14px;
+		color: var(--ink);
+		text-decoration: none;
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		padding: 10px 20px;
+		transition:
+			color 0.2s,
+			border-color 0.2s;
+	}
+
+	.cta-row a:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+	}
+
+	.cta-row a.ghost {
+		border-style: dashed;
+	}
+
+	@media (max-width: 640px) {
+		.group li {
+			flex-wrap: wrap;
+		}
+
+		.group .desc {
+			flex-basis: 100%;
+			order: 3;
+		}
+	}
+</style>
