@@ -360,8 +360,15 @@ const LEADS: Record<string, string> = {
 			if (!panelOf(id)) return;
 			uiOpen(id);
 			if (push) {
-				history.pushState({ w: id }, '', `?w=${encodeURIComponent(id)}`);
-				pushed = true;
+				/* 部分应用内 webview（如百度）pushState 后记录不可靠：失败就降级为
+				   "无历史记录"模式，关闭时走本地关闭+replaceState 清参数，不依赖 back() */
+				try {
+					history.pushState({ w: id }, '', `?w=${encodeURIComponent(id)}`);
+					pushed = true;
+				} catch {
+					pushed = false;
+					history.replaceState(null, '', `?w=${encodeURIComponent(id)}`);
+				}
 			}
 		}
 
@@ -378,7 +385,22 @@ const LEADS: Record<string, string> = {
 			if (!layer!.classList.contains('open')) return;
 			if (pushed) {
 				pushed = false;
-				history.back(); // popstate 里做 uiClose
+				/* back() 后 350ms 内没等到 popstate = 内核吞了/越过了推入的记录
+				   （百度 webview 实机症状：直接退回上一页）——本地直接关条并清参数 */
+				let popped = false;
+				const onPop = () => {
+					popped = true;
+					window.removeEventListener('popstate', onPop);
+				};
+				window.addEventListener('popstate', onPop);
+				history.back();
+				window.setTimeout(() => {
+					window.removeEventListener('popstate', onPop);
+					if (!popped && layer!.classList.contains('open')) {
+						history.replaceState(null, '', location.pathname);
+						uiClose();
+					}
+				}, 350);
 			} else {
 				history.replaceState(null, '', location.pathname); // 深链直达后关闭：抹掉参数
 				uiClose();

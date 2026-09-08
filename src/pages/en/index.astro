@@ -563,6 +563,8 @@ const blocks = [
 	.cap {
 		width: 25px;
 		height: 44px;
+		/* 旧内核回退在前，color-mix 不认识时丢声明保住边框（--ink #1d1b17） */
+		border: 1.5px solid rgba(29, 27, 23, 0.55);
 		border: 1.5px solid color-mix(in srgb, var(--ink) 55%, transparent);
 		border-radius: 13px;
 		position: relative;
@@ -575,6 +577,7 @@ const blocks = [
 		height: 5px;
 		margin-left: -2.5px;
 		border-radius: 999px;
+		background: rgba(29, 27, 23, 0.78);
 		background: color-mix(in srgb, var(--ink) 78%, transparent);
 		animation: drop 1.9s infinite;
 	}
@@ -985,6 +988,7 @@ const blocks = [
 	@media (max-width: 900px) {
 		.blocks {
 			grid-template-columns: 1fr;
+			grid-auto-flow: row; /* 桌面版是 column——不改回 row，后两块会被排进隐式列挤出屏外（2026-09-08 百度内核实机暴露） */
 			left: 8vw;
 			right: 8vw;
 			bottom: 10vh;

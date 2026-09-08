@@ -29,6 +29,26 @@
 	--radius-cap: 13px;
 }
 
+/* 旧内核颜色兜底（2026-09-08 百度 webview 实机暴露）：上面 @theme 的变量会被
+   Tailwind 编进 @layer theme，不支持 CSS 分层（@layer，2022 年才全内核普及）的
+   老内核整层丢弃 → --color-* 全失效、引用它们的背景变透明。此处用「无分层」的
+   普通 :root 重申同一批十六进制值——无分层规则在级联中优先于分层规则，新旧内核
+   都生效且值相同（现代浏览器视觉零变化）。改色时两处同步！ */
+:root {
+	--color-bg: #f5f3ee;
+	--color-ink: #1d1b17;
+	--color-ink-2: #6f6a5f;
+	--color-line: #dcd7cc;
+	--color-accent: #4e6e5c;
+	--color-dark: #17191b;
+	--color-dark-ink: #ece9e1;
+	--color-dark-2: #1f2427;
+	--color-dark-line: #2c2f32;
+	--color-dark-ink-2: #8b9089;
+	--color-dark-ink-3: #a9aca5;
+	--color-dark-line-2: #3a3e42;
+}
+
 /* 示意稿原名别名——迁移示意稿代码（第 3 步起）可直接沿用原变量名；
    主题感知：浅色=示意稿暖纸底，暗色=深色场景色板（模板 ThemeToggle 可切换） */
 :root {
