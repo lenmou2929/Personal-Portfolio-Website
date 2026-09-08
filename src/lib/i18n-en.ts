@@ -83,6 +83,7 @@ export const CAPTION_EN: Record<string, string> = {
 	'/works/meta-ai-08.jpg': '8/10 · AI-generated shoes split (modeling reference)',
 	'/works/meta-ai-09.jpg': '9/10 · Hyper3D — garment high-poly',
 	'/works/meta-ai-10.jpg': '10/10 · Remaining steps in Blender (shading & assembly)',
+	'/videos/metahuman-gameplay.mp4': 'Metahuman character · in-game demo from my own game',
 	'/videos/practice-subway.mp4': 'Subway Passage',
 	'/videos/practice-ocean.mp4': 'Storm Ocean',
 	'/videos/practice-forest.mp4': 'Flowing Forest',

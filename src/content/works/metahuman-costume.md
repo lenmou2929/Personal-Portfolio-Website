@@ -10,6 +10,10 @@ tools: [UE5, Blender, 即梦AI, Hyper3D]
 attribution: 原创
 summary: 为原创游戏《404航班》制作的主角角色：AI 辅助生成设定与高模，UE5 Metahuman 集成，上衣/裤子/皮鞋全套手动拓扑与法线烘焙。
 video: /videos/metahuman-suit.mp4
+videos:
+  - src: /videos/metahuman-gameplay.mp4
+    poster: /videos/metahuman-gameplay.jpg
+    caption: Metahuman 服装角色 · 自研游戏demo内的实机演示
 gallery:
   [
     /works/meta-top-render.jpg,
@@ -59,7 +63,7 @@ process:
 为原创游戏《404航班》制作的主角角色：即梦 AI 生成头部设定 → Hyper3D
 生成头部高模与贴图 → UE5 Metahuman 集成 → 上衣、裤子、皮鞋全套服装
 建模、低模拓扑、法线烘焙与材质制作均在 Blender 完成。AI 辅助环节如
-过程图（按流程 1–10 排序）。角色动作演示见条目视频。
+过程图（按流程 1–10 排序）。角色动作演示与游戏内实机画面见条目视频。
 
 图集阅读顺序：上衣渲染图与材质贴图 → 裤子、皮鞋渲染图 →
 上衣 / 裤子 / 皮鞋各一套高模、低模、拓扑线、法线烘焙。
