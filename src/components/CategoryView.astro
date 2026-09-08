@@ -72,6 +72,8 @@ const LEADS: Record<string, string> = {
 					title={catLabel}
 					lead={en ? lead : LEADS[cat.key]}
 					hint={t('SCROLL — 滚动拿起听筒 · 移动鼠标环视', UI_EN.hint3d)}
+					noteLoading={t('正在加载 3D 模型 — LOADING', UI_EN.note3dLoading)}
+					noteReady={t('实时预览 · 实际效果以渲染图为准', UI_EN.note3dReady)}
 				/>
 			) : (
 				<PageHead no={cat.no} en={cat.en} title={catLabel} lead={en ? lead : LEADS[cat.key]} />

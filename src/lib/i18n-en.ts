@@ -120,4 +120,6 @@ export const UI_EN = {
 	moreCatsSub: 'the other two categories',
 	process: 'Production Process',
 	hint3d: 'SCROLL — scroll to pick up the receiver · move mouse to look around',
+	note3dLoading: 'LOADING — 3D MODEL',
+	note3dReady: 'LIVE PREVIEW · FINAL LOOK IN RENDERS BELOW',
 };
