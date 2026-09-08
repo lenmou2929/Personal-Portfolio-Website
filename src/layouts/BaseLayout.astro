@@ -5,6 +5,7 @@
 import Footer from '../components/Footer.astro';
 // Component Imports
 import MainHead from '../components/MainHead.astro';
+import MobileNotice from '../components/MobileNotice.astro';
 import Nav from '../components/Nav.astro';
 
 interface Props {
@@ -26,6 +27,7 @@ const { title, description, fixedTheme, lang = 'zh-CN' } = Astro.props;
 	<body>
 		<!-- 无障碍：skip-to-content（impeccable 遗留项，2026-09-06 补）——Tab 首焦直达正文 -->
 		<a class="skip-link" href="#main">{lang === "en" ? "Skip to content" : "跳到主要内容"}</a>
+		<MobileNotice lang={lang === 'en' ? 'en' : 'zh'} />
 		<div class="stack backgrounds">
 			<Nav hideThemeToggle={!!fixedTheme} />
 			<div class="under-topbar" id="main">

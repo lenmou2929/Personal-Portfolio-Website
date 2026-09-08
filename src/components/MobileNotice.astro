@@ -1,0 +1,108 @@
+---
+/** 手机端浏览器提示（2026-09-08 用户要求）：HR 首次打开时建议使用自带浏览器，
+ * 部分内置浏览器（百度等）排版会错乱。会话内只出现一次（sessionStorage），
+ * 桌面宽度（>640px）不显示。EN 页传 lang="en" */
+const { lang = 'zh' } = Astro.props;
+const t =
+	lang === 'en'
+		? {
+				kicker: 'VIEWING TIP',
+				title: 'Best viewed in your default browser',
+				desc: 'Some in-app browsers (Baidu, WeChat, etc.) may break this site\u2019s layout. Open it in your phone\u2019s default browser for the full experience.',
+				ok: 'Continue \u2192',
+			}
+		: {
+				kicker: '观看提示',
+				title: '建议使用手机自带浏览器观看',
+				desc: '部分内置浏览器（百度、微信等）可能出现排版错乱。使用手机自带的浏览器打开本站，即可获得完整体验。',
+				ok: '继续浏览 →',
+			};
+---
+
+<div class="m-notice" id="m-notice" hidden>
+	<div class="mn-card">
+		<p class="mn-kicker">{t.kicker}</p>
+		<h2 class="mn-title">{t.title}</h2>
+		<p class="mn-desc">{t.desc}</p>
+		<button class="mn-ok" type="button">{t.ok}</button>
+	</div>
+</div>
+
+<style>
+	.m-notice {
+		position: fixed;
+		inset: 0;
+		z-index: 200; /* 盖过顶栏 z-50 */
+		background: var(--color-bg);
+		display: grid;
+		place-items: center;
+		padding: 24px;
+	}
+	.m-notice[hidden] {
+		display: none;
+	}
+	.mn-card {
+		max-width: 320px;
+		border: 1px solid var(--line);
+		border-radius: var(--radius-panel);
+		padding: 30px 26px;
+	}
+	.mn-kicker {
+		font-family: var(--mono);
+		font-size: 11px;
+		letter-spacing: 0.22em;
+		color: var(--accent);
+		margin-bottom: 14px;
+	}
+	.mn-title {
+		font-size: 21px;
+		font-weight: 700;
+		line-height: 1.35;
+		color: var(--color-ink);
+		margin-bottom: 12px;
+	}
+	.mn-desc {
+		font-size: 13px;
+		line-height: 1.85;
+		color: var(--color-ink-2);
+		margin-bottom: 22px;
+	}
+	.mn-ok {
+		font-family: var(--mono);
+		font-size: 12px;
+		letter-spacing: 0.14em;
+		color: var(--accent);
+		background: transparent;
+		border: 1px solid var(--accent);
+		border-radius: var(--radius-tag);
+		padding: 11px 20px;
+		cursor: pointer;
+	}
+</style>
+
+<script>
+	const el = document.getElementById('m-notice');
+	if (el) {
+		const isMobile = window.matchMedia('(max-width: 640px)').matches;
+		let seen = false;
+		try {
+			seen = sessionStorage.getItem('mn-seen') === '1';
+		} catch {
+			/* 隐私模式等取不到就每次显示 */
+		}
+		if (isMobile && !seen) {
+			el.removeAttribute('hidden');
+			document.documentElement.style.overflow = 'hidden'; /* 提示期间锁背景滚动 */
+			const close = () => {
+				el.setAttribute('hidden', '');
+				document.documentElement.style.overflow = '';
+				try {
+					sessionStorage.setItem('mn-seen', '1');
+				} catch {
+					/* 同上 */
+				}
+			};
+			el.querySelector('.mn-ok')?.addEventListener('click', close);
+		}
+	}
+</script>

@@ -329,11 +329,13 @@ const { src, poster, no, en, title, lead, hint = 'SCROLL — 滚动拿起听筒 
 				hero.dataset.src!,
 				(gltf) => {
 					const model = gltf.scene;
-					/* 归一化：居中 + 等比缩放；整体左移（用户要求） */
+					/* 归一化：居中 + 等比缩放；整体左移（用户要求）。
+					   手机（≤640）目标跨度缩到 2.55——412 宽画布装不下 3.4，整模看不全（用户 2026-09-09） */
 					model.updateMatrixWorld(true);
 					const box = new THREE.Box3().setFromObject(model);
 					const size = box.getSize(new THREE.Vector3());
-					const s = 3.4 / (Math.max(size.x, size.y, size.z) || 1);
+					const targetSpan = window.innerWidth <= 640 ? 2.55 : 3.4;
+					const s = targetSpan / (Math.max(size.x, size.y, size.z) || 1);
 					model.scale.setScalar(s);
 					model.updateMatrixWorld(true);
 					const box2 = new THREE.Box3().setFromObject(model);

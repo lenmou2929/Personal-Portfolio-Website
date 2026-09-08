@@ -31,14 +31,19 @@ const browser = await puppeteer.launch({
   ],
 });
 const page = await browser.newPage();
-await page.setViewport({ width: vw, height: vw > 700 ? 900 : Math.round(vw * 2.233), deviceScaleFactor: 1.5 }); // 手机=小米14 Pro 比例；桌面=1440×900
+await page.setViewport({ width: vw, height: vw > 700 ? 900 : Math.round((vw * 15) / 8), deviceScaleFactor: 1.5 }); // 手机=8:15（用户 2026-09-09）；桌面=1440×900
 
 for (const [name, path] of pages) {
   try {
     await page.goto(base + path, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await new Promise((r) => setTimeout(r, 2000));
+    // 首屏先截一张（手机提示浮层可见），再关掉浮层继续分步滚动
+    await page.screenshot({ path: `shots/${tag}/${name}-s00.png` });
+    await page.evaluate(() => document.querySelector('#m-notice .mn-ok')?.click());
+    await new Promise((r) => setTimeout(r, 500));
     // 分步滚动：每步 85% 视口高，到底后回顶
-    let step = 0;
+    let step = 1;
+    await page.evaluate(() => window.scrollTo(0, 0));
     while (true) {
       await page.screenshot({ path: `shots/${tag}/${name}-s${String(step).padStart(2, '0')}.png` });
       const atEnd = await page.evaluate(() => {

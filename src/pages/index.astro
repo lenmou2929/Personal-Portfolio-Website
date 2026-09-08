@@ -19,6 +19,7 @@
 import { getCollection } from 'astro:content';
 import { WORK_CATEGORIES } from '../lib/categories';
 import { CATEGORY_IMAGES } from '../lib/category-images';
+import MobileNotice from '../components/MobileNotice.astro';
 import '../styles/global.css';
 
 /* 精选 = level S；排序与分类页同规则：order 置顶（小者在前）→ 日期新→旧 → id
@@ -64,7 +65,7 @@ const blocks = [
 		side: 'col-r',
 		no: 'no.04',
 		title: '工具箱',
-		lines: 'UE5 · Blender · MD · SP<br>PS · AI · PR · AE · AU · RESOLVE · ZB',
+		lines: 'UE5 · Blender · MD · SP<br>PS · AI · PR · AE · AU<br>RESOLVE · ZB',
 	},
 ];
 ---
@@ -93,6 +94,7 @@ const blocks = [
 		<link rel="icon" type="image/png" href="/favicon.png" />
 	</head>
 	<body>
+		<MobileNotice />
 		<!-- 顶栏（示意稿定稿样式）：三导航绝对居中，右组两两靠近；无边线 -->
 		<header class="topbar">
 			<div class="brand"><b>陈继祖</b><span>CHEN JIZU — 3D / WEB</span></div>
@@ -255,24 +257,16 @@ const blocks = [
 	if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 		gsap.registerPlugin(ScrollTrigger);
 
-		/* S1–S3 首屏：四块滑入 + 大字让位 + 停留；pin 结束后整页随自然滚动划走（不做内部 transform 出画）
-		   手机（≤640）不做四块位移入场——位移起点在屏外，webview 动画异常时内容会一直停在画面外
-		   （2026-09-08 用户实机反馈），改为内容直接可见，只保留滚动提示淡出与大字让位 */
-		const buildHeroTl = (withBlocksEntrance) => {
-			const tl = gsap.timeline({
-				scrollTrigger: { trigger: '#stage1', start: 'top top', end: '+=170%', pin: true, scrub: 0.5 },
-			});
-			tl.to('.scroll-hint', { opacity: 0, duration: 0.5 }, 0);
-			if (withBlocksEntrance) {
-				tl.from('.blk.col-l', { x: -70, opacity: 0, duration: 0.42, stagger: 0.07, ease: 'power2.out' }, 0.02)
-					.from('.blk.col-r', { x: 70, opacity: 0, duration: 0.42, stagger: 0.07, ease: 'power2.out' }, 0.1);
-			}
-			tl.to('.hero-cluster', { y: '-20vh', duration: 0.5, ease: 'none' }, 0)
-				.to({}, { duration: 0.12 });
-		};
-		const mm = gsap.matchMedia();
-		mm.add('(min-width: 641px)', () => buildHeroTl(true));
-		mm.add('(max-width: 640px)', () => buildHeroTl(false));
+		/* S1–S3 首屏：四块滑入 + 大字让位 + 停留；pin 结束后整页随自然滚动划走（不做内部 transform 出画）。
+		   手机端（≤640）与桌面同套动画——四块在手机是缩小版两列（用户 2026-09-09 要求与桌面一致） */
+		const tl = gsap.timeline({
+			scrollTrigger: { trigger: '#stage1', start: 'top top', end: '+=170%', pin: true, scrub: 0.5 },
+		});
+		tl.to('.scroll-hint', { opacity: 0, duration: 0.5 }, 0)
+			.from('.blk.col-l', { x: -70, opacity: 0, duration: 0.42, stagger: 0.07, ease: 'power2.out' }, 0.02)
+			.from('.blk.col-r', { x: 70, opacity: 0, duration: 0.42, stagger: 0.07, ease: 'power2.out' }, 0.1)
+			.to('.hero-cluster', { y: '-20vh', duration: 0.5, ease: 'none' }, 0)
+			.to({}, { duration: 0.12 });
 
 		/* 首屏划走期间：四块相对首屏下滑 8vh（滞后出画，画面持续有内容）。
 		   v4 窗口 = about 层钉住后的第一屏（= 首屏在其后方 1:1 退场的行程）。
@@ -1048,28 +1042,47 @@ const blocks = [
 		}
 	}
 
-	/* ---------- 手机（≤640）：顶栏紧凑版 + 首屏顺排 + 页脚单列重排 + 分类卡收紧（用户 2026-09-08） ---------- */
+	/* ---------- 手机（≤640）：首屏桌面式缩小版 + 顶栏紧凑 + 页脚重排 + 精选卡收窄（用户 2026-09-09） ---------- */
 	@media (max-width: 640px) {
-		/* 首屏改顺排：标题在上、四块在下——绝对定位的居中标题与底部堆叠信息
-		   在窄屏必然重叠（2026-09-08 视觉审查实锤），全部改文档流 */
-		#stage1 {
-			height: auto;
-			min-height: 100svh; /* svh：随手机地址栏收放的真实视口高 */
-		}
-		.hero-cluster {
-			position: static;
-			transform: none;
-			text-align: left;
-			padding: 120px 22px 0;
-		}
+		/* 首屏四块：恢复桌面式两列（≤900 的单列在此覆盖回两列），整体缩小一档，
+		   工具箱行已在数据里换行——与桌面同为左右滑出入场 */
 		.blocks {
-			position: static;
-			margin: 44px 22px 46px;
+			left: 4vw;
+			right: 4vw;
+			bottom: 8vh;
+			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+			grid-auto-flow: column;
+			row-gap: 20px;
+			column-gap: 20px;
 		}
-		.scroll-hint {
-			display: none; /* 顺排后钉底提示无依附意义 */
+		.blk .no {
+			font-size: 12px;
+			margin-bottom: 4px;
 		}
-		/* 精选卡：标题与工具行竖排，工具不再挤在标题右侧换行 */
+		.blk b {
+			font-size: 17px;
+			margin-bottom: 4px;
+		}
+		.blk span {
+			font-size: 12px;
+			line-height: 1.7;
+		}
+		.blk.col-r {
+			text-align: right;
+		}
+		/* 精选卡收窄到 64vw：第二张露出边，提示 HR 可横滑；文字同步缩小 */
+		.work {
+			flex: 0 0 64vw;
+		}
+		.work b {
+			font-size: 15px;
+		}
+		.work .tools {
+			font-size: 10px;
+		}
+		.work p {
+			font-size: 12.5px;
+		}
 		.rail .work .row {
 			flex-direction: column;
 			align-items: flex-start;
@@ -1085,10 +1098,7 @@ const blocks = [
 			font-size: 15px;
 		}
 		.nav-center {
-			display: flex; /* 恢复显示（≤900 是隐藏）——手机保留三锚点，收紧间距 */
-			position: static;
-			transform: none;
-			margin-left: auto;
+			display: flex; /* 恢复显示（≤900 是隐藏）；定位沿用桌面基规则=绝对居中（用户要求对齐顶栏） */
 			gap: 14px;
 		}
 		.nav-center a {
