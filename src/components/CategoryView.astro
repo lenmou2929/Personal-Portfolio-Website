@@ -1102,6 +1102,20 @@ const LEADS: Record<string, string> = {
 		}
 	}
 
+	/* 手机（≤640）：实机窗改竖屏比例、关闭钮加大到 44px 触控标准（2026-09-08） */
+	@media (max-width: 640px) {
+		.frame-box iframe {
+			aspect-ratio: 4 / 5; /* 16:10 在手机只有 ~227px 高，内嵌网站看不清——改竖屏比例 */
+		}
+
+		.sheet-close {
+			width: 44px;
+			height: 44px;
+			top: 10px;
+			right: 10px;
+		}
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.pulse {
 			animation: none;

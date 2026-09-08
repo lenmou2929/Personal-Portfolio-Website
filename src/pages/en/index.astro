@@ -246,15 +246,24 @@ const blocks = [
 	if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 		gsap.registerPlugin(ScrollTrigger);
 
-		/* S1–S3 首屏：四块滑入 + 大字让位 + 停留；pin 结束后整页随自然滚动划走（不做内部 transform 出画） */
-		const tl = gsap.timeline({
-			scrollTrigger: { trigger: '#stage1', start: 'top top', end: '+=170%', pin: true, scrub: 0.5 },
-		});
-		tl.to('.scroll-hint', { opacity: 0, duration: 0.5 }, 0)
-			.from('.blk.col-l', { x: -70, opacity: 0, duration: 0.42, stagger: 0.07, ease: 'power2.out' }, 0.02)
-			.from('.blk.col-r', { x: 70, opacity: 0, duration: 0.42, stagger: 0.07, ease: 'power2.out' }, 0.1)
-			.to('.hero-cluster', { y: '-20vh', duration: 0.5, ease: 'none' }, 0)
-			.to({}, { duration: 0.12 });
+		/* S1–S3 首屏：四块滑入 + 大字让位 + 停留；pin 结束后整页随自然滚动划走（不做内部 transform 出画）
+		   手机（≤640）不做四块位移入场——位移起点在屏外，webview 动画异常时内容会一直停在画面外
+		   （2026-09-08 用户实机反馈），改为内容直接可见，只保留滚动提示淡出与大字让位 */
+		const buildHeroTl = (withBlocksEntrance) => {
+			const tl = gsap.timeline({
+				scrollTrigger: { trigger: '#stage1', start: 'top top', end: '+=170%', pin: true, scrub: 0.5 },
+			});
+			tl.to('.scroll-hint', { opacity: 0, duration: 0.5 }, 0);
+			if (withBlocksEntrance) {
+				tl.from('.blk.col-l', { x: -70, opacity: 0, duration: 0.42, stagger: 0.07, ease: 'power2.out' }, 0.02)
+					.from('.blk.col-r', { x: 70, opacity: 0, duration: 0.42, stagger: 0.07, ease: 'power2.out' }, 0.1);
+			}
+			tl.to('.hero-cluster', { y: '-20vh', duration: 0.5, ease: 'none' }, 0)
+				.to({}, { duration: 0.12 });
+		};
+		const mm = gsap.matchMedia();
+		mm.add('(min-width: 641px)', () => buildHeroTl(true));
+		mm.add('(max-width: 640px)', () => buildHeroTl(false));
 
 		/* 首屏划走期间：四块相对首屏下滑 8vh（滞后出画，画面持续有内容）。
 		   v4 窗口 = about 层钉住后的第一屏（= 首屏在其后方 1:1 退场的行程）。
@@ -1024,6 +1033,84 @@ const blocks = [
 		}
 		.nav-center {
 			display: none;
+		}
+	}
+
+	/* ---------- 手机（≤640）：顶栏紧凑版 + 首屏顺排 + 页脚单列重排 + 分类卡收紧（用户 2026-09-08） ---------- */
+	@media (max-width: 640px) {
+		/* 首屏改顺排：标题在上、四块在下——绝对定位的居中标题与底部堆叠信息
+		   在窄屏必然重叠（2026-09-08 视觉审查实锤），全部改文档流 */
+		#stage1 {
+			height: auto;
+			min-height: 100svh; /* svh：随手机地址栏收放的真实视口高 */
+		}
+		.hero-cluster {
+			position: static;
+			transform: none;
+			text-align: left;
+			padding: 120px 22px 0;
+		}
+		.blocks {
+			position: static;
+			margin: 44px 22px 46px;
+		}
+		.scroll-hint {
+			display: none; /* 顺排后钉底提示无依附意义 */
+		}
+		/* 精选卡：标题与工具行竖排，工具不再挤在标题右侧换行 */
+		.work .row {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 6px;
+		}
+		.topbar {
+			padding: 12px 16px;
+		}
+		.brand span {
+			display: none; /* 装饰性「CHEN JIZU — 3D / WEB」手机端去掉 */
+		}
+		.brand b {
+			font-size: 15px;
+		}
+		.nav-center {
+			display: flex; /* 恢复显示（≤900 是隐藏）——手机保留三锚点，收紧间距 */
+			position: static;
+			transform: none;
+			margin-left: auto;
+			gap: 14px;
+		}
+		.nav-center a {
+			font-size: 13px;
+			padding: 6px 2px; /* 触控目标加高 */
+		}
+		.nav-right {
+			gap: 12px;
+		}
+		.nav-right .lang {
+			display: none; /* 中英切换手机端收起，默认中文 */
+		}
+		.nav-right .resume {
+			font-size: 14px;
+		}
+		.cats {
+			gap: 16px; /* 分类卡间隙收紧 */
+		}
+		.foot-grid {
+			grid-template-columns: 1fr;
+			gap: 26px;
+		}
+		/* 页脚手机版重排：DOWNLOAD 第一、LINKS 第二、CONTACT 第三、BASE 第四 */
+		.foot-grid > div:nth-child(1) {
+			order: 3;
+		}
+		.foot-grid > div:nth-child(2) {
+			order: 2;
+		}
+		.foot-grid > div:nth-child(3) {
+			order: 1;
+		}
+		.foot-grid > div:nth-child(4) {
+			order: 4;
 		}
 	}
 
