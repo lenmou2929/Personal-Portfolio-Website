@@ -73,6 +73,15 @@ const blocks = [
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="HandheldFriendly" content="True" />
+		<meta name="MobileOptimized" content="360" />
+		<script is:inline>
+			/* 顽固 webview 兜底（2026-09-08 百度内核实机）：屏幕是手机宽、布局视口却比 900
+			   还宽 = viewport 声明被无视（手机端样式全部不生效）→ 强制重设一次。正常浏览器零影响 */
+			if (screen.width <= 768 && window.innerWidth > 900) {
+				document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0');
+			}
+		</script>
 		<meta
 			name="description"
 			content="陈继祖作品集：UE5地编 / 3D美术（影视向 · 产品向）与 AI 辅助开发。深圳 · 随时到岗。"
