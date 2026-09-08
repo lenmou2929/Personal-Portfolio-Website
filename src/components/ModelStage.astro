@@ -295,7 +295,11 @@ const { src, poster, no, en, title, lead, hint = 'SCROLL — 滚动拿起听筒 
 			new ResizeObserver(fit).observe(canvas);
 			fit();
 
-			loader.load(
+			/* 模型延迟到浏览器空闲时再下载：首屏先显示 poster 静帧（eager 小图），带宽与
+			   主线程先让给首屏内容与交互绑定；模型就绪后 .ready 淡入替换（原有机制不变）。
+			   timeout 兜底：主线程再忙 2 秒内也会开拉；无 requestIdleCallback 的浏览器退化为定时器 */
+			const loadModel = () =>
+				loader.load(
 				hero.dataset.src!,
 				(gltf) => {
 					const model = gltf.scene;
@@ -353,6 +357,9 @@ const { src, poster, no, en, title, lead, hint = 'SCROLL — 滚动拿起听筒 
 						'<span class="dot" style="animation:none;background:#a9aca5"></span>MODEL OFFLINE — 请看下方渲染图';
 				},
 			);
+
+			if ('requestIdleCallback' in window) requestIdleCallback(loadModel, { timeout: 2000 });
+			else setTimeout(loadModel, 300);
 		} catch {
 			note.innerHTML =
 				'<span class="dot" style="animation:none;background:#a9aca5"></span>WEBGL UNAVAILABLE — 请看下方渲染图';

@@ -250,9 +250,9 @@ const LEADS: Record<string, string> = {
 							<div class="wp-media">
 								{
 									w.data.video ? (
-										<video controls preload="none" playsinline poster={w.data.cover} src={w.data.video} />
+										<video controls preload="none" playsinline data-poster={w.data.cover} src={w.data.video} />
 									) : (
-										<img src={w.data.cover} alt={w.data.cover_alt} />
+										<img src={w.data.cover} alt={w.data.cover_alt} loading="lazy" />
 									)
 								}
 							</div>
@@ -275,9 +275,9 @@ const LEADS: Record<string, string> = {
 							{
 								w.data.videos.length > 0 && (
 									<div class="wp-videos">
-										{w.data.videos.map((v) => (
-											<figure class="wp-video-item">
-												<video controls preload="none" playsinline poster={v.poster} src={v.src} />
+											{w.data.videos.map((v) => (
+												<figure class="wp-video-item">
+													<video controls preload="none" playsinline data-poster={v.poster} src={v.src} />
 												{(en ? (CAPTION_EN[v.src] ?? v.caption) : v.caption) && (
 													<figcaption>{en ? (CAPTION_EN[v.src] ?? v.caption) : v.caption}</figcaption>
 												)}
@@ -336,7 +336,15 @@ const LEADS: Record<string, string> = {
 
 		function uiOpen(id: string) {
 			if (currentId) scrollTops.set(currentId, body.scrollTop); // 记住上一条滚到哪
+			/* 切换作品时停播上一条（✕/黑罩/ESC 之外的第四条退出路径：开着 A 直接点 B 卡） */
+			body.querySelectorAll('video').forEach((v) => v.pause());
 			for (const p of body.querySelectorAll('.work-panel')) p.hidden = p.dataset.panel !== id;
+			/* poster 懒挂载：面板 hidden 时浏览器照样拉 poster 图（preload=none 管不住它），
+			   平时只存 data-poster，打开面板这一刻才赋真值——初始加载不背作品条的封面静帧 */
+			panelOf(id)?.querySelectorAll('video[data-poster]').forEach((v) => {
+				v.setAttribute('poster', v.dataset.poster!);
+				delete v.dataset.poster;
+			});
 			currentId = id;
 			body.scrollTop = scrollTops.get(id) ?? 0; // 换作品=回顶；重开同作品=续位；深链首开=顶
 			layer!.classList.add('open');
