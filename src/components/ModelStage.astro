@@ -87,12 +87,13 @@ const { src, poster, no, en, title, lead, hint = 'SCROLL — 滚动拿起听筒 
 
 	.note {
 		position: absolute;
-		left: 24px;
+		left: 40px; /* 与顶栏「陈继祖」左缘对齐（顶栏 padding 40px；移动端 20px 见下方媒体查询） */
 		top: 96px;
 		font-family: var(--mono);
 		font-size: 10.5px;
 		letter-spacing: 0.18em;
 		color: var(--color-ink); /* poster 渲染图出来后底为白——深墨才可读（用户 2026-09-08） */
+		transition: color 0.8s ease; /* 就绪换亮色时渐亮，与模型淡入同步 */
 		display: flex;
 		align-items: center;
 		gap: 8px;
@@ -103,11 +104,18 @@ const { src, poster, no, en, title, lead, hint = 'SCROLL — 滚动拿起听筒 
 		height: 6px;
 		border-radius: 50%;
 		background: var(--color-accent); /* 同上：用 @theme 静态品牌绿 #4e6e5c——accent 系在暗色主题下反相会变浅 */
+		transition: background 0.8s ease; /* 渐亮与模型淡入同步 */
 		animation: blink 1.2s ease-in-out infinite;
 	}
 
-	/* 模型就绪：提示原地换成"以渲染图为准"，圆点停闪（稳定态） */
+	/* 模型就绪：画布盖过白色 poster、背景转深——提示换亮色（用户 2026-09-08），
+	   圆点转亮绿并停闪（稳定态）。渐变时长与 .gl 淡入同为 0.8s */
+	.note.done {
+		color: var(--color-dark-ink);
+	}
+
 	.note.done .dot {
+		background: #8fb49e; /* 暗色主题 --accent 的亮绿值（该变量随主题反相，取静态字面值） */
 		animation: none;
 	}
 
@@ -187,6 +195,10 @@ const { src, poster, no, en, title, lead, hint = 'SCROLL — 滚动拿起听筒 
 			margin-top: calc(-96px - 1rem);
 		}
 
+		.note {
+			left: 20px; /* 顶栏移动端 padding 20px，跟随对齐 */
+		}
+
 		.hint {
 			display: none;
 		}
@@ -198,7 +210,9 @@ const { src, poster, no, en, title, lead, hint = 'SCROLL — 滚动拿起听筒 
 		}
 
 		.gl,
-		.poster {
+		.poster,
+		.note,
+		.note .dot {
 			transition: none;
 		}
 	}
