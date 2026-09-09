@@ -21,8 +21,9 @@ export const collections = {
 			cover_alt: z.string().default(''),
 			date: z.coerce.date(),
 			tools: z.array(z.string()).default([]),
-			/** 诚实标注：原创 / 参考还原 / 教程跟做 / 基于案例二创；来源写 attribution_source */
-			attribution: z.enum(['原创', '参考还原', '教程跟做', '基于案例二创']),
+			/** 诚实标注：原创 / 参考还原 / 教程跟做 / 基于案例二创；来源写 attribution_source。
+			    植被作品 / AI辅助场景概念图 = 用户 2026-09-09 拍板的内容型角标（悬崖/AI概念图专用） */
+			attribution: z.enum(['原创', '参考还原', '教程跟做', '基于案例二创', '植被作品', 'AI辅助场景概念图']),
 			attribution_source: z.string().optional(),
 			summary: z.string(),
 			video: z.string().optional(),

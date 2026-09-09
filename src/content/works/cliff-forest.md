@@ -7,7 +7,7 @@ cover: /works/cliff-cover.jpg
 cover_alt: UE5 悬崖边植被地编场景渲染图
 date: 2026-09-01
 tools: [UE5]
-attribution: 原创
+attribution: 植被作品
 summary: UE5 影视向植被地编：悬崖边缘的植被铺设与远景山林分层，练习植被系统在大场景中的密度控制与景深层次。
 video: /videos/cliff-forest.mp4
 gallery_layout: single

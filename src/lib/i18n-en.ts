@@ -9,6 +9,8 @@ export const ATTR_EN: Record<string, string> = {
 	参考还原: 'REFERENCE',
 	教程跟做: 'TUTORIAL',
 	基于案例二创: 'DERIVATIVE',
+	植被作品: 'FOLIAGE',
+	AI辅助场景概念图: 'AI CONCEPT',
 };
 
 export const CAT_EN: Record<string, string> = {
@@ -49,6 +51,10 @@ export const WORK_EN: Record<string, { t: string; s: string }> = {
 	'cliff-forest': {
 		t: 'Cliff Woodland — UE5 Foliage',
 		s: 'Film-grade UE5 environment: foliage scattering along a cliff edge with layered distant woodlands — density control and depth in a large scene.',
+	},
+	'ai-concept': {
+		t: 'Previs Concept Art',
+		s: 'Pre-production concept exploration: a Blender whitebox sets the spatial composition, then AI generates film-grade atmosphere references to set the tone for the environment build.',
 	},
 	'blender-renders': {
 		t: 'Blender Render Studies',

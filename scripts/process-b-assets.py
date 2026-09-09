@@ -54,6 +54,9 @@ MAPPINGS = {
     # ---- 3D 类：UE5 悬崖植被地编（2026-09-09 新增，-1 为封面）----
     '3D类/UE5影视地编作品-悬崖/悬崖边-1.png': 'cliff-cover.jpg',
     '3D类/UE5影视地编作品-悬崖/远处山林-2.png': 'cliff-forest-far.jpg',
+    # ---- 3D 类：AI 生成前期场景概念图（2026-09-09 新增，AI 生成图为封面）----
+    '3D类/AI生成前期场景概念图/AI概念图_Short_1.1.png': 'ai-concept-cover.jpg',
+    '3D类/AI生成前期场景概念图/Blender白膜ID_Short_1.1.png': 'ai-concept-whitebox.jpg',
     # ---- 3D 类：Metahuman 图集 + AI 辅助过程（过程图按用户尾缀 -1..-8 定序）----
     '3D类/Metahuman服装角色流程/UE5中角色全身截图（用于生成AI做参考）-3.png': 'meta-fullbody.jpg',
     '3D类/Metahuman服装角色流程/Metahuman卡片封面.png': 'meta-card.jpg',
