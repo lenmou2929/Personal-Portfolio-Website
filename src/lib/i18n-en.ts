@@ -110,7 +110,7 @@ export const CAPTION_EN: Record<string, string> = {
 };
 
 export const LEADS_EN: Record<string, string> = {
-	'3d': 'UE5 environment art and the full Blender pipeline — scene building, lookdev, lighting and rendering; film and product tracks side by side.',
+	'3d': 'UE5 environment art and the full Blender pipeline — terrain, foliage, materials and lighting; film and product tracks side by side, with skills that transfer directly to game environment pipelines.',
 	vibecoding: 'Live web products built with AI-assisted development — requirements, coding and deployment done independently; the demos are the works themselves.',
 	graphic: 'Graphic design foundation — branding, packaging, posters and offline materials; the bedrock of all layout work.',
 };
