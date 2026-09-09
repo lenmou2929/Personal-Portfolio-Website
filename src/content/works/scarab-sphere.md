@@ -5,7 +5,7 @@ level: S
 order: 1
 cover: /works/scarab-sphere.jpg
 cover_alt: 圣甲虫球体地编项目成品渲染图——挖掘现场场景
-date: 2025-06-01
+date: 2026-02-01
 tools: [UE5, Blender, MD, AE]
 attribution: 参考还原
 summary: 影视级场景短片：手绘地形、程序化球体材质、Blender×MD 布料联动军用帐篷，Ae 后期调色。

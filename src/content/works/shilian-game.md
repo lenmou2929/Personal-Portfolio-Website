@@ -2,7 +2,7 @@
 title: 失联 · 游戏Demo
 category: 3d
 level: A
-order: 3
+order: 4
 cover: /works/shilian-card.jpg
 cover_alt: 失联游戏 Demo 卡片封面
 date: 2025-11-01

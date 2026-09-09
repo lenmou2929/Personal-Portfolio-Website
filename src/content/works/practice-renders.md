@@ -4,7 +4,7 @@ category: 3d
 level: B
 cover: /works/alley-h.jpg
 cover_alt: 黑暗小巷渲染静帧（横版）
-date: 2025-06-01
+date: 2025-04-01
 tools: [Blender]
 attribution: 教程跟做
 summary: 学生时期的渲染跟练合集：五个场景短片练习。

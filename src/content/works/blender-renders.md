@@ -4,7 +4,7 @@ category: 3d
 level: A
 cover: /works/blender-ruins.jpg
 cover_alt: 余晖废墟——顶层泳池与钢琴的黄昏渲染
-date: 2025-06-01
+date: 2025-04-01
 tools: [Blender]
 attribution: 原创
 summary: Blender 自由练习渲染：场景搭建、灯光与氛围（余晖废墟 / 医院 / 地球 / 产品渲染）。
