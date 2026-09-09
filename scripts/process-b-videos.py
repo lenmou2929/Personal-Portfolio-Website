@@ -27,6 +27,7 @@ JOBS = [
     ('3D类/学生时期的跟练渲染作品/黑暗小巷视频.mp4', 'practice-alley.mp4', 0.35),
     ('3D类/圣甲虫球体地编项目/圣甲虫球体场景渲染视频.mp4', 'scarab-sphere.mp4', 0.4),
     ('3D类/Metahuman服装角色流程/Metahuman角色套装动作展示视频.mp4', 'metahuman-suit.mp4', 0.4),
+    ('3D类/UE5影视地编作品-悬崖/shotforest.mp4', 'cliff-forest.mp4', 0.4),
     ('3D类/失联游戏全流程演示（玩法内容在教程之上进行了大改）/失联全流程游戏案例演示.mp4', 'shilian-demo.mp4', 0.4, '1280k', '64k'),
 ]
 MAX_BYTES = 15 * 1024 * 1024

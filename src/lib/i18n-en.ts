@@ -46,6 +46,10 @@ export const WORK_EN: Record<string, { t: string; s: string }> = {
 		t: 'Lost Signal — Playable Game Demo',
 		s: 'A playable UE5 blueprint game demo (full playthrough): gameplay heavily reworked and extended from a tutorial case — not a replica.',
 	},
+	'cliff-forest': {
+		t: 'Cliff Woodland — UE5 Foliage',
+		s: 'Film-grade UE5 environment: foliage scattering along a cliff edge with layered distant woodlands — density control and depth in a large scene.',
+	},
 	'blender-renders': {
 		t: 'Blender Render Studies',
 		s: 'Freestyle Blender renders: scene building, lighting and mood — rooftop ruins at dusk, abandoned hospital, earth, and a product shot.',
