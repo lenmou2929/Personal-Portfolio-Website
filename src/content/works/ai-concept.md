@@ -15,6 +15,8 @@ gallery: [
     /works/ai-concept-02.jpg,
     /works/ai-concept-03.jpg,
     /works/ai-concept-04.jpg,
+    /works/ai-concept-05.jpg,
+    /works/ai-concept-06.jpg,
   ]
 ---
 

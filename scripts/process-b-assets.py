@@ -56,10 +56,13 @@ MAPPINGS = {
     '3D类/UE5影视地编作品-悬崖/远处山林-2.png': 'cliff-forest-far.jpg',
     # ---- 3D 类：AI 生成前期场景概念图（2026-09-09 二轮：四张按作品条展示顺序命名 01-04，
     #      3.1 一对在前（AI 图为封面），1.1 一对在后；.af 源文件与（未修改）（未精修）变体不入）----
+    # 2026-09-10 三轮：2.1 一对插入 3.1 之后（03/04），1.1 一对顺延 05/06
     '3D类/AI生成前期场景概念图/AI概念图_Short_3.1.png': 'ai-concept-01.jpg',
     '3D类/AI生成前期场景概念图/Blender白膜_Short_3.1.png': 'ai-concept-02.jpg',
-    '3D类/AI生成前期场景概念图/AI概念图_Short_1.1.png': 'ai-concept-03.jpg',
-    '3D类/AI生成前期场景概念图/Blender白膜_Short_1.1.png': 'ai-concept-04.jpg',
+    '3D类/AI生成前期场景概念图/AI概念图_Short_2.1.png': 'ai-concept-03.jpg',
+    '3D类/AI生成前期场景概念图/Blender白膜_Short_2.1.png': 'ai-concept-04.jpg',
+    '3D类/AI生成前期场景概念图/AI概念图_Short_1.1.png': 'ai-concept-05.jpg',
+    '3D类/AI生成前期场景概念图/Blender白膜_Short_1.1.png': 'ai-concept-06.jpg',
     # ---- 3D 类：Metahuman 图集 + AI 辅助过程（过程图按用户尾缀 -1..-8 定序）----
     '3D类/Metahuman服装角色流程/UE5中角色全身截图（用于生成AI做参考）-3.png': 'meta-fullbody.jpg',
     '3D类/Metahuman服装角色流程/Metahuman卡片封面.png': 'meta-card.jpg',
