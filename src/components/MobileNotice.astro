@@ -81,8 +81,11 @@ const t =
 </style>
 
 <script>
+	/* 2026-09-10 用户指示：开屏提示暂时停用（百度等兼容修复后暂不需要）——
+	   组件与逻辑全部保留，把 MN_DISABLED 改回 false 即可整体恢复 */
+	const MN_DISABLED = true;
 	const el = document.getElementById('m-notice');
-	if (el) {
+	if (el && !MN_DISABLED) {
 		const isMobile = window.matchMedia('(max-width: 640px)').matches;
 		let seen = false;
 		try {
