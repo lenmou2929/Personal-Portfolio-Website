@@ -360,15 +360,17 @@ const LEADS: Record<string, string> = {
 			if (!panelOf(id)) return;
 			uiOpen(id);
 			if (push) {
-				/* 部分应用内 webview（如百度）pushState 后记录不可靠：失败就降级为
-				   "无历史记录"模式，关闭时走本地关闭+replaceState 清参数，不依赖 back() */
+				/* 百度 T7 等 webview 的 pushState 不抛错但记录被静默吞掉——
+				   用 history.length 增长实测入栈；只有确认入栈才允许 close() 调 back()，
+				   否则走"无历史记录"模式本地关条（back() 不可撤回，吞了记录就等于退出页面） */
+				const before = history.length;
 				try {
 					history.pushState({ w: id }, '', `?w=${encodeURIComponent(id)}`);
-					pushed = true;
+					pushed = history.length > before;
 				} catch {
 					pushed = false;
-					history.replaceState(null, '', `?w=${encodeURIComponent(id)}`);
 				}
+				if (!pushed) history.replaceState(null, '', `?w=${encodeURIComponent(id)}`);
 			}
 		}
 
