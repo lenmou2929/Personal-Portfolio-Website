@@ -66,6 +66,13 @@ describe('源码层：作品内容集合（work collection）', () => {
 	}
 });
 
+describe('源码层：壳内核图片拦截防护', () => {
+	it('作品卡封面图 pointer-events:none（百度等壳内核点图弹自家预览，抢在卡片 click 之前）', () => {
+		const src = readFileSync(join(root, 'src', 'components', 'WorkCard.astro'), 'utf8');
+		expect(src).toMatch(/\.ph\s+img\s*{[^}]*pointer-events:\s*none/s);
+	});
+});
+
 const distReady = existsSync(join(distDir, 'index.html'));
 
 describe.skipIf(!distReady)('产物层：dist 死链检查（先 npm run build）', () => {

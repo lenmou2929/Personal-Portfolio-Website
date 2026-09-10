@@ -82,6 +82,9 @@ const tools = entry.data.tools.map((tl) => (en ? (TOOL_EN[tl] ?? tl) : tl)).join
 		height: 100%;
 		object-fit: cover;
 		transition: transform 0.6s ease; /* slow-zoom（01 §6 精选/详情图卡语言） */
+		/* 百度 T7 等壳内核对"非链接图片"的点击会弹自家图片预览、抢在卡片 click 之前——
+		   img 对指针透明后命中落回按钮本身，壳内核拦截不到"图片点击"（2026-09-10） */
+		pointer-events: none;
 	}
 
 	.open-btn:hover .ph img,
