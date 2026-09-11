@@ -88,9 +88,10 @@ describe('源码层：作品条灯箱（图片放大查看 + 左右切换）', (
 		expect(src()).toMatch(/\.wp-media img,\s*\n\s*\.wp-gallery img,\s*\n\s*\.wp-process img\s*{[^}]*pointer-events:\s*none/s);
 	});
 
-	it('灯箱逻辑完整：从点击图开始、循环切换、背景关闭、ESC 分流不误关作品条', () => {
+	it('灯箱逻辑完整：从点击图开始（坐标定位）、循环切换、背景关闭、ESC 分流不误关作品条', () => {
 		const s = src();
-		expect(s).toMatch(/lbOpen\(list,\s*Math\.max\(0,\s*list\.indexOf\(img\)\)\)/);
+		expect(s).toMatch(/findIndex\(\(im\) =>/); // 坐标定位点击的图片（指针穿透后 e.target 是容器）
+		expect(s).toMatch(/lbOpen\(list,\s*idx\)/);
 		expect(s).toMatch(/lbIdx = \(lbIdx \+ d \+ lbList\.length\) % lbList\.length/);
 		expect(s).toMatch(/e\.target === lightbox\) lbClose/);
 		// ESC 分流：单一监听器——灯箱可见时 ESC 归灯箱并 return（防同帧连执误关作品条），否则才 close()

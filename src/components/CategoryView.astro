@@ -463,10 +463,17 @@ const LEADS: Record<string, string> = {
 				if (!panel || !lightbox.hasAttribute('hidden')) return; // 灯箱开着时点击穿透不重开
 				const hit = (e.target as HTMLElement).closest?.('.wp-media, .wp-gallery, .wp-process-item');
 				if (!hit || !panel.contains(hit)) return;
-				const img = hit.querySelector('img');
-				if (!img) return;
 				const list = [...panel.querySelectorAll('.wp-media img, .wp-gallery img, .wp-process img')];
-				lbOpen(list, Math.max(0, list.indexOf(img)));
+				if (list.length === 0) return;
+				/* 图片 pointer-events:none → e.target 是容器（图集一容器多图，querySelector 永远第一张），
+				   改用点击坐标命中具体图片：从哪张点进去就从哪张开始（用户 2026-09-10） */
+				const { clientX: x, clientY: y } = e;
+				let idx = list.findIndex((im) => {
+					const r = im.getBoundingClientRect();
+					return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+				});
+				if (idx < 0) idx = 0; // 坐标落在图间隙等兜底
+				lbOpen(list, idx);
 			});
 			lightbox.addEventListener('click', (e) => {
 				if (e.target === lightbox) lbClose(); // 点背景关闭
