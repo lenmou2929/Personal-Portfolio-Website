@@ -73,6 +73,33 @@ describe('源码层：壳内核图片拦截防护', () => {
 	});
 });
 
+describe('源码层：作品条灯箱（图片放大查看 + 左右切换）', () => {
+	const src = () => readFileSync(join(root, 'src', 'components', 'CategoryView.astro'), 'utf8');
+
+	it('灯箱 DOM 存在（img-lightbox + 大图 + 关闭/左右按钮）', () => {
+		expect(src()).toMatch(/id="img-lightbox"/);
+		expect(src()).toMatch(/class="lb-img"/);
+		expect(src()).toMatch(/lb-close/);
+		expect(src()).toMatch(/lb-prev/);
+		expect(src()).toMatch(/lb-next/);
+	});
+
+	it('作品条内图片 pointer-events:none（灯箱委托容器点击，兼防壳内核拦截）', () => {
+		expect(src()).toMatch(/\.wp-media img,\s*\n\s*\.wp-gallery img,\s*\n\s*\.wp-process img\s*{[^}]*pointer-events:\s*none/s);
+	});
+
+	it('灯箱逻辑完整：从点击图开始、循环切换、背景关闭、ESC 分流不误关作品条', () => {
+		const s = src();
+		expect(s).toMatch(/lbOpen\(list,\s*Math\.max\(0,\s*list\.indexOf\(img\)\)\)/);
+		expect(s).toMatch(/lbIdx = \(lbIdx \+ d \+ lbList\.length\) % lbList\.length/);
+		expect(s).toMatch(/e\.target === lightbox\) lbClose/);
+		// ESC 分流：单一监听器——灯箱可见时 ESC 归灯箱并 return（防同帧连执误关作品条），否则才 close()
+		expect(s).toMatch(
+			/if \(!lightbox\.hasAttribute\('hidden'\)\) \{[^}]*lbClose\(\);[^}]*return;[\s\S]*?if \(e\.key === 'Escape'\) close\(\);/,
+		);
+	});
+});
+
 const distReady = existsSync(join(distDir, 'index.html'));
 
 describe.skipIf(!distReady)('产物层：dist 死链检查（先 npm run build）', () => {
