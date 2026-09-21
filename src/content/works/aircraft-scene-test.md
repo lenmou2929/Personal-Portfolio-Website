@@ -3,8 +3,8 @@ title: 国产战机 · 机场场景
 category: 3d
 level: A
 order: 2
-cover: /works/aircraft-b1.jpg
-cover_alt: 国产战机机场场景氛围渲染图
+cover: /works/aircraft-cover.jpg
+cover_alt: 国产战机 · 机场场景封面图
 date: 2026-09-01
 tools: [UE5, SP]
 attribution: 原创
